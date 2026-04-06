@@ -1,6 +1,6 @@
 ﻿namespace Auto_Touch
 {
-    partial class 捕捉
+    partial class CapturePosition
     {
         /// <summary>
         /// Required designer variable.
@@ -44,11 +44,10 @@
             // 
             // timer1
             // 
-            this.timer1.Enabled = true;
             this.timer1.Interval = 5;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // 捕捉
+            // CapturePosition
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
@@ -58,7 +57,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "捕捉";
+            this.Name = "CapturePosition";
             this.Opacity = 0D;
             this.ShowIcon = false;
             this.ShowInTaskbar = false;

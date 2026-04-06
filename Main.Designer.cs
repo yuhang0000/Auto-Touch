@@ -36,8 +36,8 @@
             this.PanelEditor = new System.Windows.Forms.Panel();
             this.NumDelay = new System.Windows.Forms.NumericUpDown();
             this.BtnExit = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.BtnCaptureTrajectory = new System.Windows.Forms.Button();
+            this.BtnCapturePosition = new System.Windows.Forms.Button();
             this.BtnHelp = new System.Windows.Forms.Button();
             this.BtnStart = new System.Windows.Forms.Button();
             this.TextBoxPosition = new System.Windows.Forms.TextBox();
@@ -45,17 +45,17 @@
             this.label2 = new System.Windows.Forms.Label();
             this.ComboBoxAction = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.PanelListControl = new System.Windows.Forms.Panel();
-            this.BtnListDown = new System.Windows.Forms.Button();
-            this.BtnListUp = new System.Windows.Forms.Button();
-            this.BtnListDel = new System.Windows.Forms.Button();
-            this.BtnListNew = new System.Windows.Forms.Button();
             this.PanelAssumption = new System.Windows.Forms.Panel();
             this.BtnAssumptionDel = new System.Windows.Forms.Button();
             this.BtnAssumptionRename = new System.Windows.Forms.Button();
             this.BtnAssumptionSave = new System.Windows.Forms.Button();
             this.ComboBoxAssumption = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.PanelListControl = new System.Windows.Forms.Panel();
+            this.BtnListDown = new System.Windows.Forms.Button();
+            this.BtnListUp = new System.Windows.Forms.Button();
+            this.BtnListDel = new System.Windows.Forms.Button();
+            this.BtnListNew = new System.Windows.Forms.Button();
             this.listView1 = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -65,8 +65,8 @@
             this.panel1.SuspendLayout();
             this.PanelEditor.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumDelay)).BeginInit();
-            this.PanelListControl.SuspendLayout();
             this.PanelAssumption.SuspendLayout();
+            this.PanelListControl.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -119,8 +119,8 @@
             this.PanelEditor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.PanelEditor.Controls.Add(this.NumDelay);
             this.PanelEditor.Controls.Add(this.BtnExit);
-            this.PanelEditor.Controls.Add(this.button2);
-            this.PanelEditor.Controls.Add(this.button1);
+            this.PanelEditor.Controls.Add(this.BtnCaptureTrajectory);
+            this.PanelEditor.Controls.Add(this.BtnCapturePosition);
             this.PanelEditor.Controls.Add(this.BtnHelp);
             this.PanelEditor.Controls.Add(this.BtnStart);
             this.PanelEditor.Controls.Add(this.TextBoxPosition);
@@ -162,23 +162,24 @@
             this.BtnExit.UseVisualStyleBackColor = true;
             this.BtnExit.Click += new System.EventHandler(this.BtnExit_Click);
             // 
-            // button2
+            // BtnCaptureTrajectory
             // 
-            this.button2.Location = new System.Drawing.Point(112, 140);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(102, 36);
-            this.button2.TabIndex = 7;
-            this.button2.Text = "轨迹捕捉";
-            this.button2.UseVisualStyleBackColor = true;
+            this.BtnCaptureTrajectory.Location = new System.Drawing.Point(112, 140);
+            this.BtnCaptureTrajectory.Name = "BtnCaptureTrajectory";
+            this.BtnCaptureTrajectory.Size = new System.Drawing.Size(102, 36);
+            this.BtnCaptureTrajectory.TabIndex = 7;
+            this.BtnCaptureTrajectory.Text = "轨迹捕捉";
+            this.BtnCaptureTrajectory.UseVisualStyleBackColor = true;
             // 
-            // button1
+            // BtnCapturePosition
             // 
-            this.button1.Location = new System.Drawing.Point(10, 140);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(102, 36);
-            this.button1.TabIndex = 6;
-            this.button1.Text = "单点捕捉";
-            this.button1.UseVisualStyleBackColor = true;
+            this.BtnCapturePosition.Location = new System.Drawing.Point(10, 140);
+            this.BtnCapturePosition.Name = "BtnCapturePosition";
+            this.BtnCapturePosition.Size = new System.Drawing.Size(102, 36);
+            this.BtnCapturePosition.TabIndex = 6;
+            this.BtnCapturePosition.Text = "单点捕捉";
+            this.BtnCapturePosition.UseVisualStyleBackColor = true;
+            this.BtnCapturePosition.Click += new System.EventHandler(this.BtnCapturePosition_Click);
             // 
             // BtnHelp
             // 
@@ -249,57 +250,6 @@
             this.label4.TabIndex = 10;
             this.label4.Text = "动作";
             // 
-            // PanelListControl
-            // 
-            this.PanelListControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.PanelListControl.Controls.Add(this.BtnListDown);
-            this.PanelListControl.Controls.Add(this.BtnListUp);
-            this.PanelListControl.Controls.Add(this.BtnListDel);
-            this.PanelListControl.Controls.Add(this.BtnListNew);
-            this.PanelListControl.Location = new System.Drawing.Point(575, 385);
-            this.PanelListControl.Margin = new System.Windows.Forms.Padding(0);
-            this.PanelListControl.Name = "PanelListControl";
-            this.PanelListControl.Size = new System.Drawing.Size(225, 35);
-            this.PanelListControl.TabIndex = 2;
-            // 
-            // BtnListDown
-            // 
-            this.BtnListDown.Location = new System.Drawing.Point(114, 3);
-            this.BtnListDown.Name = "BtnListDown";
-            this.BtnListDown.Size = new System.Drawing.Size(48, 23);
-            this.BtnListDown.TabIndex = 2;
-            this.BtnListDown.Text = "∨";
-            this.BtnListDown.UseVisualStyleBackColor = true;
-            // 
-            // BtnListUp
-            // 
-            this.BtnListUp.Location = new System.Drawing.Point(62, 3);
-            this.BtnListUp.Name = "BtnListUp";
-            this.BtnListUp.Size = new System.Drawing.Size(48, 23);
-            this.BtnListUp.TabIndex = 1;
-            this.BtnListUp.Text = "∧";
-            this.BtnListUp.UseVisualStyleBackColor = true;
-            // 
-            // BtnListDel
-            // 
-            this.BtnListDel.Location = new System.Drawing.Point(166, 3);
-            this.BtnListDel.Name = "BtnListDel";
-            this.BtnListDel.Size = new System.Drawing.Size(48, 23);
-            this.BtnListDel.TabIndex = 3;
-            this.BtnListDel.Text = "-";
-            this.BtnListDel.UseVisualStyleBackColor = true;
-            this.BtnListDel.Click += new System.EventHandler(this.BtnListDel_Click);
-            // 
-            // BtnListNew
-            // 
-            this.BtnListNew.Location = new System.Drawing.Point(10, 3);
-            this.BtnListNew.Name = "BtnListNew";
-            this.BtnListNew.Size = new System.Drawing.Size(48, 23);
-            this.BtnListNew.TabIndex = 0;
-            this.BtnListNew.Text = "+";
-            this.BtnListNew.UseVisualStyleBackColor = true;
-            this.BtnListNew.Click += new System.EventHandler(this.BtnListNew_Click);
-            // 
             // PanelAssumption
             // 
             this.PanelAssumption.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -358,6 +308,57 @@
             this.label1.TabIndex = 4;
             this.label1.Text = "预设";
             // 
+            // PanelListControl
+            // 
+            this.PanelListControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.PanelListControl.Controls.Add(this.BtnListDown);
+            this.PanelListControl.Controls.Add(this.BtnListUp);
+            this.PanelListControl.Controls.Add(this.BtnListDel);
+            this.PanelListControl.Controls.Add(this.BtnListNew);
+            this.PanelListControl.Location = new System.Drawing.Point(575, 385);
+            this.PanelListControl.Margin = new System.Windows.Forms.Padding(0);
+            this.PanelListControl.Name = "PanelListControl";
+            this.PanelListControl.Size = new System.Drawing.Size(225, 35);
+            this.PanelListControl.TabIndex = 2;
+            // 
+            // BtnListDown
+            // 
+            this.BtnListDown.Location = new System.Drawing.Point(114, 3);
+            this.BtnListDown.Name = "BtnListDown";
+            this.BtnListDown.Size = new System.Drawing.Size(48, 23);
+            this.BtnListDown.TabIndex = 2;
+            this.BtnListDown.Text = "∨";
+            this.BtnListDown.UseVisualStyleBackColor = true;
+            // 
+            // BtnListUp
+            // 
+            this.BtnListUp.Location = new System.Drawing.Point(62, 3);
+            this.BtnListUp.Name = "BtnListUp";
+            this.BtnListUp.Size = new System.Drawing.Size(48, 23);
+            this.BtnListUp.TabIndex = 1;
+            this.BtnListUp.Text = "∧";
+            this.BtnListUp.UseVisualStyleBackColor = true;
+            // 
+            // BtnListDel
+            // 
+            this.BtnListDel.Location = new System.Drawing.Point(166, 3);
+            this.BtnListDel.Name = "BtnListDel";
+            this.BtnListDel.Size = new System.Drawing.Size(48, 23);
+            this.BtnListDel.TabIndex = 3;
+            this.BtnListDel.Text = "-";
+            this.BtnListDel.UseVisualStyleBackColor = true;
+            this.BtnListDel.Click += new System.EventHandler(this.BtnListDel_Click);
+            // 
+            // BtnListNew
+            // 
+            this.BtnListNew.Location = new System.Drawing.Point(10, 3);
+            this.BtnListNew.Name = "BtnListNew";
+            this.BtnListNew.Size = new System.Drawing.Size(48, 23);
+            this.BtnListNew.TabIndex = 0;
+            this.BtnListNew.Text = "+";
+            this.BtnListNew.UseVisualStyleBackColor = true;
+            this.BtnListNew.Click += new System.EventHandler(this.BtnListNew_Click);
+            // 
             // listView1
             // 
             this.listView1.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -377,7 +378,7 @@
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
             this.listView1.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.listView1_ItemSelectionChanged);
-            this.listView1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.listView1_KeyPress);
+            this.listView1.KeyUp += new System.Windows.Forms.KeyEventHandler(this.listView1_KeyUp);
             // 
             // columnHeader1
             // 
@@ -417,9 +418,9 @@
             this.PanelEditor.ResumeLayout(false);
             this.PanelEditor.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumDelay)).EndInit();
-            this.PanelListControl.ResumeLayout(false);
             this.PanelAssumption.ResumeLayout(false);
             this.PanelAssumption.PerformLayout();
+            this.PanelListControl.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -441,7 +442,6 @@
         private System.Windows.Forms.Button BtnAssumptionDel;
         private System.Windows.Forms.Button BtnAssumptionRename;
         private System.Windows.Forms.Button BtnAssumptionSave;
-        private System.Windows.Forms.ComboBox ComboBoxAssumption;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Panel PanelListControl;
         private System.Windows.Forms.Button BtnListDown;
@@ -450,15 +450,16 @@
         private System.Windows.Forms.Button BtnListNew;
         private System.Windows.Forms.Panel PanelEditor;
         private System.Windows.Forms.Button BtnExit;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button BtnCaptureTrajectory;
+        private System.Windows.Forms.Button BtnCapturePosition;
         private System.Windows.Forms.Button BtnHelp;
         private System.Windows.Forms.Button BtnStart;
-        private System.Windows.Forms.TextBox TextBoxPosition;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.ComboBox ComboBoxAction;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.NumericUpDown NumDelay;
+        public System.Windows.Forms.TextBox TextBoxPosition;
+        public System.Windows.Forms.ComboBox ComboBoxAssumption;
+        public System.Windows.Forms.ComboBox ComboBoxAction;
+        public System.Windows.Forms.NumericUpDown NumDelay;
     }
 }

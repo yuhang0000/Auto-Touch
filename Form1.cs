@@ -320,7 +320,7 @@ namespace Auto_Touch
         {
             this.button3.Focus();
             this.WindowState = FormWindowState.Minimized;
-            捕捉 pos = new 捕捉();
+            CapturePosition pos = new CapturePosition();
             pos.Show();
             pos.Activate();
             pos.Focus();

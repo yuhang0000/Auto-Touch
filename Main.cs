@@ -206,7 +206,7 @@ namespace Auto_Touch
             }
         }
         //"坐标" 文本框离开焦点事件
-        private void TextBoxPosition_Leave(object sender, EventArgs e)
+        public void TextBoxPosition_Leave(object sender, EventArgs e)
         {
             //检查格式是否正确
             string[] array = this.TextBoxPosition.Text.Split(',');
@@ -248,10 +248,34 @@ namespace Auto_Touch
                 TextBoxPosition_Leave(null, null);
             }
         }
-        //列表框监听事件
-        private void listView1_KeyPress(object sender, KeyPressEventArgs e)
+        //列表框键盘监听事件
+        private void listView1_KeyUp(object sender, KeyEventArgs e)
         {
-
+            //Ctrl + A
+            if(e.Control == true && e.KeyCode == Keys.A)
+            {
+                this.listView1.SelectedItems.Clear();
+                foreach(ListViewItem item in this.listView1.Items)
+                {
+                    item.Selected = true;
+                }
+                e.Handled = true;
+            }
+            //Del, BackSpace
+            else if(e.KeyCode== Keys.Delete || e.KeyCode == Keys.Back)
+            {
+                DelItem();
+                e.Handled = true;
+            }
         }
+
+        //单点捕捉
+        private void BtnCapturePosition_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
+            GlobalStatus.capturePosition = new CapturePosition();
+            GlobalStatus.capturePosition.Show();
+        }
+
     }
 }

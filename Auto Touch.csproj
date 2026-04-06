@@ -67,11 +67,11 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="捕捉.cs">
+    <Compile Include="CapturePosition.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="捕捉.Designer.cs">
-      <DependentUpon>捕捉.cs</DependentUpon>
+    <Compile Include="CapturePosition.Designer.cs">
+      <DependentUpon>CapturePosition.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
@@ -88,8 +88,8 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="捕捉.resx">
-      <DependentUpon>捕捉.cs</DependentUpon>
+    <EmbeddedResource Include="CapturePosition.resx">
+      <DependentUpon>CapturePosition.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.manifest" />
     <None Include="Properties\Settings.settings">
