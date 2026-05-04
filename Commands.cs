@@ -53,6 +53,50 @@ namespace Commands
             };
             MessageBox.Show(string.Join("\r\n", text), "关于");
         }
+
+        /// <summary>
+        /// 获取当前时间戳
+        /// </summary>
+        /// <param name="target">给定时间对象, 缺省时取当前时间</param>
+        /// <returns>long: 时间戳</returns>
+        public static long GetTimeStamp(DateTime? target = null)
+        {
+            DateTime now;
+            if (target == null)
+            {
+                now = DateTime.Now;
+            }
+            else
+            {
+                now = (DateTime)target;
+            }
+            DateTime old = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1));
+            long timestamp = (long)(now - old).TotalSeconds;
+
+            return timestamp;
+        }
+
+        /// <summary>
+        /// 获取当前时间戳 (精确到毫秒)
+        /// </summary>
+        /// <param name="target">给定时间对象, 缺省时取当前时间</param>
+        /// <returns>long: 时间戳</returns>
+        public static long GetTimeStampMs(DateTime? target = null)
+        {
+            DateTime now;
+            if (target == null)
+            {
+                now = DateTime.Now;
+            }
+            else
+            {
+                now = (DateTime)target;
+            }
+            DateTime old = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1));
+            long timestamp = (now.Ticks - old.Ticks) / 10000;
+
+            return timestamp;
+        }
     }
 
     /// <summary>
@@ -124,17 +168,6 @@ namespace Commands
         public static extern IntPtr CallNextHookEx(IntPtr idHook, int nCode, IntPtr wParam, IntPtr lParam);
 
         /// <summary>
-        /// WH_MOUSE_LL 的回调函数 (不用这个, 搞半天原来是要自己写一个)
-        /// <para><a href="https://learn.microsoft.com/zh-cn/windows/win32/winmsg/lowlevelmouseproc">LowLevelMouseProc 函数</a></para>
-        /// </summary>
-        /// <param name="nCode">挂钩过程用于确定如何处理消息的代码</param>
-        /// <param name="wParam">鼠标消息的标识符</param>
-        /// <param name="lParam">指向 MSLLHOOKSTRUCT 结构的指针</param>
-        /// <returns></returns>
-        [DllImport("user32")]
-        public static extern int LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
-
-        /// <summary>
         /// POINT 结构体
         /// <para><a href="https://learn.microsoft.com/zh-cn/windows/win32/api/windef/ns-windef-point">POINT 结构 (windef.h)</a></para>
         /// </summary>
@@ -162,9 +195,38 @@ namespace Commands
             /// </summary>
             public tagPOINT pt;
             /// <summary>
-            /// 鼠标额外数据: 滚轮信息, 按下按键信息
+            /// 鼠标额外数据: 滚轮信息, 按下按键信息, 侧键信息
             /// </summary>
             public int mouseData;
+            /// <summary>
+            /// 事件注入的标志
+            /// </summary>
+            public int flags;
+            /// <summary>
+            /// 此消息的时间戳
+            /// </summary>
+            public int time;
+            /// <summary>
+            /// 与消息关联的其他信息
+            /// </summary>
+            public uint dwExtraInfo;
+        }
+
+        /// <summary>
+        /// KBDLLHOOKSTRUCT 结构 <br/>
+        /// 包含有关低级别键盘输入事件的信息
+        /// <para><a href="https://learn.microsoft.com/zh-cn/windows/win32/api/winuser/ns-winuser-kbdllhookstruct">KBDLLHOOKSTRUCT 结构 (winuser.h)</a></para>
+        /// </summary>
+        public struct tagKBDLLHOOKSTRUCT
+        {
+            /// <summary>
+            /// 按键 KeyCode
+            /// </summary>
+            public int vkCode;
+            /// <summary>
+            /// 键盘扫描码
+            /// </summary>
+            public int scanCode;
             /// <summary>
             /// 事件注入的标志
             /// </summary>
@@ -209,38 +271,91 @@ namespace Commands
         /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/inputdev/wm-lbuttonup">WM_LBUTTONUP消息</a><br/>
         /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/inputdev/wm-mousemove">WM_MOUSEMOVE消息</a><br/>
         /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/inputdev/wm-mousewheel">WM_MOUSEWHEEL消息</a><br/>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/inputdev/wm-rbuttondown">WM_RBUTTONDOWN消息</a><br/>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/inputdev/wm-rbuttonup">WM_RBUTTONUP消息</a><br/>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/inputdev/wm-mbuttondown">WM_MBUTTONDOWN消息</a><br/>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/inputdev/wm-mbuttonup">WM_MBUTTONUP消息</a><br/>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/inputdev/wm-xbuttondown">WM_XBUTTONDOWN消息</a><br/>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/inputdev/wm-xbuttonup">WM_XBUTTONUP消息</a><br/>
         /// </para>
         /// </summary>
         public static class WM_Mouse
         {
             /// <summary>
-            /// 鼠标左键
+            /// 无
+            /// </summary>
+            public static int NONE = 0x0000;
+            /// <summary>
+            /// 鼠标左键按下
+            /// </summary>
+            public static int WM_LBUTTONDOWN = 0x0201;
+            /// <summary>
+            /// 鼠标左键松开
+            /// </summary>
+            public static int WM_LBUTTONUP = 0x0202;
+            /// <summary>
+            /// 鼠标移动
+            /// </summary>
+            public static int WM_MOUSEMOVE = 0x0200;
+            /// <summary>
+            /// 鼠标滚轮
+            /// </summary>
+            public static int WM_MOUSEWHEEL = 0x020A;
+            /// <summary>
+            /// 鼠标右键按下
+            /// </summary>
+            public static int WM_RBUTTONDOWN = 0x0204;
+            /// <summary>
+            /// 鼠标右键松开
+            /// </summary>
+            public static int WM_RBUTTONUP = 0x0205;
+            /// <summary>
+            /// 鼠标中键按下
+            /// </summary>
+            public static int WM_MBUTTONDOWN = 0x0207;
+            /// <summary>
+            /// 鼠标中键放开
+            /// </summary>
+            public static int WM_MBUTTONUP = 0x0208;
+            /// <summary>
+            /// 鼠标侧键按下
+            /// </summary>
+            public static int WM_XBUTTONDOWN = 0x020B;
+            /// <summary>
+            /// 鼠标侧键松开
+            /// </summary>
+            public static int WM_XBUTTONUP = 0x020C;
+
+            /// <summary>
+            /// 鼠标左键关闭
             /// </summary>
             public static int MK_LBUTTON = 0x0001;
             /// <summary>
-            /// 鼠标右键
+            /// 鼠标右键关闭
             /// </summary>
             public static int MK_RBUTTON = 0x0002;
             /// <summary>
-            /// Shift
+            /// Shift关闭
             /// </summary>
             public static int MK_SHIFT = 0x0004;
             /// <summary>
-            /// Ctrl
+            /// Ctrl关闭
             /// </summary>
             public static int MK_CONTROL = 0x0008;
             /// <summary>
-            /// 鼠标中键
+            /// 鼠标中键关闭
             /// </summary>
             public static int MK_MBUTTON = 0x0010;
             /// <summary>
-            /// 鼠标侧键1
+            /// 鼠标侧键1关闭
             /// </summary>
             public static int MK_XBUTTON1 = 0x0020;
             /// <summary>
-            /// 鼠标侧键2
+            /// 鼠标侧键2关闭
             /// </summary>
             public static int MK_XBUTTON2 = 0x0040;
         }
+
+
     }
 }

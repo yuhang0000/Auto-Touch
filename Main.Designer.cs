@@ -34,12 +34,14 @@
             this.StatusBarAction = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.PanelEditor = new System.Windows.Forms.Panel();
+            this.NumWheel = new System.Windows.Forms.NumericUpDown();
             this.NumDelay = new System.Windows.Forms.NumericUpDown();
             this.BtnExit = new System.Windows.Forms.Button();
             this.BtnCaptureTrajectory = new System.Windows.Forms.Button();
             this.BtnCapturePosition = new System.Windows.Forms.Button();
             this.BtnHelp = new System.Windows.Forms.Button();
             this.BtnStart = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
             this.TextBoxPosition = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -61,9 +63,13 @@
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.BtnImport = new System.Windows.Forms.Button();
+            this.BtnExport = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.PanelEditor.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NumWheel)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumDelay)).BeginInit();
             this.PanelAssumption.SuspendLayout();
             this.PanelListControl.SuspendLayout();
@@ -117,22 +123,47 @@
             // PanelEditor
             // 
             this.PanelEditor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.PanelEditor.Controls.Add(this.NumWheel);
             this.PanelEditor.Controls.Add(this.NumDelay);
             this.PanelEditor.Controls.Add(this.BtnExit);
             this.PanelEditor.Controls.Add(this.BtnCaptureTrajectory);
             this.PanelEditor.Controls.Add(this.BtnCapturePosition);
             this.PanelEditor.Controls.Add(this.BtnHelp);
             this.PanelEditor.Controls.Add(this.BtnStart);
+            this.PanelEditor.Controls.Add(this.label5);
             this.PanelEditor.Controls.Add(this.TextBoxPosition);
             this.PanelEditor.Controls.Add(this.label3);
             this.PanelEditor.Controls.Add(this.label2);
             this.PanelEditor.Controls.Add(this.ComboBoxAction);
             this.PanelEditor.Controls.Add(this.label4);
-            this.PanelEditor.Location = new System.Drawing.Point(0, 93);
+            this.PanelEditor.Location = new System.Drawing.Point(0, 92);
             this.PanelEditor.Margin = new System.Windows.Forms.Padding(0);
             this.PanelEditor.Name = "PanelEditor";
-            this.PanelEditor.Size = new System.Drawing.Size(225, 181);
+            this.PanelEditor.Size = new System.Drawing.Size(225, 221);
             this.PanelEditor.TabIndex = 0;
+            // 
+            // NumWheel
+            // 
+            this.NumWheel.Increment = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.NumWheel.Location = new System.Drawing.Point(50, 66);
+            this.NumWheel.Maximum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            0});
+            this.NumWheel.Minimum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            -2147483648});
+            this.NumWheel.Name = "NumWheel";
+            this.NumWheel.Size = new System.Drawing.Size(163, 25);
+            this.NumWheel.TabIndex = 1;
+            this.NumWheel.ValueChanged += new System.EventHandler(this.NumWheel_ValueChanged);
             // 
             // NumDelay
             // 
@@ -154,7 +185,8 @@
             // 
             // BtnExit
             // 
-            this.BtnExit.Location = new System.Drawing.Point(146, 104);
+            this.BtnExit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnExit.Location = new System.Drawing.Point(146, 144);
             this.BtnExit.Name = "BtnExit";
             this.BtnExit.Size = new System.Drawing.Size(68, 36);
             this.BtnExit.TabIndex = 5;
@@ -164,16 +196,19 @@
             // 
             // BtnCaptureTrajectory
             // 
-            this.BtnCaptureTrajectory.Location = new System.Drawing.Point(112, 140);
+            this.BtnCaptureTrajectory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnCaptureTrajectory.Location = new System.Drawing.Point(112, 180);
             this.BtnCaptureTrajectory.Name = "BtnCaptureTrajectory";
             this.BtnCaptureTrajectory.Size = new System.Drawing.Size(102, 36);
             this.BtnCaptureTrajectory.TabIndex = 7;
             this.BtnCaptureTrajectory.Text = "轨迹捕捉";
             this.BtnCaptureTrajectory.UseVisualStyleBackColor = true;
+            this.BtnCaptureTrajectory.Click += new System.EventHandler(this.BtnCaptureTrajectory_Click);
             // 
             // BtnCapturePosition
             // 
-            this.BtnCapturePosition.Location = new System.Drawing.Point(10, 140);
+            this.BtnCapturePosition.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnCapturePosition.Location = new System.Drawing.Point(10, 180);
             this.BtnCapturePosition.Name = "BtnCapturePosition";
             this.BtnCapturePosition.Size = new System.Drawing.Size(102, 36);
             this.BtnCapturePosition.TabIndex = 6;
@@ -183,7 +218,8 @@
             // 
             // BtnHelp
             // 
-            this.BtnHelp.Location = new System.Drawing.Point(10, 104);
+            this.BtnHelp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnHelp.Location = new System.Drawing.Point(10, 144);
             this.BtnHelp.Name = "BtnHelp";
             this.BtnHelp.Size = new System.Drawing.Size(68, 36);
             this.BtnHelp.TabIndex = 3;
@@ -192,12 +228,22 @@
             // 
             // BtnStart
             // 
-            this.BtnStart.Location = new System.Drawing.Point(78, 104);
+            this.BtnStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnStart.Location = new System.Drawing.Point(78, 144);
             this.BtnStart.Name = "BtnStart";
             this.BtnStart.Size = new System.Drawing.Size(68, 36);
             this.BtnStart.TabIndex = 4;
             this.BtnStart.Text = "开始";
             this.BtnStart.UseVisualStyleBackColor = true;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(7, 68);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(37, 15);
+            this.label5.TabIndex = 9;
+            this.label5.Text = "滚轮";
             // 
             // TextBoxPosition
             // 
@@ -234,8 +280,11 @@
             "None",
             "MouseLeft",
             "MouseMiddle",
-            "MouseRight"});
-            this.ComboBoxAction.Location = new System.Drawing.Point(50, 65);
+            "MouseRight",
+            "MouseWheel",
+            "MouseXButton1",
+            "MouseXButton2"});
+            this.ComboBoxAction.Location = new System.Drawing.Point(50, 97);
             this.ComboBoxAction.Name = "ComboBoxAction";
             this.ComboBoxAction.Size = new System.Drawing.Size(164, 23);
             this.ComboBoxAction.TabIndex = 2;
@@ -244,7 +293,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(7, 68);
+            this.label4.Location = new System.Drawing.Point(7, 100);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(37, 15);
             this.label4.TabIndex = 10;
@@ -311,19 +360,22 @@
             // PanelListControl
             // 
             this.PanelListControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.PanelListControl.Controls.Add(this.BtnExport);
+            this.PanelListControl.Controls.Add(this.BtnImport);
             this.PanelListControl.Controls.Add(this.BtnListDown);
             this.PanelListControl.Controls.Add(this.BtnListUp);
             this.PanelListControl.Controls.Add(this.BtnListDel);
             this.PanelListControl.Controls.Add(this.BtnListNew);
-            this.PanelListControl.Location = new System.Drawing.Point(575, 385);
+            this.PanelListControl.Location = new System.Drawing.Point(575, 336);
             this.PanelListControl.Margin = new System.Windows.Forms.Padding(0);
             this.PanelListControl.Name = "PanelListControl";
-            this.PanelListControl.Size = new System.Drawing.Size(225, 35);
+            this.PanelListControl.Size = new System.Drawing.Size(225, 84);
             this.PanelListControl.TabIndex = 2;
             // 
             // BtnListDown
             // 
-            this.BtnListDown.Location = new System.Drawing.Point(114, 3);
+            this.BtnListDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnListDown.Location = new System.Drawing.Point(114, 52);
             this.BtnListDown.Name = "BtnListDown";
             this.BtnListDown.Size = new System.Drawing.Size(48, 23);
             this.BtnListDown.TabIndex = 2;
@@ -332,7 +384,8 @@
             // 
             // BtnListUp
             // 
-            this.BtnListUp.Location = new System.Drawing.Point(62, 3);
+            this.BtnListUp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnListUp.Location = new System.Drawing.Point(62, 52);
             this.BtnListUp.Name = "BtnListUp";
             this.BtnListUp.Size = new System.Drawing.Size(48, 23);
             this.BtnListUp.TabIndex = 1;
@@ -341,7 +394,8 @@
             // 
             // BtnListDel
             // 
-            this.BtnListDel.Location = new System.Drawing.Point(166, 3);
+            this.BtnListDel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnListDel.Location = new System.Drawing.Point(166, 52);
             this.BtnListDel.Name = "BtnListDel";
             this.BtnListDel.Size = new System.Drawing.Size(48, 23);
             this.BtnListDel.TabIndex = 3;
@@ -351,7 +405,8 @@
             // 
             // BtnListNew
             // 
-            this.BtnListNew.Location = new System.Drawing.Point(10, 3);
+            this.BtnListNew.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnListNew.Location = new System.Drawing.Point(10, 52);
             this.BtnListNew.Name = "BtnListNew";
             this.BtnListNew.Size = new System.Drawing.Size(48, 23);
             this.BtnListNew.TabIndex = 0;
@@ -366,7 +421,8 @@
             this.columnHeader1,
             this.columnHeader2,
             this.columnHeader3,
-            this.columnHeader4});
+            this.columnHeader4,
+            this.columnHeader5});
             this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listView1.FullRowSelect = true;
             this.listView1.GridLines = true;
@@ -388,17 +444,41 @@
             // columnHeader2
             // 
             this.columnHeader2.Text = "坐标";
-            this.columnHeader2.Width = 162;
+            this.columnHeader2.Width = 126;
             // 
             // columnHeader3
             // 
             this.columnHeader3.Text = "延时";
-            this.columnHeader3.Width = 122;
+            this.columnHeader3.Width = 126;
             // 
             // columnHeader4
             // 
-            this.columnHeader4.Text = "操作";
-            this.columnHeader4.Width = 178;
+            this.columnHeader4.Text = "滚轮";
+            this.columnHeader4.Width = 126;
+            // 
+            // columnHeader5
+            // 
+            this.columnHeader5.Text = "操作";
+            this.columnHeader5.Width = 126;
+            // 
+            // BtnImport
+            // 
+            this.BtnImport.Location = new System.Drawing.Point(10, 10);
+            this.BtnImport.Name = "BtnImport";
+            this.BtnImport.Size = new System.Drawing.Size(102, 36);
+            this.BtnImport.TabIndex = 4;
+            this.BtnImport.Text = "导入";
+            this.BtnImport.UseVisualStyleBackColor = true;
+            // 
+            // BtnExport
+            // 
+            this.BtnExport.Location = new System.Drawing.Point(111, 10);
+            this.BtnExport.Name = "BtnExport";
+            this.BtnExport.Size = new System.Drawing.Size(102, 36);
+            this.BtnExport.TabIndex = 4;
+            this.BtnExport.Text = "导出";
+            this.BtnExport.UseVisualStyleBackColor = true;
+            this.BtnExport.Click += new System.EventHandler(this.BtnExport_Click);
             // 
             // Main
             // 
@@ -417,6 +497,7 @@
             this.panel1.ResumeLayout(false);
             this.PanelEditor.ResumeLayout(false);
             this.PanelEditor.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NumWheel)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumDelay)).EndInit();
             this.PanelAssumption.ResumeLayout(false);
             this.PanelAssumption.PerformLayout();
@@ -436,7 +517,7 @@
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.ColumnHeader columnHeader3;
-        private System.Windows.Forms.ColumnHeader columnHeader4;
+        private System.Windows.Forms.ColumnHeader columnHeader5;
         public System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.Panel PanelAssumption;
         private System.Windows.Forms.Button BtnAssumptionDel;
@@ -450,8 +531,6 @@
         private System.Windows.Forms.Button BtnListNew;
         private System.Windows.Forms.Panel PanelEditor;
         private System.Windows.Forms.Button BtnExit;
-        private System.Windows.Forms.Button BtnCaptureTrajectory;
-        private System.Windows.Forms.Button BtnCapturePosition;
         private System.Windows.Forms.Button BtnHelp;
         private System.Windows.Forms.Button BtnStart;
         private System.Windows.Forms.Label label3;
@@ -461,5 +540,12 @@
         public System.Windows.Forms.ComboBox ComboBoxAssumption;
         public System.Windows.Forms.ComboBox ComboBoxAction;
         public System.Windows.Forms.NumericUpDown NumDelay;
+        private System.Windows.Forms.ColumnHeader columnHeader4;
+        public System.Windows.Forms.NumericUpDown NumWheel;
+        private System.Windows.Forms.Label label5;
+        public System.Windows.Forms.Button BtnCaptureTrajectory;
+        public System.Windows.Forms.Button BtnCapturePosition;
+        private System.Windows.Forms.Button BtnExport;
+        private System.Windows.Forms.Button BtnImport;
     }
 }

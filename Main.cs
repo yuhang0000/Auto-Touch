@@ -49,6 +49,7 @@ namespace Auto_Touch
             this.listView1.Items.Clear();
             NewItem();
         }
+
         /// <summary>
         /// 创建新动作
         /// </summary>
@@ -59,6 +60,7 @@ namespace Auto_Touch
             list.Text = "0";
             list.SubItems.Add("0,0");
             list.SubItems.Add("1000ms");
+            list.SubItems.Add("0");
             list.SubItems.Add("None");
             //插入
             this.listView1.Items.Add(list);
@@ -69,6 +71,7 @@ namespace Auto_Touch
             this.listView1.EndUpdate();
             UpdateItemIndex();
         }
+
         /// <summary>
         /// 移除动作
         /// </summary>
@@ -88,6 +91,7 @@ namespace Auto_Touch
                 this.listView1.Items[0].Selected = true;
             }
         }
+
         /// <summary>
         /// 更新列表序号
         /// </summary>
@@ -102,6 +106,7 @@ namespace Auto_Touch
             }
             this.listView1.EndUpdate();
         }
+
         /// <summary>
         /// 激活编辑栏
         /// </summary>
@@ -111,6 +116,7 @@ namespace Auto_Touch
             this.NumDelay.Enabled = enable;
             this.ComboBoxAction.Enabled = enable;
         }
+
         /// <summary>
         /// 控件闪烁
         /// </summary>
@@ -163,7 +169,8 @@ namespace Auto_Touch
                 EnableEditor(true);
                 this.TextBoxPosition.Text = list.SubItems[1].Text;
                 this.NumDelay.Value = decimal.Parse(list.SubItems[2].Text.Substring(0,list.SubItems[2].Text.Length - 2));
-                switch (list.SubItems[3].Text)
+                this.NumWheel.Value = decimal.Parse(list.SubItems[3].Text);
+                switch (list.SubItems[4].Text)
                 {
                     case "None":
                         this.ComboBoxAction.SelectedIndex = 0;
@@ -193,7 +200,7 @@ namespace Auto_Touch
             if (this.listView1.SelectedItems.Count == 1)
             {
                 ListViewItem list = this.listView1.SelectedItems[0];
-                list.SubItems[3].Text = this.ComboBoxAction.Text;
+                list.SubItems[4].Text = this.ComboBoxAction.Text;
             }
         }
         //"延时" 数值选择器
@@ -203,6 +210,15 @@ namespace Auto_Touch
             {
                 ListViewItem list = this.listView1.SelectedItems[0];
                 list.SubItems[2].Text = this.NumDelay.Value.ToString() + "ms";
+            }
+        }
+        //"滚轮" 数值选择器
+        private void NumWheel_ValueChanged(object sender, EventArgs e)
+        {
+            if (this.listView1.SelectedItems.Count == 1)
+            {
+                ListViewItem list = this.listView1.SelectedItems[0];
+                list.SubItems[3].Text = this.NumWheel.Value.ToString();
             }
         }
         //"坐标" 文本框离开焦点事件
@@ -272,10 +288,40 @@ namespace Auto_Touch
         //单点捕捉
         private void BtnCapturePosition_Click(object sender, EventArgs e)
         {
+            this.BtnCapturePosition.Enabled = false;
+            this.BtnCaptureTrajectory.Enabled = false;
             this.WindowState = FormWindowState.Minimized;
-            GlobalStatus.capturePosition = new CapturePosition();
+            GlobalStatus.capturePosition = new CapturePosition(true);
             GlobalStatus.capturePosition.Show();
         }
 
+        //轨迹捕捉
+        private void BtnCaptureTrajectory_Click(object sender, EventArgs e)
+        {
+            this.BtnCapturePosition.Enabled = false;
+            this.BtnCaptureTrajectory.Enabled = false;
+            this.WindowState = FormWindowState.Minimized;
+            GlobalStatus.capturePosition = new CapturePosition(false);
+            GlobalStatus.capturePosition.Show();
+        }
+
+        //导出
+        private void BtnExport_Click(object sender, EventArgs e)
+        {
+            StringBuilder sb1 = new StringBuilder();
+            StringBuilder sb2 = new StringBuilder();
+            foreach(ListViewItem items in this.listView1.Items)
+            {
+                sb2.Clear();
+                for(int i = 0; i < items.SubItems.Count; i++)
+                {
+                    string item = items.SubItems[i].Text;
+                    sb2.Append(item + ";");
+                }
+                sb2.Remove(sb2.Length - 1, 1);
+                sb1.AppendLine(sb2.ToString());
+            }
+            Clipboard.SetText(sb1.ToString());
+        }
     }
 }
