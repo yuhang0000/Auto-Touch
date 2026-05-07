@@ -54,6 +54,8 @@
             this.ComboBoxAssumption = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.PanelListControl = new System.Windows.Forms.Panel();
+            this.BtnExport = new System.Windows.Forms.Button();
+            this.BtnImport = new System.Windows.Forms.Button();
             this.BtnListDown = new System.Windows.Forms.Button();
             this.BtnListUp = new System.Windows.Forms.Button();
             this.BtnListDel = new System.Windows.Forms.Button();
@@ -64,8 +66,7 @@
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.BtnImport = new System.Windows.Forms.Button();
-            this.BtnExport = new System.Windows.Forms.Button();
+            this.StatusBarTips = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.PanelEditor.SuspendLayout();
@@ -81,7 +82,8 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.StatusBarVersion,
             this.StatusBarText,
-            this.StatusBarAction});
+            this.StatusBarAction,
+            this.StatusBarTips});
             this.statusStrip1.Location = new System.Drawing.Point(0, 420);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(800, 30);
@@ -372,6 +374,26 @@
             this.PanelListControl.Size = new System.Drawing.Size(225, 84);
             this.PanelListControl.TabIndex = 2;
             // 
+            // BtnExport
+            // 
+            this.BtnExport.Location = new System.Drawing.Point(111, 10);
+            this.BtnExport.Name = "BtnExport";
+            this.BtnExport.Size = new System.Drawing.Size(102, 36);
+            this.BtnExport.TabIndex = 4;
+            this.BtnExport.Text = "导出";
+            this.BtnExport.UseVisualStyleBackColor = true;
+            this.BtnExport.Click += new System.EventHandler(this.BtnExport_Click);
+            // 
+            // BtnImport
+            // 
+            this.BtnImport.Location = new System.Drawing.Point(10, 10);
+            this.BtnImport.Name = "BtnImport";
+            this.BtnImport.Size = new System.Drawing.Size(102, 36);
+            this.BtnImport.TabIndex = 4;
+            this.BtnImport.Text = "导入";
+            this.BtnImport.UseVisualStyleBackColor = true;
+            this.BtnImport.Click += new System.EventHandler(this.BtnImport_Click);
+            // 
             // BtnListDown
             // 
             this.BtnListDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -381,6 +403,7 @@
             this.BtnListDown.TabIndex = 2;
             this.BtnListDown.Text = "∨";
             this.BtnListDown.UseVisualStyleBackColor = true;
+            this.BtnListDown.Click += new System.EventHandler(this.BtnListDown_Click);
             // 
             // BtnListUp
             // 
@@ -391,6 +414,7 @@
             this.BtnListUp.TabIndex = 1;
             this.BtnListUp.Text = "∧";
             this.BtnListUp.UseVisualStyleBackColor = true;
+            this.BtnListUp.Click += new System.EventHandler(this.BtnListUp_Click);
             // 
             // BtnListDel
             // 
@@ -461,24 +485,10 @@
             this.columnHeader5.Text = "操作";
             this.columnHeader5.Width = 126;
             // 
-            // BtnImport
+            // StatusBarTips
             // 
-            this.BtnImport.Location = new System.Drawing.Point(10, 10);
-            this.BtnImport.Name = "BtnImport";
-            this.BtnImport.Size = new System.Drawing.Size(102, 36);
-            this.BtnImport.TabIndex = 4;
-            this.BtnImport.Text = "导入";
-            this.BtnImport.UseVisualStyleBackColor = true;
-            // 
-            // BtnExport
-            // 
-            this.BtnExport.Location = new System.Drawing.Point(111, 10);
-            this.BtnExport.Name = "BtnExport";
-            this.BtnExport.Size = new System.Drawing.Size(102, 36);
-            this.BtnExport.TabIndex = 4;
-            this.BtnExport.Text = "导出";
-            this.BtnExport.UseVisualStyleBackColor = true;
-            this.BtnExport.Click += new System.EventHandler(this.BtnExport_Click);
+            this.StatusBarTips.Name = "StatusBarTips";
+            this.StatusBarTips.Size = new System.Drawing.Size(0, 24);
             // 
             // Main
             // 
@@ -547,5 +557,6 @@
         public System.Windows.Forms.Button BtnCapturePosition;
         private System.Windows.Forms.Button BtnExport;
         private System.Windows.Forms.Button BtnImport;
+        public System.Windows.Forms.ToolStripStatusLabel StatusBarTips;
     }
 }

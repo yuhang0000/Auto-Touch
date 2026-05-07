@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Media;
 using System.Runtime.CompilerServices;
@@ -90,6 +91,92 @@ namespace Auto_Touch
                 NewItem();
                 this.listView1.Items[0].Selected = true;
             }
+        }
+
+        /// <summary>
+        /// 列表项上移
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnListUp_Click(object sender, EventArgs e)
+        {
+            if(this.listView1.SelectedItems.Count == 0 || this.listView1.SelectedItems[0].Index == 0)
+            {
+                SystemSounds.Beep.Play();
+                return;
+            }
+
+            this.listView1.BeginUpdate();
+            //先暂存被覆盖列表项列表项
+            string[] olditem = new string[5];
+            for (int i = 0; i < 5; i++)
+            {
+                string text = this.listView1.Items[this.listView1.SelectedItems[0].Index - 1].SubItems[i].Text;
+                olditem[i] = text;
+            }
+            //移动选中的列表项
+            foreach (ListViewItem item in this.listView1.SelectedItems)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    string text = item.SubItems[i].Text;
+                    this.listView1.Items[item.Index - 1].SubItems[i].Text = text;
+                }
+            }
+            //再将之前的被覆盖的数据一回来
+            for (int i = 0; i < 5; i++)
+            {
+                this.listView1.Items[this.listView1.SelectedItems[this.listView1.SelectedItems.Count - 1].Index].SubItems[i].Text = olditem[i];
+            }
+            //刷新选中状态
+            this.listView1.Items[this.listView1.SelectedItems[0].Index - 1].Selected = true;
+            this.listView1.SelectedItems[this.listView1.SelectedItems.Count - 1].Selected = false;
+
+            this.listView1.EndUpdate();
+            UpdateItemIndex();
+        }
+
+        /// <summary>
+        /// 列表项下移
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnListDown_Click(object sender, EventArgs e)
+        {
+            if (this.listView1.SelectedItems.Count == 0 || this.listView1.SelectedItems[this.listView1.SelectedItems.Count - 1].Index == this.listView1.Items.Count - 1)
+            {
+                SystemSounds.Beep.Play();
+                return;
+            }
+
+            this.listView1.BeginUpdate();
+            //先暂存被覆盖列表项列表项
+            string[] olditem = new string[5];
+            for (int i = 0; i < 5; i++)
+            {
+                string text = this.listView1.Items[this.listView1.SelectedItems[this.listView1.SelectedItems.Count - 1].Index + 1].SubItems[i].Text;
+                olditem[i] = text;
+            }
+            //移动选中的列表项
+            for (int i = this.listView1.SelectedItems.Count - 1; i > -1; i--)
+            {
+                ListViewItem item = this.listView1.SelectedItems[i];
+                for (int ii = 0; ii < 5; ii++)
+                {
+                    this.listView1.Items[item.Index + 1].SubItems[ii].Text = item.SubItems[ii].Text;
+                }
+            }
+            //再将之前的被覆盖的数据一回来
+            for (int i = 0; i < 5; i++)
+            {
+                this.listView1.SelectedItems[0].SubItems[i].Text = olditem[i];
+            }
+            //刷新选中状态
+            this.listView1.Items[this.listView1.SelectedItems[this.listView1.SelectedItems.Count - 1].Index + 1].Selected = true;
+            this.listView1.SelectedItems[0].Selected = false;
+
+            this.listView1.EndUpdate();
+            UpdateItemIndex();
         }
 
         /// <summary>
@@ -321,7 +408,138 @@ namespace Auto_Touch
                 sb2.Remove(sb2.Length - 1, 1);
                 sb1.AppendLine(sb2.ToString());
             }
-            Clipboard.SetText(sb1.ToString());
+            if (Control.ModifierKeys == Keys.Shift) //按下了 Shift
+            {
+                Clipboard.SetText(sb1.ToString());
+                this.StatusBarTips.Text = "成功保存配置文件在剪切板上. ";
+            }
+            else
+            {
+                SaveFileDialog dig = new SaveFileDialog();
+                dig.Filter = "文本文档(*.txt)|*.txt";
+                if (this.ComboBoxAssumption.Text.Trim().Length == 0)
+                {
+                    dig.FileName = "new.txt";
+                }
+                else
+                {
+                    dig.FileName = this.ComboBoxAssumption.Text + ".txt";
+                }
+                dig.AddExtension = true;
+                dig.OverwritePrompt = true;
+                dig.SupportMultiDottedExtensions = false;
+                dig.DefaultExt = "*.txt";
+                dig.Title = "保存";
+                dig.InitialDirectory = Application.ExecutablePath;
+                if (dig.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        File.WriteAllText(dig.FileName, sb1.ToString());
+                        this.StatusBarTips.Text = "成功保存配置文件: " + dig.FileName;
+                    }
+                    catch (Exception ex)
+                    {
+                        this.StatusBarTips.Text = "保存失败哩, 原因是: " + ex.Message;
+                        SystemSounds.Hand.Play();
+                    }
+                }
+            }
+        }
+
+        //导入
+        private void BtnImport_Click(object sender, EventArgs e)
+        {
+            string improt = "";
+            string type = null; //载入类型 (其实是暂存载入路径)
+            if (Control.ModifierKeys == Keys.Shift && Clipboard.ContainsText() == true) //按下了 Shift
+            {
+                improt = Clipboard.GetText();
+            }
+            else
+            {
+                OpenFileDialog dig = new OpenFileDialog();
+                dig.Filter = "文本文档(*.txt)|*.txt";
+                dig.FileName = "";
+                dig.AddExtension = true;
+                dig.CheckFileExists = true;
+                dig.CheckPathExists = true;
+                dig.Multiselect = false;
+                dig.DefaultExt = "*.txt";
+                dig.Title = "加载";
+                dig.InitialDirectory = Application.ExecutablePath;
+                if (dig.ShowDialog() == DialogResult.OK)
+                {
+                    if(File.Exists(dig.FileName) == false)
+                    {
+                        this.StatusBarTips.Text = "找不到该文件: " + dig.FileName;
+                        SystemSounds.Hand.Play();
+                        return;
+                    }
+                    else
+                    {
+                        improt = File.ReadAllText(dig.FileName);
+                        this.ComboBoxAssumption.Text = dig.FileName.Substring(dig.FileName.LastIndexOf("\\") + 1, dig.FileName.LastIndexOf(".") - dig.FileName.LastIndexOf("\\") - 1 );
+                        type = dig.FileName;
+                    }
+                }
+            }
+
+            if (improt.Length == 0)
+            {
+                return;
+            }
+            //开始加载
+            else
+            {
+                try
+                {
+                    LoadAssumption(improt);
+                    if (type != null)
+                    {
+                        this.StatusBarTips.Text = "成功加载配置文件: " + type;
+                    }
+                    else
+                    {
+                        this.StatusBarTips.Text = "成功从剪切板加载配置文件. ";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this.StatusBarTips.Text = "加载失败哩, 原因是: " + ex.Message;
+                    SystemSounds.Hand.Play();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 加载预设
+        /// </summary>
+        /// <param name="input">配置文本</param>
+        public void LoadAssumption(string input)
+        {
+            int num = 0;
+            this.listView1.Items.Clear();
+            string[] array = input.Split(new char[] { '\r', '\t' }); //切成每一行
+            string[] substrings; //单行切成每一项
+            ListViewItem newitem;
+            foreach (string items in array)
+            {
+                newitem = new ListViewItem();
+                substrings = items.Split(';');
+                if(substrings.Length < 5)
+                {
+                    continue;
+                }
+                newitem.Text = num.ToString();
+                //把每一项写进列表里
+                for (int i = 1; i < substrings.Length; i++) //跳过序号
+                {
+                    newitem.SubItems.Add(substrings[i]);
+                }
+                this.listView1.Items.Add(newitem);
+                num++;
+            }
         }
     }
 }
