@@ -270,8 +270,8 @@ namespace Auto_Touch
                     }
                     break;
                 case 0x020A: //鼠标滚轮
-                    this.sss.MouseAction = "MouseWheel";
-                    this.sss.mousebuttonstatus.Action.Append("MouseWheel|");
+                    //this.sss.MouseAction = "MouseWheel";
+                    //this.sss.mousebuttonstatus.Action.Append("MouseWheel|");
                     this.sss.Actioned = false;
                     this.sss.Wheel = (short)(this.sss.tagMSLLHOOKSTRUCT.mouseData >> 16);
                     break;
@@ -427,6 +427,7 @@ namespace Auto_Touch
             GlobalStatus.main.TextBoxPosition_Leave(null, null);
             GlobalStatus.main.BtnCapturePosition.Enabled = true;
             GlobalStatus.main.BtnCaptureTrajectory.Enabled = true;
+            GlobalStatus.main.Disable_listView1_ItemSelectionChanged = false;
             this.Close();
             this.Dispose();
             GlobalStatus.capturePosition = null;

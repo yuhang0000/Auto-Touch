@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Media;
 using System.Runtime.CompilerServices;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -107,32 +108,27 @@ namespace Auto_Touch
             }
 
             this.listView1.BeginUpdate();
-            //先暂存被覆盖列表项列表项
-            string[] olditem = new string[5];
-            for (int i = 0; i < 5; i++)
+            this.Disable_listView1_ItemSelectionChanged = true;
+
+            //先暂存选中列表项
+            int insindex = this.listView1.SelectedItems[0].Index - 1; //记录插入位置
+            List<ListViewItem> selectlists = new List<ListViewItem>();
+            for (int i = this.listView1.SelectedItems.Count - 1; i > -1; i--)
             {
-                string text = this.listView1.Items[this.listView1.SelectedItems[0].Index - 1].SubItems[i].Text;
-                olditem[i] = text;
+                ListViewItem item = this.listView1.SelectedItems[i];
+                selectlists.Add(item);
+                item.Remove();
             }
-            //移动选中的列表项
-            foreach (ListViewItem item in this.listView1.SelectedItems)
+
+            //然后插入
+            foreach (ListViewItem item in selectlists)
             {
-                for (int i = 0; i < 5; i++)
-                {
-                    string text = item.SubItems[i].Text;
-                    this.listView1.Items[item.Index - 1].SubItems[i].Text = text;
-                }
+                this.listView1.Items.Insert(insindex, item);
+                insindex++;
             }
-            //再将之前的被覆盖的数据一回来
-            for (int i = 0; i < 5; i++)
-            {
-                this.listView1.Items[this.listView1.SelectedItems[this.listView1.SelectedItems.Count - 1].Index].SubItems[i].Text = olditem[i];
-            }
-            //刷新选中状态
-            this.listView1.Items[this.listView1.SelectedItems[0].Index - 1].Selected = true;
-            this.listView1.SelectedItems[this.listView1.SelectedItems.Count - 1].Selected = false;
 
             this.listView1.EndUpdate();
+            this.Disable_listView1_ItemSelectionChanged = false;
             UpdateItemIndex();
         }
 
@@ -150,32 +146,27 @@ namespace Auto_Touch
             }
 
             this.listView1.BeginUpdate();
-            //先暂存被覆盖列表项列表项
-            string[] olditem = new string[5];
-            for (int i = 0; i < 5; i++)
-            {
-                string text = this.listView1.Items[this.listView1.SelectedItems[this.listView1.SelectedItems.Count - 1].Index + 1].SubItems[i].Text;
-                olditem[i] = text;
-            }
-            //移动选中的列表项
+            this.Disable_listView1_ItemSelectionChanged = true;
+
+            //先暂存选中列表项
+            int insindex = this.listView1.SelectedItems[0].Index + 1; //记录插入位置
+            List<ListViewItem> selectlists = new List<ListViewItem>();
             for (int i = this.listView1.SelectedItems.Count - 1; i > -1; i--)
             {
                 ListViewItem item = this.listView1.SelectedItems[i];
-                for (int ii = 0; ii < 5; ii++)
-                {
-                    this.listView1.Items[item.Index + 1].SubItems[ii].Text = item.SubItems[ii].Text;
-                }
+                selectlists.Add(item);
+                item.Remove();
             }
-            //再将之前的被覆盖的数据一回来
-            for (int i = 0; i < 5; i++)
+
+            //然后插入
+            foreach (ListViewItem item in selectlists)
             {
-                this.listView1.SelectedItems[0].SubItems[i].Text = olditem[i];
+                this.listView1.Items.Insert(insindex, item);
+                insindex++;
             }
-            //刷新选中状态
-            this.listView1.Items[this.listView1.SelectedItems[this.listView1.SelectedItems.Count - 1].Index + 1].Selected = true;
-            this.listView1.SelectedItems[0].Selected = false;
 
             this.listView1.EndUpdate();
+            this.Disable_listView1_ItemSelectionChanged = false;
             UpdateItemIndex();
         }
 
@@ -242,14 +233,23 @@ namespace Auto_Touch
             Command.About();
         }
 
+        //退出
         private void BtnExit_Click(object sender, EventArgs e)
         {
             this.Close();
         }
 
         //列表选择项变动时
+        /// <summary>
+        /// 暂时禁用 "列表选择项变动" 事件
+        /// </summary>
+        public bool Disable_listView1_ItemSelectionChanged = false;
         private void listView1_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
+            if (this.Disable_listView1_ItemSelectionChanged == true)
+            {
+                return;
+            }
             if (this.listView1.SelectedItems.Count == 1)
             {
                 ListViewItem list = this.listView1.SelectedItems[0];
@@ -271,8 +271,21 @@ namespace Auto_Touch
                     case "MouseRight":
                         this.ComboBoxAction.SelectedIndex = 3;
                         break;
+                    case "MouseXButton1":
+                        this.ComboBoxAction.SelectedIndex = 4;
+                        break;
+                    case "MouseXButton2":
+                        this.ComboBoxAction.SelectedIndex = 5;
+                        break;
                     default:
-                        this.ComboBoxAction.SelectedIndex = 0;
+                        if (list.SubItems[4].Text.IndexOf("|") != -1)
+                        {
+                            this.ComboBoxAction.Text = list.SubItems[4].Text;
+                        }
+                        else
+                        {
+                            this.ComboBoxAction.SelectedIndex = 0;
+                        }
                         break;
                 }
             }
@@ -281,6 +294,7 @@ namespace Auto_Touch
                 EnableEditor(false);
             }
         }
+
         //"动作" 下拉框
         private void ComboBoxAction_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -377,6 +391,7 @@ namespace Auto_Touch
         {
             this.BtnCapturePosition.Enabled = false;
             this.BtnCaptureTrajectory.Enabled = false;
+            this.Disable_listView1_ItemSelectionChanged = true;
             this.WindowState = FormWindowState.Minimized;
             GlobalStatus.capturePosition = new CapturePosition(true);
             GlobalStatus.capturePosition.Show();
@@ -387,6 +402,7 @@ namespace Auto_Touch
         {
             this.BtnCapturePosition.Enabled = false;
             this.BtnCaptureTrajectory.Enabled = false;
+            this.Disable_listView1_ItemSelectionChanged = true;
             this.WindowState = FormWindowState.Minimized;
             GlobalStatus.capturePosition = new CapturePosition(false);
             GlobalStatus.capturePosition.Show();
