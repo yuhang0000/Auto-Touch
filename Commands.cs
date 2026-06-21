@@ -356,6 +356,28 @@ namespace Commands
             public static int MK_XBUTTON2 = 0x0040;
         }
 
+        /// <summary>
+        /// 等待下一次的荧幕刷新, 需要 DWM
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/dwmapi/nf-dwmapi-dwmflush">dwmFlush 函数 (dwmapi.h)</a>
+        /// </para>
+        /// </summary>
+        [DllImport("Dwmapi.dll")]
+        public static extern long DwmFlush();
 
+        /// <summary>
+        /// 向指定窗体发送消息
+        /// <param name="hWnd">指定窗体句柄</param>
+        /// <param name="Msg">要发送的消息</param>
+        /// <param name="wParam">其他的消息特定信息</param>
+        /// <param name="lParam">其他的消息特定信息</param>
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-sendmessage">sendMessage 函数 (winuser.h)</a>
+        /// </para>
+        /// <returns>bool: 返回结果</returns>
+        /// </summary>
+        [DllImport("user32")]
+        public static extern bool SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
     }
+
 }

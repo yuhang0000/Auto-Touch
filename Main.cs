@@ -8,10 +8,12 @@ using System.IO;
 using System.Linq;
 using System.Media;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static Commands.DLL;
 
 namespace Auto_Touch
 {
@@ -22,6 +24,10 @@ namespace Auto_Touch
             InitializeComponent();
             this.Text = Application.ProductName;
             this.StatusBarVersion.Text = "v" + GlobalStatus.Version;
+            //注册消息过滤器
+            Application.AddMessageFilter(new MsgFilter());
+            //尝试让下拉框设定只读
+            //DLL.SendMessage(this.ComboBoxAction.Handle, 0x00CF, IntPtr.Zero, IntPtr.Zero);
 
             //接受到启动参数
             if (args != null && args.Length > 0)
@@ -193,6 +199,7 @@ namespace Auto_Touch
             this.TextBoxPosition.Enabled = enable;
             this.NumDelay.Enabled = enable;
             this.ComboBoxAction.Enabled = enable;
+            this.NumWheel.Enabled = enable;
         }
 
         /// <summary>
@@ -255,39 +262,43 @@ namespace Auto_Touch
                 ListViewItem list = this.listView1.SelectedItems[0];
                 EnableEditor(true);
                 this.TextBoxPosition.Text = list.SubItems[1].Text;
-                this.NumDelay.Value = decimal.Parse(list.SubItems[2].Text.Substring(0,list.SubItems[2].Text.Length - 2));
+                this.NumDelay.Value = decimal.Parse(list.SubItems[2].Text.Substring(0, list.SubItems[2].Text.Length - 2));
                 this.NumWheel.Value = decimal.Parse(list.SubItems[3].Text);
-                switch (list.SubItems[4].Text)
+
+                //拆分动作
+                this.CheckBoxMouseLeft.Checked = false;
+                this.CheckBoxMouseMiddle.Checked = false;
+                this.CheckBoxMouseRight.Checked = false;
+                this.CheckBoxMouseXButton1.Checked = false;
+                this.CheckBoxMouseXButton2.Checked = false;
+                //this.ComboBoxAction.Text = list.SubItems[4].Text;  //复选框变更时会更新文本的
+                string[] mouseactionlist = list.SubItems[4].Text.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries); //看起来很怪，我只想要不保留空子项，但必须这样写
+                foreach (string mouseaction in mouseactionlist)
                 {
-                    case "None":
-                        this.ComboBoxAction.SelectedIndex = 0;
-                        break;
-                    case "MouseLeft":
-                        this.ComboBoxAction.SelectedIndex = 1;
-                        break;
-                    case "MouseMiddle":
-                        this.ComboBoxAction.SelectedIndex = 2;
-                        break;
-                    case "MouseRight":
-                        this.ComboBoxAction.SelectedIndex = 3;
-                        break;
-                    case "MouseXButton1":
-                        this.ComboBoxAction.SelectedIndex = 4;
-                        break;
-                    case "MouseXButton2":
-                        this.ComboBoxAction.SelectedIndex = 5;
-                        break;
-                    default:
-                        if (list.SubItems[4].Text.IndexOf("|") != -1)
-                        {
-                            this.ComboBoxAction.Text = list.SubItems[4].Text;
-                        }
-                        else
-                        {
-                            this.ComboBoxAction.SelectedIndex = 0;
-                        }
-                        break;
+                    switch (mouseaction)
+                    {
+                        case "None":
+                            //前面就已经全灭了
+                            this.ComboBoxAction.Text = "None";
+                            break;
+                        case "MouseLeft":
+                            this.CheckBoxMouseLeft.Checked = true;
+                            break;
+                        case "MouseMiddle":
+                            this.CheckBoxMouseMiddle.Checked = true;
+                            break;
+                        case "MouseRight":
+                            this.CheckBoxMouseRight.Checked = true;
+                            break;
+                        case "MouseXButton1":
+                            this.CheckBoxMouseXButton1.Checked = true;
+                            break;
+                        case "MouseXButton2":
+                            this.CheckBoxMouseXButton2.Checked = true;
+                            break;
+                    }
                 }
+
             }
             else
             {
@@ -295,15 +306,6 @@ namespace Auto_Touch
             }
         }
 
-        //"动作" 下拉框
-        private void ComboBoxAction_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (this.listView1.SelectedItems.Count == 1)
-            {
-                ListViewItem list = this.listView1.SelectedItems[0];
-                list.SubItems[4].Text = this.ComboBoxAction.Text;
-            }
-        }
         //"延时" 数值选择器
         private void NumDelay_ValueChanged(object sender, EventArgs e)
         {
@@ -557,5 +559,391 @@ namespace Auto_Touch
                 num++;
             }
         }
+
+        /// <summary>
+        /// 展开 "动作" 复选下拉框
+        /// </summary>
+        public void UnfoldCheckBoxListMouseAction()
+        {
+            ComboBoxAction.DroppedDown = false;
+            if (this.CheckBoxListMouseAction.Enabled != true)
+            {
+                this.CheckBoxListMouseAction.Height = 0;
+                this.CheckBoxListMouseAction.Enabled = true;
+                this.CheckBoxListMouseAction.Visible = true;
+                Task.Run( () =>
+                {
+                    UnfoldCheckBoxListMouseActionAni();
+                });
+            }
+            else
+            {
+                FoldCheckBoxListMouseAction();
+            }
+        }
+        public void UnfoldCheckBoxListMouseActionAni()
+        {
+            try
+            {
+                while (this.CheckBoxListMouseAction.Enabled == true && this.CheckBoxListMouseAction.Height < (this.CheckBoxMouseLeft.Height * 5) + 2)
+                {
+                    DLL.DwmFlush();
+                    this.CheckBoxListMouseAction.Invoke( new MethodInvoker( () => {
+                        this.CheckBoxListMouseAction.Height = this.CheckBoxListMouseAction.Height + 2;
+                    }));
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString(),"Oops! ");
+            }
+        }
+
+        /// <summary>
+        /// 关闭 "动作" 复选下拉框
+        /// </summary>
+        public void FoldCheckBoxListMouseAction(string type = "none")
+        {
+            void Fold()
+            {
+                this.CheckBoxListMouseAction.Enabled = false;
+                this.CheckBoxListMouseAction.Visible = false;
+            }
+
+            if (this.CheckBoxListMouseAction.Enabled == true)
+            {
+                switch (type)
+                {
+                    case "mouse":
+                        Point cursor = Cursor.Position;
+                        Point control = GlobalStatus.main.ComboBoxAction.PointToScreen(new Point(0, 0));
+                        int w = GlobalStatus.main.CheckBoxListMouseAction.Width;
+                        int h = GlobalStatus.main.CheckBoxListMouseAction.Height + GlobalStatus.main.ComboBoxAction.Height;
+                        //Console.WriteLine("X: " + X + "\tY: " + Y);
+
+                        if ((cursor.X < control.X || cursor.X > control.X + w) || (cursor.Y < control.Y || cursor.Y > control.Y + h))
+                        {
+                            Fold();
+                        }
+
+                        break;
+                    default:
+                        Fold();
+                        break;
+                }
+            }
+        }
+
+        private void ComboBoxAction_MouseDown(object sender, MouseEventArgs e)
+        {
+            this.ComboBoxAction.SelectAll();
+            UnfoldCheckBoxListMouseAction();
+        }
+        private void ComboBoxAction_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Space)
+            {
+                UnfoldCheckBoxListMouseAction();
+            }
+            else {
+                string[] list = { "None", "MouseLeft", "MouseMiddle", "MouseRight", "MouseXButton1", "MouseXButton2" };
+                int index = -1;
+                //上翻
+                if (e.KeyCode == Keys.Up || e.KeyCode == Keys.PageUp)
+                {
+                    index = list.Length - 1;
+                    for (int i = list.Length - 1; i > -1; i--)
+                    {
+                        if (list[i] == this.ComboBoxAction.Text)
+                        {
+                            index = i - 1;
+                        }
+                    }
+                    if(index < 0)
+                    {
+                        index = 0;
+                    }
+                }
+                //下翻
+                else if (e.KeyCode == Keys.Down || e.KeyCode == Keys.PageDown)
+                {
+                    index = 1;
+                    for (int i = 0; i < list.Length; i++)
+                    {
+                        if (list[i] == this.ComboBoxAction.Text)
+                        {
+                            index = i + 1;
+                        }
+                    }
+                    if(index >= list.Length)
+                    {
+                        index = list.Length - 1;
+                    }
+                }
+                //顶部
+                else if(e.KeyCode == Keys.Home)
+                {
+                    index = 0;
+                }
+                //底部
+                else if(e.KeyCode == Keys.End)
+                {
+                    index = list.Length - 1;
+                }
+
+                //更新复选框组
+                if(index != -1)
+                {
+                    switch (index)
+                    {
+                        case 0: //None
+                            this.CheckBoxMouseLeft.Checked = false;
+                            this.CheckBoxMouseMiddle.Checked = false;
+                            this.CheckBoxMouseRight.Checked = false;
+                            this.CheckBoxMouseXButton1.Checked = false;
+                            this.CheckBoxMouseXButton2.Checked = false;
+                            break;
+                        case 1: //MouseLeft
+                            this.CheckBoxMouseLeft.Checked = true;
+                            this.CheckBoxMouseMiddle.Checked = false;
+                            this.CheckBoxMouseRight.Checked = false;
+                            this.CheckBoxMouseXButton1.Checked = false;
+                            this.CheckBoxMouseXButton2.Checked = false;
+                            break;
+                        case 2: //MouseMiddle
+                            this.CheckBoxMouseLeft.Checked = false;
+                            this.CheckBoxMouseMiddle.Checked = true;
+                            this.CheckBoxMouseRight.Checked = false;
+                            this.CheckBoxMouseXButton1.Checked = false;
+                            this.CheckBoxMouseXButton2.Checked = false;
+                            break;
+                        case 3: //MouseRight
+                            this.CheckBoxMouseLeft.Checked = false;
+                            this.CheckBoxMouseMiddle.Checked = false;
+                            this.CheckBoxMouseRight.Checked = true;
+                            this.CheckBoxMouseXButton1.Checked = false;
+                            this.CheckBoxMouseXButton2.Checked = false;
+                            break;
+                        case 4: //MouseXButton1
+                            this.CheckBoxMouseLeft.Checked = false;
+                            this.CheckBoxMouseMiddle.Checked = false;
+                            this.CheckBoxMouseRight.Checked = false;
+                            this.CheckBoxMouseXButton1.Checked = true;
+                            this.CheckBoxMouseXButton2.Checked = false;
+                            break;
+                        case 5: //MouseXButton2
+                            this.CheckBoxMouseLeft.Checked = false;
+                            this.CheckBoxMouseMiddle.Checked = false;
+                            this.CheckBoxMouseRight.Checked = false;
+                            this.CheckBoxMouseXButton1.Checked = false;
+                            this.CheckBoxMouseXButton2.Checked = true;
+                            break;
+                    }
+                }
+            }
+        }
+        public void CheckBoxListMouseAction_MouseWhell(object sender, MouseEventArgs e)
+        {
+            string[] list = { "None", "MouseLeft", "MouseMiddle", "MouseRight", "MouseXButton1", "MouseXButton2" };
+            int index = -1;
+            if (e.Delta > 0)
+            {
+                index = list.Length - 1;
+                for (int i = list.Length - 1; i > -1; i--)
+                {
+                    if (list[i] == this.ComboBoxAction.Text)
+                    {
+                        index = i - 1;
+                    }
+                }
+                if (index < 0)
+                {
+                    index = 0;
+                }
+            }
+            else if(e.Delta < 0)
+            {
+                index = 1;
+                for (int i = 0; i < list.Length; i++)
+                {
+                    if (list[i] == this.ComboBoxAction.Text)
+                    {
+                        index = i + 1;
+                    }
+                }
+                if (index >= list.Length)
+                {
+                    index = list.Length - 1;
+                }
+            }
+
+            //更新复选框组
+            if (index != -1)
+            {
+                switch (index)
+                {
+                    case 0: //None
+                        this.CheckBoxMouseLeft.Checked = false;
+                        this.CheckBoxMouseMiddle.Checked = false;
+                        this.CheckBoxMouseRight.Checked = false;
+                        this.CheckBoxMouseXButton1.Checked = false;
+                        this.CheckBoxMouseXButton2.Checked = false;
+                        break;
+                    case 1: //MouseLeft
+                        this.CheckBoxMouseLeft.Checked = true;
+                        this.CheckBoxMouseMiddle.Checked = false;
+                        this.CheckBoxMouseRight.Checked = false;
+                        this.CheckBoxMouseXButton1.Checked = false;
+                        this.CheckBoxMouseXButton2.Checked = false;
+                        break;
+                    case 2: //MouseMiddle
+                        this.CheckBoxMouseLeft.Checked = false;
+                        this.CheckBoxMouseMiddle.Checked = true;
+                        this.CheckBoxMouseRight.Checked = false;
+                        this.CheckBoxMouseXButton1.Checked = false;
+                        this.CheckBoxMouseXButton2.Checked = false;
+                        break;
+                    case 3: //MouseRight
+                        this.CheckBoxMouseLeft.Checked = false;
+                        this.CheckBoxMouseMiddle.Checked = false;
+                        this.CheckBoxMouseRight.Checked = true;
+                        this.CheckBoxMouseXButton1.Checked = false;
+                        this.CheckBoxMouseXButton2.Checked = false;
+                        break;
+                    case 4: //MouseXButton1
+                        this.CheckBoxMouseLeft.Checked = false;
+                        this.CheckBoxMouseMiddle.Checked = false;
+                        this.CheckBoxMouseRight.Checked = false;
+                        this.CheckBoxMouseXButton1.Checked = true;
+                        this.CheckBoxMouseXButton2.Checked = false;
+                        break;
+                    case 5: //MouseXButton2
+                        this.CheckBoxMouseLeft.Checked = false;
+                        this.CheckBoxMouseMiddle.Checked = false;
+                        this.CheckBoxMouseRight.Checked = false;
+                        this.CheckBoxMouseXButton1.Checked = false;
+                        this.CheckBoxMouseXButton2.Checked = true;
+                        break;
+                }
+            }
+
+        }
+
+
+        /// <summary>
+        /// 处理消息监听
+        /// </summary>
+        public class MsgFilter: IMessageFilter
+        {
+            public bool PreFilterMessage(ref System.Windows.Forms.Message msg)
+            {
+                //Console.WriteLine(msg.Msg);
+                switch (msg.Msg)
+                {
+                    case 0x0201: //鼠标左键按下
+                        GlobalStatus.main.FoldCheckBoxListMouseAction("mouse");
+                        break;
+                    case 0x0202: //鼠标左键松开
+                        GlobalStatus.main.FoldCheckBoxListMouseAction("mouse");
+                        break;
+                    case 0x0204: //鼠标右键按下
+                        GlobalStatus.main.FoldCheckBoxListMouseAction("mouse");
+                        break;
+                    case 0x0205: //鼠标右键松开
+                        GlobalStatus.main.FoldCheckBoxListMouseAction("mouse");
+                        break;
+                    case 0x0207: //鼠标中键按下
+                        GlobalStatus.main.FoldCheckBoxListMouseAction("mouse");
+                        break;
+                    case 0x0208: //鼠标中键松开
+                        GlobalStatus.main.FoldCheckBoxListMouseAction("mouse");
+                        break;
+                    case 0x020B: //鼠标侧键按下
+                        GlobalStatus.main.FoldCheckBoxListMouseAction("mouse");
+                        break;
+                    case 0x020C: //鼠标侧键松开
+                        GlobalStatus.main.FoldCheckBoxListMouseAction("mouse");
+                        break;
+                }
+                return false;
+            }
+        }
+        protected override void WndProc(ref Message msg)
+        {
+            //Console.WriteLine(msg.Msg);
+            switch (msg.Msg)
+            {
+                case 0x0003: //窗体移动
+                    FoldCheckBoxListMouseAction();
+                    break;
+                case 0x0005: //窗体大小变化
+                    FoldCheckBoxListMouseAction();
+                    break;
+                case 0x0216: //窗体移动中
+                    FoldCheckBoxListMouseAction();
+                    break;
+                case 0x0214: //窗体大小变化中
+                    FoldCheckBoxListMouseAction();
+                    break;
+                case 0x0006: //获得焦点 (单独窗体)
+                    FoldCheckBoxListMouseAction();
+                    break;
+                case 0x001C: //获得焦点 (整个应用程式)
+                    FoldCheckBoxListMouseAction();
+                    break;
+                case 0x00A1: //点击标题栏
+                    FoldCheckBoxListMouseAction();
+                    break;
+            }
+            base.WndProc(ref msg);
+        }
+
+        private void CheckBoxMouse_CheckedChanged(object sender, EventArgs e)
+        {
+            /*CheckBox checkBox;
+            if(sender != null && sender is CheckBox)
+            {
+                checkBox = sender as CheckBox;
+            }
+            else
+            {
+                return;
+            }*/
+
+            List<string> texts = new List<string>();
+            if(this.CheckBoxMouseLeft.Checked == true)
+            {
+                texts.Add("MouseLeft");
+            }
+            if(this.CheckBoxMouseMiddle.Checked == true)
+            {
+                texts.Add("MouseMiddle");
+            }
+            if(this.CheckBoxMouseRight.Checked == true)
+            {
+                texts.Add("MouseRight");
+            }
+            if(this.CheckBoxMouseXButton1.Checked == true)
+            {
+                texts.Add("MouseXButton1");
+            }
+            if(this.CheckBoxMouseXButton2.Checked == true)
+            {
+                texts.Add("MouseXButton2");
+            }
+
+            //更新文本
+            string text = "None";
+            if (texts.Count > 0)
+            {
+                text = string.Join("|", texts.ToArray());
+            }
+            this.ComboBoxAction.Text = text;
+            if(this.listView1.SelectedItems.Count == 1)
+            {
+                this.listView1.SelectedItems[0].SubItems[4].Text = text;
+            }
+        }
+
     }
 }

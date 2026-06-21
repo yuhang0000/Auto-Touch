@@ -35,6 +35,12 @@
             this.StatusBarTips = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.PanelEditor = new System.Windows.Forms.Panel();
+            this.CheckBoxListMouseAction = new System.Windows.Forms.Panel();
+            this.CheckBoxMouseXButton2 = new System.Windows.Forms.CheckBox();
+            this.CheckBoxMouseXButton1 = new System.Windows.Forms.CheckBox();
+            this.CheckBoxMouseRight = new System.Windows.Forms.CheckBox();
+            this.CheckBoxMouseMiddle = new System.Windows.Forms.CheckBox();
+            this.CheckBoxMouseLeft = new System.Windows.Forms.CheckBox();
             this.NumWheel = new System.Windows.Forms.NumericUpDown();
             this.NumDelay = new System.Windows.Forms.NumericUpDown();
             this.BtnExit = new System.Windows.Forms.Button();
@@ -67,20 +73,14 @@
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.CheckBoxListMouseAction = new System.Windows.Forms.Panel();
-            this.CheckBoxMouseLeft = new System.Windows.Forms.CheckBox();
-            this.CheckBoxMouseMiddle = new System.Windows.Forms.CheckBox();
-            this.CheckBoxMouseRight = new System.Windows.Forms.CheckBox();
-            this.CheckBoxMouseXButton1 = new System.Windows.Forms.CheckBox();
-            this.CheckBoxMouseXButton2 = new System.Windows.Forms.CheckBox();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.PanelEditor.SuspendLayout();
+            this.CheckBoxListMouseAction.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumWheel)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumDelay)).BeginInit();
             this.PanelAssumption.SuspendLayout();
             this.PanelListControl.SuspendLayout();
-            this.CheckBoxListMouseAction.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -156,6 +156,90 @@
             this.PanelEditor.Name = "PanelEditor";
             this.PanelEditor.Size = new System.Drawing.Size(225, 221);
             this.PanelEditor.TabIndex = 0;
+            // 
+            // CheckBoxListMouseAction
+            // 
+            this.CheckBoxListMouseAction.BackColor = System.Drawing.Color.White;
+            this.CheckBoxListMouseAction.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.CheckBoxListMouseAction.Controls.Add(this.CheckBoxMouseXButton2);
+            this.CheckBoxListMouseAction.Controls.Add(this.CheckBoxMouseXButton1);
+            this.CheckBoxListMouseAction.Controls.Add(this.CheckBoxMouseRight);
+            this.CheckBoxListMouseAction.Controls.Add(this.CheckBoxMouseMiddle);
+            this.CheckBoxListMouseAction.Controls.Add(this.CheckBoxMouseLeft);
+            this.CheckBoxListMouseAction.Enabled = false;
+            this.CheckBoxListMouseAction.Location = new System.Drawing.Point(50, 120);
+            this.CheckBoxListMouseAction.Margin = new System.Windows.Forms.Padding(0);
+            this.CheckBoxListMouseAction.Name = "CheckBoxListMouseAction";
+            this.CheckBoxListMouseAction.Padding = new System.Windows.Forms.Padding(3);
+            this.CheckBoxListMouseAction.Size = new System.Drawing.Size(164, 0);
+            this.CheckBoxListMouseAction.TabIndex = 11;
+            this.CheckBoxListMouseAction.Visible = false;
+            this.CheckBoxListMouseAction.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.CheckBoxListMouseAction_MouseWhell);
+            // 
+            // CheckBoxMouseXButton2
+            // 
+            this.CheckBoxMouseXButton2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.CheckBoxMouseXButton2.AutoSize = true;
+            this.CheckBoxMouseXButton2.Location = new System.Drawing.Point(3, -21);
+            this.CheckBoxMouseXButton2.Margin = new System.Windows.Forms.Padding(0);
+            this.CheckBoxMouseXButton2.Name = "CheckBoxMouseXButton2";
+            this.CheckBoxMouseXButton2.Size = new System.Drawing.Size(133, 19);
+            this.CheckBoxMouseXButton2.TabIndex = 0;
+            this.CheckBoxMouseXButton2.Text = "MouseXButton2";
+            this.CheckBoxMouseXButton2.UseVisualStyleBackColor = true;
+            this.CheckBoxMouseXButton2.CheckedChanged += new System.EventHandler(this.CheckBoxMouse_CheckedChanged);
+            // 
+            // CheckBoxMouseXButton1
+            // 
+            this.CheckBoxMouseXButton1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.CheckBoxMouseXButton1.AutoSize = true;
+            this.CheckBoxMouseXButton1.Location = new System.Drawing.Point(3, -40);
+            this.CheckBoxMouseXButton1.Margin = new System.Windows.Forms.Padding(0);
+            this.CheckBoxMouseXButton1.Name = "CheckBoxMouseXButton1";
+            this.CheckBoxMouseXButton1.Size = new System.Drawing.Size(133, 19);
+            this.CheckBoxMouseXButton1.TabIndex = 0;
+            this.CheckBoxMouseXButton1.Text = "MouseXButton1";
+            this.CheckBoxMouseXButton1.UseVisualStyleBackColor = true;
+            this.CheckBoxMouseXButton1.CheckedChanged += new System.EventHandler(this.CheckBoxMouse_CheckedChanged);
+            // 
+            // CheckBoxMouseRight
+            // 
+            this.CheckBoxMouseRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.CheckBoxMouseRight.AutoSize = true;
+            this.CheckBoxMouseRight.Location = new System.Drawing.Point(3, -59);
+            this.CheckBoxMouseRight.Margin = new System.Windows.Forms.Padding(0);
+            this.CheckBoxMouseRight.Name = "CheckBoxMouseRight";
+            this.CheckBoxMouseRight.Size = new System.Drawing.Size(109, 19);
+            this.CheckBoxMouseRight.TabIndex = 0;
+            this.CheckBoxMouseRight.Text = "MouseRight";
+            this.CheckBoxMouseRight.UseVisualStyleBackColor = true;
+            this.CheckBoxMouseRight.CheckedChanged += new System.EventHandler(this.CheckBoxMouse_CheckedChanged);
+            // 
+            // CheckBoxMouseMiddle
+            // 
+            this.CheckBoxMouseMiddle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.CheckBoxMouseMiddle.AutoSize = true;
+            this.CheckBoxMouseMiddle.Location = new System.Drawing.Point(3, -78);
+            this.CheckBoxMouseMiddle.Margin = new System.Windows.Forms.Padding(0);
+            this.CheckBoxMouseMiddle.Name = "CheckBoxMouseMiddle";
+            this.CheckBoxMouseMiddle.Size = new System.Drawing.Size(117, 19);
+            this.CheckBoxMouseMiddle.TabIndex = 0;
+            this.CheckBoxMouseMiddle.Text = "MouseMiddle";
+            this.CheckBoxMouseMiddle.UseVisualStyleBackColor = true;
+            this.CheckBoxMouseMiddle.CheckedChanged += new System.EventHandler(this.CheckBoxMouse_CheckedChanged);
+            // 
+            // CheckBoxMouseLeft
+            // 
+            this.CheckBoxMouseLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.CheckBoxMouseLeft.AutoSize = true;
+            this.CheckBoxMouseLeft.Location = new System.Drawing.Point(3, -96);
+            this.CheckBoxMouseLeft.Margin = new System.Windows.Forms.Padding(0);
+            this.CheckBoxMouseLeft.Name = "CheckBoxMouseLeft";
+            this.CheckBoxMouseLeft.Size = new System.Drawing.Size(101, 19);
+            this.CheckBoxMouseLeft.TabIndex = 0;
+            this.CheckBoxMouseLeft.Text = "MouseLeft";
+            this.CheckBoxMouseLeft.UseVisualStyleBackColor = true;
+            this.CheckBoxMouseLeft.CheckedChanged += new System.EventHandler(this.CheckBoxMouse_CheckedChanged);
             // 
             // NumWheel
             // 
@@ -289,20 +373,18 @@
             // 
             // ComboBoxAction
             // 
+            this.ComboBoxAction.DropDownHeight = 1;
             this.ComboBoxAction.FormattingEnabled = true;
-            this.ComboBoxAction.Items.AddRange(new object[] {
-            "None",
-            "MouseLeft",
-            "MouseMiddle",
-            "MouseRight",
-            "MouseXButton1",
-            "MouseXButton2"});
+            this.ComboBoxAction.IntegralHeight = false;
+            this.ComboBoxAction.ItemHeight = 15;
             this.ComboBoxAction.Location = new System.Drawing.Point(50, 97);
             this.ComboBoxAction.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
+            this.ComboBoxAction.MaxDropDownItems = 1;
             this.ComboBoxAction.Name = "ComboBoxAction";
             this.ComboBoxAction.Size = new System.Drawing.Size(164, 23);
             this.ComboBoxAction.TabIndex = 2;
-            this.ComboBoxAction.SelectedIndexChanged += new System.EventHandler(this.ComboBoxAction_SelectedIndexChanged);
+            this.ComboBoxAction.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ComboBoxAction_KeyDown);
+            this.ComboBoxAction.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ComboBoxAction_MouseDown);
             // 
             // label4
             // 
@@ -497,82 +579,6 @@
             this.columnHeader5.Text = "操作";
             this.columnHeader5.Width = 126;
             // 
-            // CheckBoxListMouseAction
-            // 
-            this.CheckBoxListMouseAction.BackColor = System.Drawing.Color.White;
-            this.CheckBoxListMouseAction.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.CheckBoxListMouseAction.Controls.Add(this.CheckBoxMouseXButton2);
-            this.CheckBoxListMouseAction.Controls.Add(this.CheckBoxMouseXButton1);
-            this.CheckBoxListMouseAction.Controls.Add(this.CheckBoxMouseRight);
-            this.CheckBoxListMouseAction.Controls.Add(this.CheckBoxMouseMiddle);
-            this.CheckBoxListMouseAction.Controls.Add(this.CheckBoxMouseLeft);
-            this.CheckBoxListMouseAction.Location = new System.Drawing.Point(50, 120);
-            this.CheckBoxListMouseAction.Margin = new System.Windows.Forms.Padding(0);
-            this.CheckBoxListMouseAction.Name = "CheckBoxListMouseAction";
-            this.CheckBoxListMouseAction.Padding = new System.Windows.Forms.Padding(3);
-            this.CheckBoxListMouseAction.Size = new System.Drawing.Size(164, 0);
-            this.CheckBoxListMouseAction.TabIndex = 11;
-            // 
-            // CheckBoxMouseLeft
-            // 
-            this.CheckBoxMouseLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.CheckBoxMouseLeft.AutoSize = true;
-            this.CheckBoxMouseLeft.Location = new System.Drawing.Point(3, -96);
-            this.CheckBoxMouseLeft.Margin = new System.Windows.Forms.Padding(0);
-            this.CheckBoxMouseLeft.Name = "CheckBoxMouseLeft";
-            this.CheckBoxMouseLeft.Size = new System.Drawing.Size(101, 19);
-            this.CheckBoxMouseLeft.TabIndex = 0;
-            this.CheckBoxMouseLeft.Text = "MouseLeft";
-            this.CheckBoxMouseLeft.UseVisualStyleBackColor = true;
-            // 
-            // CheckBoxMouseMiddle
-            // 
-            this.CheckBoxMouseMiddle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.CheckBoxMouseMiddle.AutoSize = true;
-            this.CheckBoxMouseMiddle.Location = new System.Drawing.Point(3, -78);
-            this.CheckBoxMouseMiddle.Margin = new System.Windows.Forms.Padding(0);
-            this.CheckBoxMouseMiddle.Name = "CheckBoxMouseMiddle";
-            this.CheckBoxMouseMiddle.Size = new System.Drawing.Size(117, 19);
-            this.CheckBoxMouseMiddle.TabIndex = 0;
-            this.CheckBoxMouseMiddle.Text = "MouseMiddle";
-            this.CheckBoxMouseMiddle.UseVisualStyleBackColor = true;
-            // 
-            // CheckBoxMouseRight
-            // 
-            this.CheckBoxMouseRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.CheckBoxMouseRight.AutoSize = true;
-            this.CheckBoxMouseRight.Location = new System.Drawing.Point(3, -59);
-            this.CheckBoxMouseRight.Margin = new System.Windows.Forms.Padding(0);
-            this.CheckBoxMouseRight.Name = "CheckBoxMouseRight";
-            this.CheckBoxMouseRight.Size = new System.Drawing.Size(109, 19);
-            this.CheckBoxMouseRight.TabIndex = 0;
-            this.CheckBoxMouseRight.Text = "MouseRight";
-            this.CheckBoxMouseRight.UseVisualStyleBackColor = true;
-            // 
-            // CheckBoxMouseXButton1
-            // 
-            this.CheckBoxMouseXButton1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.CheckBoxMouseXButton1.AutoSize = true;
-            this.CheckBoxMouseXButton1.Location = new System.Drawing.Point(3, -40);
-            this.CheckBoxMouseXButton1.Margin = new System.Windows.Forms.Padding(0);
-            this.CheckBoxMouseXButton1.Name = "CheckBoxMouseXButton1";
-            this.CheckBoxMouseXButton1.Size = new System.Drawing.Size(133, 19);
-            this.CheckBoxMouseXButton1.TabIndex = 0;
-            this.CheckBoxMouseXButton1.Text = "MouseXButton1";
-            this.CheckBoxMouseXButton1.UseVisualStyleBackColor = true;
-            // 
-            // CheckBoxMouseXButton2
-            // 
-            this.CheckBoxMouseXButton2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.CheckBoxMouseXButton2.AutoSize = true;
-            this.CheckBoxMouseXButton2.Location = new System.Drawing.Point(3, -21);
-            this.CheckBoxMouseXButton2.Margin = new System.Windows.Forms.Padding(0);
-            this.CheckBoxMouseXButton2.Name = "CheckBoxMouseXButton2";
-            this.CheckBoxMouseXButton2.Size = new System.Drawing.Size(133, 19);
-            this.CheckBoxMouseXButton2.TabIndex = 0;
-            this.CheckBoxMouseXButton2.Text = "MouseXButton2";
-            this.CheckBoxMouseXButton2.UseVisualStyleBackColor = true;
-            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -590,13 +596,13 @@
             this.panel1.ResumeLayout(false);
             this.PanelEditor.ResumeLayout(false);
             this.PanelEditor.PerformLayout();
+            this.CheckBoxListMouseAction.ResumeLayout(false);
+            this.CheckBoxListMouseAction.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumWheel)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumDelay)).EndInit();
             this.PanelAssumption.ResumeLayout(false);
             this.PanelAssumption.PerformLayout();
             this.PanelListControl.ResumeLayout(false);
-            this.CheckBoxListMouseAction.ResumeLayout(false);
-            this.CheckBoxListMouseAction.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -643,11 +649,11 @@
         private System.Windows.Forms.Button BtnExport;
         private System.Windows.Forms.Button BtnImport;
         public System.Windows.Forms.ToolStripStatusLabel StatusBarTips;
-        private System.Windows.Forms.Panel CheckBoxListMouseAction;
         private System.Windows.Forms.CheckBox CheckBoxMouseXButton2;
         private System.Windows.Forms.CheckBox CheckBoxMouseXButton1;
         private System.Windows.Forms.CheckBox CheckBoxMouseRight;
         private System.Windows.Forms.CheckBox CheckBoxMouseMiddle;
         private System.Windows.Forms.CheckBox CheckBoxMouseLeft;
+        public System.Windows.Forms.Panel CheckBoxListMouseAction;
     }
 }
