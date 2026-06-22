@@ -57,7 +57,7 @@ namespace Auto_Touch
             this.Close();
         }
 
-        private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
+        private void pictureBox1_Click(object sender, EventArgs e)
         {
             this.Close();
         }
@@ -71,5 +71,6 @@ namespace Auto_Touch
             this.bitmap.Dispose();
             this.bitmap = null;
         }
+
     }
 }

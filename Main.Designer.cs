@@ -30,8 +30,8 @@
         {
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.StatusBarVersion = new System.Windows.Forms.ToolStripStatusLabel();
-            this.StatusBarText = new System.Windows.Forms.ToolStripStatusLabel();
             this.StatusBarAction = new System.Windows.Forms.ToolStripStatusLabel();
+            this.StatusBarText = new System.Windows.Forms.ToolStripStatusLabel();
             this.StatusBarTips = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.PanelEditor = new System.Windows.Forms.Panel();
@@ -105,19 +105,19 @@
             this.StatusBarVersion.Text = "v1.1.0.0";
             this.StatusBarVersion.Click += new System.EventHandler(this.StatusBarVersion_Click);
             // 
-            // StatusBarText
-            // 
-            this.StatusBarText.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Right;
-            this.StatusBarText.Name = "StatusBarText";
-            this.StatusBarText.Size = new System.Drawing.Size(51, 24);
-            this.StatusBarText.Text = "就绪. ";
-            // 
             // StatusBarAction
             // 
             this.StatusBarAction.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Right;
             this.StatusBarAction.Name = "StatusBarAction";
             this.StatusBarAction.Size = new System.Drawing.Size(43, 24);
             this.StatusBarAction.Text = "0ms";
+            // 
+            // StatusBarText
+            // 
+            this.StatusBarText.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Right;
+            this.StatusBarText.Name = "StatusBarText";
+            this.StatusBarText.Size = new System.Drawing.Size(51, 24);
+            this.StatusBarText.Text = "就绪. ";
             // 
             // StatusBarTips
             // 
@@ -334,6 +334,7 @@
             this.BtnStart.TabIndex = 4;
             this.BtnStart.Text = "开始";
             this.BtnStart.UseVisualStyleBackColor = true;
+            this.BtnStart.Click += new System.EventHandler(this.BtnStart_Click);
             this.BtnStart.MouseUp += new System.Windows.Forms.MouseEventHandler(this.BtnStart_MouseUp);
             // 
             // label5
@@ -444,6 +445,7 @@
             this.ComboBoxAssumption.Name = "ComboBoxAssumption";
             this.ComboBoxAssumption.Size = new System.Drawing.Size(164, 23);
             this.ComboBoxAssumption.TabIndex = 0;
+            this.ComboBoxAssumption.SelectedIndexChanged += new System.EventHandler(this.ComboBoxAssumption_SelectedIndexChanged);
             // 
             // label1
             // 

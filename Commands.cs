@@ -32,6 +32,10 @@ namespace Commands
         /// 编译时间
         /// </summary>
         public static DateTime BuildTime;
+        /// <summary>
+        /// 预设文件夹路径
+        /// </summary>
+        public static string AssumptionPath = System.Environment.CurrentDirectory + "\\Assumption\\";
     }
 
     /// <summary>
