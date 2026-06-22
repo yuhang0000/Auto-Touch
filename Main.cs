@@ -266,11 +266,13 @@ namespace Auto_Touch
                 this.NumWheel.Value = decimal.Parse(list.SubItems[3].Text);
 
                 //拆分动作
+                this.Disable_CheckBoxMouse_CheckedChanged_TextChange = true;
                 this.CheckBoxMouseLeft.Checked = false;
                 this.CheckBoxMouseMiddle.Checked = false;
                 this.CheckBoxMouseRight.Checked = false;
                 this.CheckBoxMouseXButton1.Checked = false;
                 this.CheckBoxMouseXButton2.Checked = false;
+                this.Disable_CheckBoxMouse_CheckedChanged_TextChange = false;
                 //this.ComboBoxAction.Text = list.SubItems[4].Text;  //复选框变更时会更新文本的
                 string[] mouseactionlist = list.SubItems[4].Text.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries); //看起来很怪，我只想要不保留空子项，但必须这样写
                 foreach (string mouseaction in mouseactionlist)
@@ -898,6 +900,10 @@ namespace Auto_Touch
             base.WndProc(ref msg);
         }
 
+        /// <summary>
+        /// 复选框变更时
+        /// </summary>
+        public bool Disable_CheckBoxMouse_CheckedChanged_TextChange = false;
         private void CheckBoxMouse_CheckedChanged(object sender, EventArgs e)
         {
             /*CheckBox checkBox;
@@ -933,16 +939,71 @@ namespace Auto_Touch
             }
 
             //更新文本
-            string text = "None";
-            if (texts.Count > 0)
+            if (this.Disable_CheckBoxMouse_CheckedChanged_TextChange == false)
             {
-                text = string.Join("|", texts.ToArray());
+                string text = "None";
+                if (texts.Count > 0)
+                {
+                    text = string.Join("|", texts.ToArray());
+                }
+                this.ComboBoxAction.Text = text;
+                if (this.listView1.SelectedItems.Count == 1)
+                {
+                    this.listView1.SelectedItems[0].SubItems[4].Text = text;
+                }
             }
-            this.ComboBoxAction.Text = text;
-            if(this.listView1.SelectedItems.Count == 1)
+
+        }
+
+
+        //开始
+        private void BtnStart_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        //预览
+        private void BtnStart_MouseUp(object sender, MouseEventArgs e)
+        {
+            if(e.Button == MouseButtons.Right)
             {
-                this.listView1.SelectedItems[0].SubItems[4].Text = text;
+                PreViewNow();
             }
+        }
+
+        /// <summary>
+        /// 预览轨迹
+        /// </summary>
+        public void PreViewNow()
+        {
+            Preview preview = new Preview();
+            preview.Show();
+
+            List<Point> points = new List<Point>();
+            List<int> delays = new List<int>();
+
+            //枚举坐标和时间
+            foreach (ListViewItem listViewItem in this.listView1.Items)
+            {
+                string[] xy = listViewItem.SubItems[1].Text.Split(',');
+                Point point = new Point(int.Parse(xy[0]),int.Parse(xy[1]));
+                points.Add(point);
+                delays.Add(int.Parse(listViewItem.SubItems[2].Text.Substring(0, listViewItem.SubItems[2].Text.Length - 2)));
+            }
+            
+            //绘制轨迹
+            async void Draw()
+            {
+                for (int i = 0; i < points.Count; i++)
+                {
+                    await Task.Delay(delays[i]);
+                    //DLL.DwmFlush();
+                    preview.Draw(points[i]);
+                }
+                preview.label1.Visible = true;
+            }
+
+            Draw();
         }
 
     }

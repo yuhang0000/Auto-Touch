@@ -88,8 +88,8 @@
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.StatusBarVersion,
-            this.StatusBarText,
             this.StatusBarAction,
+            this.StatusBarText,
             this.StatusBarTips});
             this.statusStrip1.Location = new System.Drawing.Point(0, 420);
             this.statusStrip1.Name = "statusStrip1";
@@ -334,6 +334,7 @@
             this.BtnStart.TabIndex = 4;
             this.BtnStart.Text = "开始";
             this.BtnStart.UseVisualStyleBackColor = true;
+            this.BtnStart.MouseUp += new System.Windows.Forms.MouseEventHandler(this.BtnStart_MouseUp);
             // 
             // label5
             // 
@@ -588,6 +589,7 @@
             this.Controls.Add(this.PanelListControl);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.statusStrip1);
+            this.DoubleBuffered = true;
             this.Name = "Main";
             this.Text = "Auto Touch";
             this.Load += new System.EventHandler(this.Main_Load);
