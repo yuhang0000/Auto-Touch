@@ -428,6 +428,7 @@ namespace Auto_Touch
             GlobalStatus.main.BtnCapturePosition.Enabled = true;
             GlobalStatus.main.BtnCaptureTrajectory.Enabled = true;
             GlobalStatus.main.Disable_listView1_ItemSelectionChanged = false;
+            GlobalStatus.main.StatusBarText.Text = "就绪";
             this.Close();
             this.Dispose();
             GlobalStatus.capturePosition = null;

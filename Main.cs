@@ -20,6 +20,48 @@ namespace Auto_Touch
 {
     public partial class Main : Form
     {
+        /// <summary>
+        /// 是否新建过
+        /// </summary>
+        public bool IsNew
+        {
+            get
+            {
+                return this._IsNew;
+            }
+            set
+            { 
+                if(value == true)
+                {
+                    this.BtnAssumptionNew.Enabled = false;
+                    this.BtnAssumptionDel.Enabled = false;
+                }
+                else
+                {
+                    this.BtnAssumptionNew.Enabled = true;
+                    this.BtnAssumptionDel.Enabled = true;
+                }
+                _IsNew = value;
+            }
+        }
+        /// <summary>
+        /// 是否编辑过
+        /// </summary>
+        public bool IsEdit
+        {
+            get
+            {
+                return this._IsEdit;
+            }
+            set
+            {
+                this.BtnAssumptionSave.Enabled = value;
+                this._IsEdit = value;
+            }
+        }
+        bool _IsNew = false;
+        bool _IsEdit = false;
+
         public Main(string[] args = null)
         {
             InitializeComponent();
@@ -32,12 +74,17 @@ namespace Auto_Touch
             //設定状态栏文本计时器
             this.StatusBarTipsTimer.Interval = 5000;
             this.StatusBarTipsTimer.Tick += new EventHandler( (obj, e) => {
-                this.StatusBarTips.Text = "";
+                if (this.StatusBarTipsWait == false) {
+                    this.StatusBarTips.Text = "";
+                }
+                this.StatusBarTipsWait = false;
+                this.StatusBarTipsTimer.Stop();
             });
             //尝试为每个控件设置提示文本
             this.BtnAssumptionDel.MouseEnter += new EventHandler(Control_MouseEnter);
             this.BtnAssumptionRename.MouseEnter += new EventHandler(Control_MouseEnter);
             this.BtnAssumptionSave.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.BtnAssumptionNew.MouseEnter += new EventHandler(Control_MouseEnter);
             this.BtnCapturePosition.MouseEnter += new EventHandler(Control_MouseEnter);
             this.BtnCaptureTrajectory.MouseEnter += new EventHandler(Control_MouseEnter);
             this.BtnExit.MouseEnter += new EventHandler(Control_MouseEnter);
@@ -63,11 +110,13 @@ namespace Auto_Touch
             //正常打开
             else
             {
+                //先加载预设列表
                 RefleshAssumption();
-                if (this.ComboBoxAssumption.Items.Count > 0)
+                /*if (this.ComboBoxAssumption.Items.Count > 0)
                 {
                     this.ComboBoxAssumption.SelectedIndex = 0;
-                }
+                }*/
+                NewAssumption();
             }
             this.MinimumSize = this.Size;
         }
@@ -85,6 +134,7 @@ namespace Auto_Touch
         {
             if (Directory.Exists(GlobalStatus.AssumptionPath) == true)
             {
+                this.ComboBoxAssumption.Items.Clear();
                 foreach (string assu in Directory.GetFiles(GlobalStatus.AssumptionPath))
                 {
                     //跳过非 TXT 文件
@@ -101,7 +151,6 @@ namespace Auto_Touch
             else
             {
                 NewAssumption();
-                this.listView1.Items[0].Selected = true;
             }
         }
 
@@ -110,8 +159,11 @@ namespace Auto_Touch
         /// </summary>
         public void NewAssumption()
         {
+            this.IsNew = true;
+            this.ComboBoxAssumption.Text = "";
             this.listView1.Items.Clear();
             NewItem();
+            this.listView1.Items[0].Selected = true;
         }
 
         /// <summary>
@@ -237,6 +289,8 @@ namespace Auto_Touch
         /// </summary>
         public void UpdateItemIndex()
         {
+            this.IsEdit = true;
+
             this.listView1.BeginUpdate();
             int index = 0;
             foreach (ListViewItem i in this.listView1.Items)
@@ -369,6 +423,7 @@ namespace Auto_Touch
         {
             if (this.listView1.SelectedItems.Count == 1)
             {
+                this.IsEdit = true;
                 ListViewItem list = this.listView1.SelectedItems[0];
                 list.SubItems[2].Text = this.NumDelay.Value.ToString() + "ms";
             }
@@ -378,6 +433,7 @@ namespace Auto_Touch
         {
             if (this.listView1.SelectedItems.Count == 1)
             {
+                this.IsEdit = true;
                 ListViewItem list = this.listView1.SelectedItems[0];
                 list.SubItems[3].Text = this.NumWheel.Value.ToString();
             }
@@ -389,7 +445,7 @@ namespace Auto_Touch
             string[] array = this.TextBoxPosition.Text.Split(',');
             if(array.Length != 2)
             {
-                this.StatusBarText.Text = "这不是一个有效的坐标值. ";
+                StatusBarTipsShow("这不是一个有效的坐标值. ", true);
                 SystemSounds.Hand.Play();
                 Blinking(this.TextBoxPosition);
                 return;
@@ -400,7 +456,7 @@ namespace Auto_Touch
                 string str = array[i].Trim();
                 if(int.TryParse(str, out test) == false)
                 {
-                    this.StatusBarText.Text = "这不是一个有效的坐标值. ";
+                    StatusBarTipsShow("这不是一个有效的坐标值. ", true);
                     SystemSounds.Hand.Play();
                     Blinking(this.TextBoxPosition);
                     return;
@@ -413,6 +469,7 @@ namespace Auto_Touch
             this.TextBoxPosition.SelectionStart = this.TextBoxPosition.Text.Length;
             if (this.listView1.SelectedItems.Count == 1)
             {
+                this.IsEdit = true;
                 ListViewItem list = this.listView1.SelectedItems[0];
                 list.SubItems[1].Text = this.TextBoxPosition.Text;
             }
@@ -428,8 +485,13 @@ namespace Auto_Touch
         //列表框键盘监听事件
         private void listView1_KeyUp(object sender, KeyEventArgs e)
         {
+            //Ctrl + Shift + A
+            if(e.Control == true && e.Shift == true && e.KeyCode == Keys.A)
+            {
+                this.listView1.SelectedItems.Clear();
+            }
             //Ctrl + A
-            if(e.Control == true && e.KeyCode == Keys.A)
+            else if(e.Control == true && e.KeyCode == Keys.A)
             {
                 this.listView1.SelectedItems.Clear();
                 foreach(ListViewItem item in this.listView1.Items)
@@ -439,7 +501,7 @@ namespace Auto_Touch
                 e.Handled = true;
             }
             //Del, BackSpace
-            else if(e.KeyCode== Keys.Delete || e.KeyCode == Keys.Back)
+            else if (e.KeyCode== Keys.Delete || e.KeyCode == Keys.Back)
             {
                 DelItem();
                 e.Handled = true;
@@ -449,6 +511,7 @@ namespace Auto_Touch
         //单点捕捉
         private void BtnCapturePosition_Click(object sender, EventArgs e)
         {
+            this.StatusBarText.Text = "捕捉中";
             this.BtnCapturePosition.Enabled = false;
             this.BtnCaptureTrajectory.Enabled = false;
             this.Disable_listView1_ItemSelectionChanged = true;
@@ -460,6 +523,7 @@ namespace Auto_Touch
         //轨迹捕捉
         private void BtnCaptureTrajectory_Click(object sender, EventArgs e)
         {
+            this.StatusBarText.Text = "捕捉中";
             this.BtnCapturePosition.Enabled = false;
             this.BtnCaptureTrajectory.Enabled = false;
             this.Disable_listView1_ItemSelectionChanged = true;
@@ -487,7 +551,7 @@ namespace Auto_Touch
             if (Control.ModifierKeys == Keys.Shift) //按下了 Shift
             {
                 Clipboard.SetText(sb1.ToString());
-                ToolBarTipsShow("成功保存预设文件在剪切板上. ");
+                StatusBarTipsShow("成功保存预设文件在剪切板上. ", true);
             }
             else
             {
@@ -512,12 +576,12 @@ namespace Auto_Touch
                     try
                     {
                         File.WriteAllText(dig.FileName, sb1.ToString());
-                        ToolBarTipsShow("成功保存预设文件: " + dig.FileName);
+                        StatusBarTipsShow("成功保存预设文件: " + dig.FileName, true);
                     }
                     catch (Exception ex)
                     {
-                        ToolBarTipsShow("保存失败哩, 原因是: " + ex.Message);
                         SystemSounds.Hand.Play();
+                        StatusBarTipsShow("保存失败哩, 原因是: " + ex.Message, true);
                     }
                 }
             }
@@ -548,8 +612,8 @@ namespace Auto_Touch
                 {
                     if(File.Exists(dig.FileName) == false)
                     {
-                        ToolBarTipsShow("找不到该文件: " + dig.FileName);
                         SystemSounds.Hand.Play();
+                        StatusBarTipsShow("找不到该文件: " + dig.FileName, true);
                         return;
                     }
                     else
@@ -573,27 +637,46 @@ namespace Auto_Touch
                     LoadAssumption(improt);
                     if (type != null)
                     {
-                        ToolBarTipsShow("成功加载预设文件: " + type);
+                        StatusBarTipsShow("成功加载预设文件: " + type, true);
                     }
                     else
                     {
-                        ToolBarTipsShow("成功从剪切板加载预设文件. ");
+                        StatusBarTipsShow("成功从剪切板加载预设文件. ", true);
                     }
                 }
                 catch (Exception ex)
                 {
-                    ToolBarTipsShow("加载失败哩, 原因是: " + ex.Message);
                     SystemSounds.Hand.Play();
+                    StatusBarTipsShow("加载失败哩, 原因是: " + ex.Message, true);
                 }
             }
         }
 
+        /// <summary>
+        /// 强制等待状态栏文本结束
+        /// </summary>
+        public bool StatusBarTipsWait = false;
         public Timer StatusBarTipsTimer = new Timer();
-        public void ToolBarTipsShow(string text)
+        /// <summary>
+        /// 在状态栏显示文本
+        /// </summary>
+        /// <param name="text">文本</param>
+        /// <param name="wait">是否强制等待状态栏文本结束</param>
+        public void StatusBarTipsShow(string text, bool wait = false)
         {
-            this.StatusBarTipsTimer.Stop();
-            this.StatusBarTips.Text = text;
-            this.StatusBarTipsTimer.Start();
+            if (this.StatusBarTipsWait == false)
+            {
+                this.StatusBarTipsWait = wait;
+                this.StatusBarTipsTimer.Stop();
+                this.StatusBarTips.Text = text;
+                this.StatusBarTipsTimer.Start();
+            }
+            else if(wait == true) //即使强制等待状态栏文本结束, 在遇到同种级别的文本时, 照样更新. 
+            {
+                this.StatusBarTipsTimer.Stop();
+                this.StatusBarTips.Text = text;
+                this.StatusBarTipsTimer.Start();
+            }
         }
 
         /// <summary>
@@ -1019,12 +1102,12 @@ namespace Auto_Touch
                 this.ComboBoxAction.Text = text;
                 if (this.listView1.SelectedItems.Count == 1)
                 {
+                    this.IsEdit = true;
                     this.listView1.SelectedItems[0].SubItems[4].Text = text;
                 }
             }
 
         }
-
 
         //开始
         private void BtnStart_Click(object sender, EventArgs e)
@@ -1076,6 +1159,9 @@ namespace Auto_Touch
             Draw();
         }
 
+        /// <summary>
+        /// 鼠标 Hover 时的提示文本
+        /// </summary>
         private void Control_MouseEnter(object sender, EventArgs e)
         {
             Control control;
@@ -1099,6 +1185,9 @@ namespace Auto_Touch
                     break;
                 case "BtnAssumptionSave":
                     text = "保存该预设. ";
+                    break;
+                case "BtnAssumptionNew":
+                    text = "创建新预设. ";
                     break;
                 case "BtnCapturePosition":
                     text = "捕捉鼠标最后一次的坐标, 按 \"ESC\" 结束. ";
@@ -1149,7 +1238,7 @@ namespace Auto_Touch
                     text = "鼠标坐标. ";
                     break;
             }
-            ToolBarTipsShow(text);
+            StatusBarTipsShow(text);
         }
 
         /// <summary>
@@ -1159,8 +1248,11 @@ namespace Auto_Touch
         {
             if (this.ComboBoxAssumption.Text.Length == 0)
             {
+                this.IsNew = true;
                 return;
             }
+            this.IsNew = false;
+            this.IsEdit = false;
             string filename = GlobalStatus.AssumptionPath + this.ComboBoxAssumption.Text + ".txt";
             if (File.Exists(filename) == false)
             {
@@ -1170,16 +1262,117 @@ namespace Auto_Touch
             try
             {
                 LoadAssumption(File.ReadAllText(filename));
-                ToolBarTipsShow("成功载入预设: " + this.ComboBoxAssumption.Text);
+                StatusBarTipsShow("成功载入预设: " + this.ComboBoxAssumption.Text, true);
             }
             catch (Exception ex)
             {
-                ToolBarTipsShow("载入预设时出错了, 原因是: " + ex.Message);
+                StatusBarTipsShow("载入预设时出错了, 原因是: " + ex.Message, true);
                 NewItem();
             }
 
             this.listView1.Items[0].Selected = true;
+            this.IsEdit = false;
+            this.IsNew = false;
+        }
 
+        /// <summary>
+        /// 新建
+        /// </summary>
+        private void BtnAssumptionNew_Click(object sender, EventArgs e)
+        {
+            NewAssumption();
+        }
+
+        /// <summary>
+        /// 保存
+        /// </summary>
+        private void BtnAssumptionSave_Click(object sender, EventArgs e)
+        {
+            if (this.ComboBoxAssumption.Text.Trim().Length == 0)
+            {
+                SystemSounds.Beep.Play();
+                StatusBarTipsShow("预设名称不能为空. ", true);
+                Blinking(this.ComboBoxAssumption);
+                return;
+            }
+            string name = this.ComboBoxAssumption.Text;
+            //检查有没有非法字符
+            string chars = "\\/:*?\"<>|";
+            foreach(char c in chars)
+            {
+                if (name.IndexOf(c) != -1)
+                {
+                    SystemSounds.Beep.Play();
+                    StatusBarTipsShow("预设名称不能包含下列任何字符: " + chars, true);
+                    Blinking(this.ComboBoxAssumption);
+                    return;
+                }
+            }
+            //检查无误之后保存
+            string path = GlobalStatus.AssumptionPath + name + ".txt";
+            StringBuilder sb1 = new StringBuilder();
+            StringBuilder sb2 = new StringBuilder();
+            foreach (ListViewItem items in this.listView1.Items)
+            {
+                sb2.Clear();
+                for (int i = 0; i < items.SubItems.Count; i++)
+                {
+                    string item = items.SubItems[i].Text;
+                    sb2.Append(item + ";");
+                }
+                sb2.Remove(sb2.Length - 1, 1);
+                sb1.AppendLine(sb2.ToString());
+            }
+
+            try
+            {
+                File.WriteAllText(path, sb1.ToString());
+                StatusBarTipsShow("成功保存预设: " + name, true);
+                RefleshAssumption();
+                this.IsNew = false;
+                this.IsEdit = false;
+            }
+            catch (Exception ex)
+            {
+                SystemSounds.Hand.Play();
+                StatusBarTipsShow("保存失败哩, 原因是: " + ex.Message, true);
+            }
+
+            sb1 = null;
+            sb2 = null;
+        }
+
+        /// <summary>
+        /// 移除
+        /// </summary>
+        private void BtnAssumptionDel_Click(object sender, EventArgs e)
+        {
+            string name = this.ComboBoxAssumption.Text;
+            if(name.Trim().Length == 0)
+            {
+                return;
+            }
+
+            if (MessageBox.Show("要移除 " + name  + " 吗? ", "移除", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            {
+                string path = GlobalStatus.AssumptionPath + name + ".txt";
+                try
+                {
+                    if (File.Exists(path) == false)
+                    {
+                        throw new Exception("找不到预设文件: " + path);
+                    }
+                    File.Delete(path);
+                    StatusBarTipsShow("移除预设成功: " + name, true);
+                    RefleshAssumption();
+                    NewAssumption();
+                }
+                catch (Exception ex)
+                {
+                    SystemSounds.Hand.Play();
+                    StatusBarTipsShow("移除失败哩, 原因是: " + ex.Message, true);
+                }
+            }
         }
     }
 }

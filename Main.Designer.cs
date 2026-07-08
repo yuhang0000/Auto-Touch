@@ -57,6 +57,7 @@
             this.PanelAssumption = new System.Windows.Forms.Panel();
             this.BtnAssumptionDel = new System.Windows.Forms.Button();
             this.BtnAssumptionRename = new System.Windows.Forms.Button();
+            this.BtnAssumptionNew = new System.Windows.Forms.Button();
             this.BtnAssumptionSave = new System.Windows.Forms.Button();
             this.ComboBoxAssumption = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -116,13 +117,15 @@
             // 
             this.StatusBarText.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Right;
             this.StatusBarText.Name = "StatusBarText";
-            this.StatusBarText.Size = new System.Drawing.Size(51, 24);
-            this.StatusBarText.Text = "就绪. ";
+            this.StatusBarText.Size = new System.Drawing.Size(43, 24);
+            this.StatusBarText.Text = "就绪";
             // 
             // StatusBarTips
             // 
             this.StatusBarTips.Name = "StatusBarTips";
-            this.StatusBarTips.Size = new System.Drawing.Size(0, 24);
+            this.StatusBarTips.Size = new System.Drawing.Size(583, 24);
+            this.StatusBarTips.Spring = true;
+            this.StatusBarTips.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // panel1
             // 
@@ -402,6 +405,7 @@
             this.PanelAssumption.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.PanelAssumption.Controls.Add(this.BtnAssumptionDel);
             this.PanelAssumption.Controls.Add(this.BtnAssumptionRename);
+            this.PanelAssumption.Controls.Add(this.BtnAssumptionNew);
             this.PanelAssumption.Controls.Add(this.BtnAssumptionSave);
             this.PanelAssumption.Controls.Add(this.ComboBoxAssumption);
             this.PanelAssumption.Controls.Add(this.label1);
@@ -419,6 +423,7 @@
             this.BtnAssumptionDel.TabIndex = 3;
             this.BtnAssumptionDel.Text = "移除";
             this.BtnAssumptionDel.UseVisualStyleBackColor = true;
+            this.BtnAssumptionDel.Click += new System.EventHandler(this.BtnAssumptionDel_Click);
             // 
             // BtnAssumptionRename
             // 
@@ -428,15 +433,29 @@
             this.BtnAssumptionRename.TabIndex = 2;
             this.BtnAssumptionRename.Text = "重命名";
             this.BtnAssumptionRename.UseVisualStyleBackColor = true;
+            this.BtnAssumptionRename.Visible = false;
+            // 
+            // BtnAssumptionNew
+            // 
+            this.BtnAssumptionNew.Enabled = false;
+            this.BtnAssumptionNew.Location = new System.Drawing.Point(78, 47);
+            this.BtnAssumptionNew.Name = "BtnAssumptionNew";
+            this.BtnAssumptionNew.Size = new System.Drawing.Size(68, 36);
+            this.BtnAssumptionNew.TabIndex = 2;
+            this.BtnAssumptionNew.Text = "新建";
+            this.BtnAssumptionNew.UseVisualStyleBackColor = true;
+            this.BtnAssumptionNew.Click += new System.EventHandler(this.BtnAssumptionNew_Click);
             // 
             // BtnAssumptionSave
             // 
+            this.BtnAssumptionSave.Enabled = false;
             this.BtnAssumptionSave.Location = new System.Drawing.Point(10, 47);
             this.BtnAssumptionSave.Name = "BtnAssumptionSave";
             this.BtnAssumptionSave.Size = new System.Drawing.Size(68, 36);
             this.BtnAssumptionSave.TabIndex = 1;
             this.BtnAssumptionSave.Text = "保存";
             this.BtnAssumptionSave.UseVisualStyleBackColor = true;
+            this.BtnAssumptionSave.Click += new System.EventHandler(this.BtnAssumptionSave_Click);
             // 
             // ComboBoxAssumption
             // 
@@ -616,7 +635,6 @@
 
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel StatusBarVersion;
-        private System.Windows.Forms.ToolStripStatusLabel StatusBarText;
         private System.Windows.Forms.ToolStripStatusLabel StatusBarAction;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.ColumnHeader columnHeader1;
@@ -659,5 +677,7 @@
         private System.Windows.Forms.CheckBox CheckBoxMouseMiddle;
         private System.Windows.Forms.CheckBox CheckBoxMouseLeft;
         public System.Windows.Forms.Panel CheckBoxListMouseAction;
+        private System.Windows.Forms.Button BtnAssumptionNew;
+        public System.Windows.Forms.ToolStripStatusLabel StatusBarText;
     }
 }
