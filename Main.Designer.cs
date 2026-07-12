@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.StatusBarVersion = new System.Windows.Forms.ToolStripStatusLabel();
             this.StatusBarAction = new System.Windows.Forms.ToolStripStatusLabel();
@@ -74,6 +75,11 @@
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ConMenu_ListView = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.清除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.全选ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.取消选择ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.移除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.PanelEditor.SuspendLayout();
@@ -82,6 +88,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.NumDelay)).BeginInit();
             this.PanelAssumption.SuspendLayout();
             this.PanelListControl.SuspendLayout();
+            this.ConMenu_ListView.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -123,7 +130,7 @@
             // StatusBarTips
             // 
             this.StatusBarTips.Name = "StatusBarTips";
-            this.StatusBarTips.Size = new System.Drawing.Size(583, 24);
+            this.StatusBarTips.Size = new System.Drawing.Size(630, 24);
             this.StatusBarTips.Spring = true;
             this.StatusBarTips.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -563,6 +570,7 @@
             this.columnHeader3,
             this.columnHeader4,
             this.columnHeader5});
+            this.listView1.ContextMenuStrip = this.ConMenu_ListView;
             this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listView1.FullRowSelect = true;
             this.listView1.GridLines = true;
@@ -601,6 +609,51 @@
             this.columnHeader5.Text = "操作";
             this.columnHeader5.Width = 126;
             // 
+            // ConMenu_ListView
+            // 
+            this.ConMenu_ListView.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ConMenu_ListView.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.清除ToolStripMenuItem,
+            this.全选ToolStripMenuItem,
+            this.取消选择ToolStripMenuItem,
+            this.移除ToolStripMenuItem});
+            this.ConMenu_ListView.Name = "ConMenu_ListView";
+            this.ConMenu_ListView.Size = new System.Drawing.Size(211, 128);
+            this.ConMenu_ListView.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.ConMenu_ListView_Closed);
+            this.ConMenu_ListView.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
+            // 
+            // 清除ToolStripMenuItem
+            // 
+            this.清除ToolStripMenuItem.Enabled = false;
+            this.清除ToolStripMenuItem.Name = "清除ToolStripMenuItem";
+            this.清除ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
+            this.清除ToolStripMenuItem.Text = "清空";
+            this.清除ToolStripMenuItem.Click += new System.EventHandler(this.清空ToolStripMenuItem_Click);
+            // 
+            // 全选ToolStripMenuItem
+            // 
+            this.全选ToolStripMenuItem.Enabled = false;
+            this.全选ToolStripMenuItem.Name = "全选ToolStripMenuItem";
+            this.全选ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
+            this.全选ToolStripMenuItem.Text = "全选";
+            this.全选ToolStripMenuItem.Click += new System.EventHandler(this.全选ToolStripMenuItem_Click);
+            // 
+            // 取消选择ToolStripMenuItem
+            // 
+            this.取消选择ToolStripMenuItem.Enabled = false;
+            this.取消选择ToolStripMenuItem.Name = "取消选择ToolStripMenuItem";
+            this.取消选择ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
+            this.取消选择ToolStripMenuItem.Text = "取消选择";
+            this.取消选择ToolStripMenuItem.Click += new System.EventHandler(this.取消选择ToolStripMenuItem_Click);
+            // 
+            // 移除ToolStripMenuItem
+            // 
+            this.移除ToolStripMenuItem.Enabled = false;
+            this.移除ToolStripMenuItem.Name = "移除ToolStripMenuItem";
+            this.移除ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
+            this.移除ToolStripMenuItem.Text = "移除";
+            this.移除ToolStripMenuItem.Click += new System.EventHandler(this.移除ToolStripMenuItem_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -626,6 +679,7 @@
             this.PanelAssumption.ResumeLayout(false);
             this.PanelAssumption.PerformLayout();
             this.PanelListControl.ResumeLayout(false);
+            this.ConMenu_ListView.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -679,5 +733,10 @@
         public System.Windows.Forms.Panel CheckBoxListMouseAction;
         private System.Windows.Forms.Button BtnAssumptionNew;
         public System.Windows.Forms.ToolStripStatusLabel StatusBarText;
+        private System.Windows.Forms.ContextMenuStrip ConMenu_ListView;
+        private System.Windows.Forms.ToolStripMenuItem 清除ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 全选ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 取消选择ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 移除ToolStripMenuItem;
     }
 }

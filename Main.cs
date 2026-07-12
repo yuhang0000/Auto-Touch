@@ -1110,9 +1110,66 @@ namespace Auto_Touch
         }
 
         //开始
-        private void BtnStart_Click(object sender, EventArgs e)
+        async private void BtnStart_Click(object sender, EventArgs e)
         {
-            
+            //this.Enabled = false;
+            this.Invoke(new MethodInvoker( () => {
+                this.WindowState = FormWindowState.Minimized;
+                this.PanelAssumption.Enabled = false;
+                this.PanelEditor.Enabled = false;
+                this.PanelListControl.Enabled = false;
+                this.listView1.Enabled = false;
+            }));
+
+            //枚举鼠标动作
+            List<MouseActionItem> items = new List<MouseActionItem>();
+            foreach (ListViewItem i in this.listView1.Items)
+            {
+                string[] xy = i.SubItems[1].Text.Split(',');
+                MouseActionItem item = new MouseActionItem(int.Parse(xy[0]), int.Parse(xy[1]) );
+                item.Delay = int.Parse( i.SubItems[2].Text.Substring(0, i.SubItems[2].Text.Length - 2) );
+                item.Wheel = int.Parse(i.SubItems[3].Text);
+                item.Action = i.SubItems[4].Text;
+                items.Add(item);
+            }
+
+            await Task.Run( () =>
+            {
+                RunStart(items);
+            });
+
+            this.Invoke(new MethodInvoker(() => {
+                if (this.listView1 != null)
+                {
+                    this.PanelAssumption.Enabled = true;
+                    this.PanelEditor.Enabled = true;
+                    this.PanelListControl.Enabled = true;
+                    this.listView1.Enabled = true;
+                }
+            }));
+        }
+
+        /// <summary>
+        /// 开始执行
+        /// </summary>
+        /// <param name="items">鼠标动作项列表</param>
+        public void RunStart(List<MouseActionItem> items)
+        {
+            long lasttime = Command.GetTimeStampMs();
+            long now = lasttime;
+            foreach(MouseActionItem item in items)
+            {
+                //await Task.Delay(item.Delay);
+                while (now - lasttime < item.Delay)
+                {
+                    DLL.DwmFlush();
+                    now = Command.GetTimeStampMs();
+                }
+                lasttime = now;
+
+                DLL.SetCursorPos(item.XY);
+            }
+
         }
 
         //预览
@@ -1132,31 +1189,53 @@ namespace Auto_Touch
             Preview preview = new Preview();
             preview.Show();
 
-            List<Point> points = new List<Point>();
-            List<int> delays = new List<int>();
+            List<MouseActionItem> items = new List<MouseActionItem>();
 
             //枚举坐标和时间
             foreach (ListViewItem listViewItem in this.listView1.Items)
             {
                 string[] xy = listViewItem.SubItems[1].Text.Split(',');
-                Point point = new Point(int.Parse(xy[0]),int.Parse(xy[1]));
-                points.Add(point);
-                delays.Add(int.Parse(listViewItem.SubItems[2].Text.Substring(0, listViewItem.SubItems[2].Text.Length - 2)));
+                MouseActionItem item = new MouseActionItem(int.Parse(xy[0]),int.Parse(xy[1]));
+                item.Delay = int.Parse(listViewItem.SubItems[2].Text.Substring(0, listViewItem.SubItems[2].Text.Length - 2));
+                items.Add(item);
             }
             
             //绘制轨迹
-            async void Draw()
+            void Draw()
             {
-                for (int i = 0; i < points.Count; i++)
+                for (int i = 0; i < items.Count; i++)
                 {
-                    await Task.Delay(delays[i]);
-                    //DLL.DwmFlush();
-                    preview.Draw(points[i]);
+                    long lasttime = Command.GetTimeStampMs();
+                    long now = lasttime;
+                    //await Task.Delay(items[i].Delay);
+                    while (now - lasttime < items[i].Delay)
+                    {
+                        DLL.DwmFlush();
+                        now = Command.GetTimeStampMs();
+                    }
+                    lasttime = now;
+
+                    if (preview.pen != null)
+                    {
+                        preview.Invoke(new MethodInvoker(() =>
+                        {
+                            preview.Draw(items[i].XY);
+                        }));
+                    }
+                    else
+                    {
+                        return;
+                    }
+
                 }
-                preview.label1.Visible = true;
+
+                preview.Invoke(new MethodInvoker(() =>
+                {
+                    preview.label1.Visible = true;
+                }));
             }
 
-            Draw();
+            Task.Run( () => { Draw(); });
         }
 
         /// <summary>
@@ -1374,5 +1453,50 @@ namespace Auto_Touch
                 }
             }
         }
+
+        //右键菜单
+        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
+        {
+            if (this.listView1.Items.Count > 0 && GlobalStatus.capturePosition == null)
+            {
+                this.清除ToolStripMenuItem.Enabled = true;
+                this.全选ToolStripMenuItem.Enabled = true;
+                if (this.listView1.SelectedItems.Count > 0)
+                {
+                    this.取消选择ToolStripMenuItem.Enabled = true;
+                    this.移除ToolStripMenuItem.Enabled = true;
+                }
+            }
+        }
+        private void ConMenu_ListView_Closed(object sender, ToolStripDropDownClosedEventArgs e)
+        {
+            this.清除ToolStripMenuItem.Enabled = false;
+            this.全选ToolStripMenuItem.Enabled = false;
+            this.取消选择ToolStripMenuItem.Enabled = false;
+            this.移除ToolStripMenuItem.Enabled = false;
+        }
+        private void 清空ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.listView1.Items.Clear();
+            NewItem();
+        }
+        private void 全选ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.listView1.SelectedItems.Clear();
+            foreach (ListViewItem item in this.listView1.Items)
+            {
+                item.Selected = true;
+            }
+        }
+        private void 取消选择ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.listView1.SelectedItems.Clear();
+        }
+        private void 移除ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DelItem();
+        }
+
+
     }
 }

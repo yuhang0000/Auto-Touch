@@ -420,9 +420,12 @@ namespace Auto_Touch
                 }*/
                 GlobalStatus.main.UpdateItemIndex();
             }
-            GlobalStatus.main.WindowState = FormWindowState.Normal;
+
+            //GlobalStatus.main.WindowState = FormWindowState.Normal;
             //GlobalStatus.main.Activate();
-            GlobalStatus.main.Focus();
+            //GlobalStatus.main.Focus();
+            DLL.ShowWindow(GlobalStatus.main.Handle, 9);
+            DLL.SetForegroundWindow(GlobalStatus.main.Handle);
             GlobalStatus.main.TextBoxPosition.Focus();
             GlobalStatus.main.TextBoxPosition_Leave(null, null);
             GlobalStatus.main.BtnCapturePosition.Enabled = true;

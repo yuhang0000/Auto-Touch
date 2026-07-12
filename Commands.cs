@@ -371,17 +371,57 @@ namespace Commands
 
         /// <summary>
         /// 向指定窗体发送消息
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-sendmessage">sendMessage 函数 (winuser.h)</a>
+        /// </para>
+        /// </summary>
         /// <param name="hWnd">指定窗体句柄</param>
         /// <param name="Msg">要发送的消息</param>
         /// <param name="wParam">其他的消息特定信息</param>
         /// <param name="lParam">其他的消息特定信息</param>
-        /// <para>
-        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-sendmessage">sendMessage 函数 (winuser.h)</a>
-        /// </para>
         /// <returns>bool: 返回结果</returns>
-        /// </summary>
         [DllImport("user32")]
         public static extern bool SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+        /// <summary>
+        /// 设置指定窗口的显示状态。
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-showwindow">ShowWindow 函数 (winuser.h)</a>
+        /// </para>
+        /// </summary>
+        /// <param name="hWnd">窗口的句柄</param>
+        /// <param name="nCmdShow">控制窗口的显示方式</param>
+        /// <returns>bool: 返回状态</returns>
+        [DllImport("user32")]
+        public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        /// <summary>
+        /// 将创建指定窗口的线程引入前台并激活窗口。
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-setforegroundwindow">SetForegroundWindow 函数 (winuser.h)</a>
+        /// </para>
+        /// </summary>
+        /// <param name="hWnd">应激活并带到前台的窗口的句柄</param>
+        /// <returns>bool: 返回状态</returns>
+        [DllImport("user32")]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+
     }
 
+    /// <summary>
+    /// 鼠标动作项
+    /// </summary>
+    public class MouseActionItem
+    {
+        public Point XY;
+        public int Delay = 0;
+        public int Wheel = 0;
+        public string Action = "None";
+
+        public MouseActionItem(int X, int Y)
+        {
+            this.XY = new Point(X, Y);
+        }
+    }
 }
