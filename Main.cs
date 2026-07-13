@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -1155,9 +1156,18 @@ namespace Auto_Touch
         /// <param name="items">鼠标动作项列表</param>
         public void RunStart(List<MouseActionItem> items)
         {
+            Point lastpos = new Point();
+            DLL.GetCursorPos(out lastpos);
             long lasttime = Command.GetTimeStampMs();
             long now = lasttime;
-            foreach(MouseActionItem item in items)
+            tagINPUT[] inputs = new tagINPUT[1];
+            int taginputsize = Marshal.SizeOf(typeof(tagINPUT));
+            int dx = Screen.PrimaryScreen.Bounds.Width;
+            int dy = Screen.PrimaryScreen.Bounds.Height;
+            //暂存按键状态
+            int[] status = {0, 0, 0, 0, 1 }; //改用数组来表示状态, 0 = 无, 1 = 松开, 2 = 按下, 3 = 已按下
+
+            foreach (MouseActionItem item in items)
             {
                 //await Task.Delay(item.Delay);
                 while (now - lasttime < item.Delay)
@@ -1167,9 +1177,159 @@ namespace Auto_Touch
                 }
                 lasttime = now;
 
-                DLL.SetCursorPos(item.XY);
+                //DLL.SetCursorPos(item.XY); 
+                inputs[0].mi.dx = ((ushort.MaxValue * item.X) / dx) + 1;
+                inputs[0].mi.dy = ((ushort.MaxValue * item.Y) / dy) + 1;
+                inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE;
+
+                //获取要按下哪个按键
+                string[] actions = item.Action.Split('|');
+                foreach (string action in actions)
+                {
+                    if (action == "MouseLeft")
+                    {
+                        if (status[0] != 3) 
+                        {
+                            status[0] = 2;
+                        }
+                    }
+                    else if (status[0] > 1)
+                    {
+                        status[0] = 1;
+                    }
+                    if (action == "MouseMiddle")
+                    {
+                        if (status[1] != 3)
+                        {
+                            status[1] = 2;
+                        }
+                    }
+                    else if (status[1] > 1)
+                    {
+                        status[1] = 1;
+                    }
+                    if (action == "MouseRight")
+                    {
+                        if (status[2] != 3)
+                        {
+                            status[2] = 2;
+                        }
+                    }
+                    else if (status[2] > 1)
+                    {
+                        status[2] = 1;
+                    }
+                    if (action.IndexOf("MouseXButton") != -1)
+                    {
+                        if (status[3] != 3)
+                        {
+                            status[3] = 2;
+                        }
+                        if (action == "MouseXButton1")
+                        {
+                            status[4] = 1;
+                        }
+                        else
+                        {
+                            status[4] = 2;
+                        }
+                    }
+                    else if (status[3] > 1)
+                    {
+                        status[3] = 1;
+                    }
+                }
+
+                //指定要按下哪个按键
+                if (status[0] == 2)
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_LEFTDOWN;
+                    status[0] = 3;
+                }
+                if (status[0] == 1)
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_LEFTUP;
+                    status[0] = 0;
+                }
+                if (status[1] == 2)
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_MIDDLEDOWN;
+                    status[1] = 3;
+                }
+                if (status[1] == 1)
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_MIDDLEUP;
+                    status[1] = 0;
+                }
+                if (status[2] == 2)
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_RIGHTDOWN;
+                    status[2] = 3;
+                }
+                if (status[2] == 1)
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_RIGHTUP;
+                    status[2] = 0;
+                }
+                if (status[3] == 2)
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_XDOWN;
+                    if (status[4] == 1)
+                    {
+                        inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON1;
+                    }
+                    else
+                    {
+                        inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON2;
+                    }
+                    status[3] = 3;
+                }
+                else if (status[3] == 1)
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_XUP;
+                    if (status[4] == 1)
+                    {
+                        inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON1;
+                    }
+                    else
+                    {
+                        inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON2;
+                    }
+                    status[3] = 0;
+                }
+                else if (status[3] == 0)
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_WHEEL;
+                    inputs[0].mi.mouseData = item.Wheel;
+                }
+
+                //调试
+                if(Debugger.IsAttached == true)
+                {
+                    Console.WriteLine("X: " + inputs[0].mi.dx + "\tY: " + inputs[0].mi.dy + "\tTime: " + item.Delay + 
+                        "ms\tStatus: " + status[0].ToString() + status[1].ToString() + status[2].ToString() + status[3].ToString() +
+                        status[4].ToString() + "\tMouseData: " + inputs[0].mi.mouseData);
+                }
+
+                SendInput(1, inputs, taginputsize);
             }
 
+            //完成后复位
+            inputs[0].mi.dx = ((ushort.MaxValue * lastpos.X) / dx) + 1;
+            inputs[0].mi.dy = ((ushort.MaxValue * lastpos.Y) / dy) + 1;
+            inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE;
+            inputs[0].mi.mouseData = 0;
+            SendInput(1, inputs, taginputsize);
+            SendInput(1, inputs, taginputsize);
+            inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_LEFTUP | DLL.MOUSEEVENTF.MOUSEEVENTF_MIDDLEUP | DLL.MOUSEEVENTF.MOUSEEVENTF_RIGHTUP;
+            SendInput(1, inputs, taginputsize);
+            inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_XUP;
+            inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON1;
+            SendInput(1, inputs, taginputsize);
+            inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_XUP;
+            inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON2;
+            SendInput(1, inputs, taginputsize);
+            Console.WriteLine("Done! ");
         }
 
         //预览

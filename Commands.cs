@@ -406,6 +406,246 @@ namespace Commands
         [DllImport("user32")]
         public static extern bool SetForegroundWindow(IntPtr hWnd);
 
+        /// <summary>
+        /// 合成键击、鼠标动作和按钮单击。
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-sendinput">sendInput 函数 (winuser.h)</a><br/>
+        /// </para>
+        /// </summary>
+        /// <param name="cInputs">pInputs 数组中的数量</param>
+        /// <param name="pInputs">INPUT 结构的数组</param>
+        /// <param name="cbSize">INPUT 结构的大小 (以字节为单位)</param>
+        /// <returns>uint: 函数返回成功插入键盘或鼠标输入流的事件数。</returns>
+        [DllImport("user32")]
+        public static extern uint SendInput(uint cInputs, tagINPUT[] pInputs, int cbSize);
+
+        /// <summary>
+        /// 输入结构, 由 SendInput 用于存储输入信息的结构
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/winuser/ns-winuser-input">INPUT 结构 (winuser.h)</a>
+        /// </para>
+        /// </summary>
+        [StructLayout(LayoutKind.Explicit)]
+        public struct tagINPUT
+        {
+            /// <summary>
+            /// 输入事件的类型
+            /// </summary>
+            [FieldOffset(0)] public uint type;
+            /// <summary>
+            /// 有关模拟鼠标事件的信息
+            /// </summary>
+            [FieldOffset(4)] public tagMOUSEINPUT mi;
+            /// <summary>
+            /// 有关模拟键盘事件的信息
+            /// </summary>
+            [FieldOffset(4)] public tagKEYBDINPUT ki;
+            /// <summary>
+            /// 有关模拟硬件事件的信息
+            /// </summary>
+            [FieldOffset(4)] public tagHARDWAREINPUT hi;
+        }
+        /// <summary>
+        /// 包含有关模拟鼠标事件的信息
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/winuser/ns-winuser-mouseinput">MOUSEINPUT 结构 (winuser.h)</a>
+        /// </para>
+        /// </summary>
+        public struct tagMOUSEINPUT
+        {
+            /// <summary>
+            /// 鼠标的绝对位置, X 轴坐标
+            /// </summary>
+            public int dx;
+            /// <summary>
+            /// 鼠标的绝对位置, Y 轴坐标
+            /// </summary>
+            public int dy;
+            /// <summary>
+            /// 如果 dwFlags 包含 MOUSEEVENTF_WHEEL, 则 mouseData 为鼠标滚轮移动量; <br/>
+            /// 如果 dwFlags 包含 MOUSEEVENTF_HWHEEL, 则 mouseData 为水平方向的鼠标滚轮移动量; <br/>
+            /// 如果 dwFlags 包含 MOUSEEVENTF_XDOWN 或 MOUSEEVENTF_XUP, 则 mouseData 为按下的指定鼠标侧键. <br/>
+            /// </summary>
+            public int mouseData;
+            /// <summary>
+            /// 指定鼠标的标识位
+            /// </summary>
+            public uint dwFlags;
+            /// <summary>
+            /// 事件的时间戳, 值为 0 时系统将提供自己的时间戳
+            /// </summary>
+            public uint time;
+            /// <summary>
+            /// 与鼠标关联的附加值
+            /// </summary>
+            public UIntPtr dwExtraInfo;
+        }
+        /// <summary>
+        /// 包含有关模拟键盘事件的信息
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/winuser/ns-winuser-keybdinput">KEYBDINPUT 结构 (winuser.h)</a>
+        /// </para>
+        /// </summary>
+        public struct tagKEYBDINPUT
+        {
+            /// <summary>
+            /// 按键代码
+            /// </summary>
+            public ushort wVk;
+            /// <summary>
+            /// 按键的硬件扫描代码. 如果 dwFlags 指定为 KEYEVENTF_UNICODE, wScan 将指定要发送到前台应用程序的 Unicode 字符
+            /// </summary>
+            public ushort wScan;
+            /// <summary>
+            /// 指定按键的标识位
+            /// </summary>
+            public uint dwFlags;
+            /// <summary>
+            /// 事件的时间戳, 值为 0 时系统将提供自己的时间戳
+            /// </summary>
+            public uint time;
+            /// <summary>
+            /// 与按键关联的附加值
+            /// </summary>
+            public UIntPtr dwExtraInfo;
+        }
+        /// <summary>
+        /// 包含有关由键盘或鼠标以外的输入设备生成的模拟消息的信息
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/winuser/ns-winuser-hardwareinput">HARDWAREINPUT 结构 (winuser.h)</a>
+        /// </para>
+        /// </summary>
+        public struct tagHARDWAREINPUT
+        {
+            /// <summary>
+            /// 输入硬件生成的消息
+            /// </summary>
+            public uint uMsg;
+            /// <summary>
+            /// uMsg 的 lParam 参数的低序字
+            /// </summary>
+            public ushort wParamL;
+            /// <summary>
+            /// uMsg 的 lParam 参数的高序字
+            /// </summary>
+            public ushort wParamH;
+        }
+        /// <summary>
+        /// 适用于 MOUSEINPUT 结构的标识位置
+        /// </summary>
+        public static class MOUSEEVENTF
+        {
+            /// <summary>
+            /// 鼠标移动
+            /// </summary>
+            public static uint MOUSEEVENTF_MOVE = 0x0001;
+            /// <summary>
+            /// 鼠标左键按下
+            /// </summary>
+            public static uint MOUSEEVENTF_LEFTDOWN = 0x0002;
+            /// <summary>
+            /// 鼠标左键松开
+            /// </summary>
+            public static uint MOUSEEVENTF_LEFTUP = 0x0004;
+            /// <summary>
+            /// 鼠标右键按下
+            /// </summary>
+            public static uint MOUSEEVENTF_RIGHTDOWN = 0x0008;
+            /// <summary>
+            /// 鼠标右键松开
+            /// </summary>
+            public static uint MOUSEEVENTF_RIGHTUP = 0x0010;
+            /// <summary>
+            /// 鼠标中键按下
+            /// </summary>
+            public static uint MOUSEEVENTF_MIDDLEDOWN = 0x0020;
+            /// <summary>
+            /// 鼠标中键松开
+            /// </summary>
+            public static uint MOUSEEVENTF_MIDDLEUP = 0x0040;
+            /// <summary>
+            /// 鼠标侧键按下
+            /// </summary>
+            public static uint MOUSEEVENTF_XDOWN = 0x0080;
+            /// <summary>
+            /// 鼠标侧键松开
+            /// </summary>
+            public static uint MOUSEEVENTF_XUP = 0x0100;
+            /// <summary>
+            /// 鼠标滚轮
+            /// </summary>
+            public static uint MOUSEEVENTF_WHEEL = 0x0800;
+            /// <summary>
+            /// 鼠标滚轮, 水平方向的
+            /// </summary>
+            public static uint MOUSEEVENTF_HWHEEL = 0x1000;
+            /// <summary>
+            /// 不合并 WM_MOUSEMOVE(鼠标移动) 消息
+            /// </summary>
+            public static uint MOUSEEVENTF_MOVE_NOCOALESCE = 0x2000;
+            /// <summary>
+            /// 将坐标映射到整个桌面, 必须与 MOUSEEVENTF_ABSOLUTE一起使用
+            /// </summary>
+            public static uint MOUSEEVENTF_VIRTUALDESK = 0x4000;
+            /// <summary>
+            /// 设置为绝对坐标. 未设定此值时, 默认为相对坐标, 即设置的坐标相对上一个光标位置做偏移
+            /// </summary>
+            public static uint MOUSEEVENTF_ABSOLUTE = 0x8000;
+            /// <summary>
+            /// 指定鼠标侧键, 使用时, 请将 dwFlags 设为 MOUSEEVENTF_XDOWN 或 MOUSEEVENTF_XUP
+            /// </summary>
+            public static class mouseData
+            {
+                /// <summary>
+                /// 鼠标侧键1
+                /// </summary>
+                public static int XBUTTON1 = 0x0001;
+                /// <summary>
+                /// 鼠标侧键2
+                /// </summary>
+                public static int XBUTTON2 = 0x0002;
+            }
+        }
+        /// <summary>
+        /// 适用于 KEYBDINPUT 结构的标识位置
+        /// </summary>
+        public static class KEYEVENTF
+        {
+            /// <summary>
+            /// 如果指定, wScan 扫描代码由两个字节序列组成, 其中第一个字节的值为0xE0
+            /// </summary>
+            public static uint KEYEVENTF_EXTENDEDKEY = 0x0001;
+            /// <summary>
+            /// 松开键盘按键, 未指定时默认为按下键盘按键
+            /// </summary>
+            public static uint KEYEVENTF_KEYUP = 0x0002;
+            /// <summary>
+            /// 如果指定, 那么 wVk 将替换为 wScan, 作为按键代码, 并且忽略 wVk
+            /// </summary>
+            public static uint KEYEVENTF_SCANCODE = 0x0008;
+            /// <summary>
+            /// 如果指定，那么可以在 wScan 中指定 Unicode 字符并发送出去, 请配合 KEYEVENTF_KEYUP 使用
+            /// </summary>
+            public static uint KEYEVENTF_UNICODE = 0x0004;
+        }
+        /// <summary>
+        /// 适用于 SendInputType 的输入事件的类型
+        /// </summary>
+        public static class SendInputType
+        {
+            /// <summary>
+            /// 鼠标事件
+            /// </summary>
+            public static uint INPUT_MOUSE = 0;
+            /// <summary>
+            /// 键盘事件
+            /// </summary>
+            public static uint INPUT_KEYBOARD = 1;
+            /// <summary>
+            /// 硬件消息事件
+            /// </summary>
+            public static uint INPUT_HARDWARE = 2;
+        }
 
     }
 
@@ -415,6 +655,8 @@ namespace Commands
     public class MouseActionItem
     {
         public Point XY;
+        public int X;
+        public int Y;
         public int Delay = 0;
         public int Wheel = 0;
         public string Action = "None";
@@ -422,6 +664,8 @@ namespace Commands
         public MouseActionItem(int X, int Y)
         {
             this.XY = new Point(X, Y);
+            this.X = X;
+            this.Y = Y;
         }
     }
 }
