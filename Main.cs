@@ -164,7 +164,6 @@ namespace Auto_Touch
             this.ComboBoxAssumption.Text = "";
             this.listView1.Items.Clear();
             NewItem();
-            this.listView1.Items[0].Selected = true;
         }
 
         /// <summary>
@@ -187,6 +186,8 @@ namespace Auto_Touch
             }
             this.listView1.EndUpdate();
             UpdateItemIndex();
+            this.listView1.SelectedItems.Clear();
+            this.listView1.Items[this.listView1.Items.Count - 1].Selected = true;
         }
 
         /// <summary>
@@ -194,10 +195,17 @@ namespace Auto_Touch
         /// </summary>
         public void DelItem()
         {
+            if (this.listView1.SelectedItems.Count == 0)
+            {
+                return;
+            }
+
             this.listView1.BeginUpdate();
+            int lastfocus = -1;
             for (int i = this.listView1.SelectedItems.Count - 1; i > -1; i--)
             {
-                this.listView1.Items.RemoveAt(this.listView1.SelectedItems[i].Index);
+                lastfocus = this.listView1.SelectedItems[i].Index;
+                this.listView1.Items.RemoveAt(lastfocus);
             }
             this.listView1.EndUpdate();
             UpdateItemIndex();
@@ -205,7 +213,15 @@ namespace Auto_Touch
             if (this.listView1.Items.Count == 0)
             {
                 NewItem();
-                this.listView1.Items[0].Selected = true;
+            }
+            //把焦点转移至上一个位置
+            else if(lastfocus > -1)
+            {
+                if(lastfocus > this.listView1.Items.Count - 1)
+                {
+                    lastfocus = this.listView1.Items.Count - 1;
+                }
+                this.listView1.Items[lastfocus].Selected = true;
             }
         }
 
@@ -712,7 +728,6 @@ namespace Auto_Touch
             if (this.listView1.Items.Count == 0)
             {
                 NewItem();
-                this.listView1.Items[0].Selected = true;
             }
         }
 
@@ -1165,7 +1180,8 @@ namespace Auto_Touch
             int dx = Screen.PrimaryScreen.Bounds.Width;
             int dy = Screen.PrimaryScreen.Bounds.Height;
             //暂存按键状态
-            int[] status = {0, 0, 0, 0, 1 }; //改用数组来表示状态, 0 = 无, 1 = 松开, 2 = 按下, 3 = 已按下
+            int[] status = {0, 0, 0, 0, 0 }; //改用数组来表示状态, 0 = 无, 1 = 松开, 2 = 按下, 3 = 已按下
+            string[] actionbuttons = {"MouseLeft", "MouseMiddle", "MouseRight", "MouseXButton1", "MouseXButton2" };
 
             foreach (MouseActionItem item in items)
             {
@@ -1178,68 +1194,87 @@ namespace Auto_Touch
                 lasttime = now;
 
                 //DLL.SetCursorPos(item.XY); 
-                inputs[0].mi.dx = ((ushort.MaxValue * item.X) / dx) + 1;
-                inputs[0].mi.dy = ((ushort.MaxValue * item.Y) / dy) + 1;
-                inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE;
+                int x = ((ushort.MaxValue * item.X) / dx) + 1;
+                int y = ((ushort.MaxValue * item.Y) / dy) + 1;
 
                 //获取要按下哪个按键
+                bool[] dumpbuttonstatus = { false, false, false, false, false }; //暂存按键是否读取过状态
                 string[] actions = item.Action.Split('|');
                 foreach (string action in actions)
                 {
-                    if (action == "MouseLeft")
+                    //便利
+                    for(int i = 0; i < actionbuttons.Length; i++)
                     {
-                        if (status[0] != 3) 
+                        //按下
+                        if (action == actionbuttons[i])
                         {
-                            status[0] = 2;
+                            dumpbuttonstatus[i] = true;
                         }
                     }
-                    else if (status[0] > 1)
+                }
+                for(int i = 0; i < dumpbuttonstatus.Length; i++)
+                {
+                    //按下
+                    if (dumpbuttonstatus[i] == true)
                     {
-                        status[0] = 1;
-                    }
-                    if (action == "MouseMiddle")
-                    {
-                        if (status[1] != 3)
+                        if (status[i] != 3)
                         {
-                            status[1] = 2;
+                            status[i] = 2;
                         }
                     }
-                    else if (status[1] > 1)
+                    //释放
+                    else if (status[i] > 1)
                     {
-                        status[1] = 1;
-                    }
-                    if (action == "MouseRight")
-                    {
-                        if (status[2] != 3)
-                        {
-                            status[2] = 2;
-                        }
-                    }
-                    else if (status[2] > 1)
-                    {
-                        status[2] = 1;
-                    }
-                    if (action.IndexOf("MouseXButton") != -1)
-                    {
-                        if (status[3] != 3)
-                        {
-                            status[3] = 2;
-                        }
-                        if (action == "MouseXButton1")
-                        {
-                            status[4] = 1;
-                        }
-                        else
-                        {
-                            status[4] = 2;
-                        }
-                    }
-                    else if (status[3] > 1)
-                    {
-                        status[3] = 1;
+                        status[i] = 1;
                     }
                 }
 
+                inputs[0].mi.dwFlags = 0x0;
+                //滚轮
+                if (status[3] + status[4] == 0 || status[3] + status[4] == 6 || (status[3] * status[4] == 0 && status[3] + status[4] == 3) )
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_WHEEL;
+                    inputs[0].mi.mouseData = item.Wheel;
+                }
+                //鼠标侧键
+                else
+                {
+                    //侧键1
+                    inputs[0].mi.dx = x;
+                    inputs[0].mi.dy = y;
+                    inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON1;
+                    if (status[3] == 2)
+                    {
+                        inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE | DLL.MOUSEEVENTF.MOUSEEVENTF_XDOWN;
+                        status[3] = 3;
+                        SendInput(1, inputs, taginputsize);
+                    }
+                    else if (status[3] == 1)
+                    {
+                        inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE | DLL.MOUSEEVENTF.MOUSEEVENTF_XUP;
+                        status[3] = 0;
+                        SendInput(1, inputs, taginputsize);
+                    }
+                    //侧键2
+                    inputs[0].mi.dx = x;
+                    inputs[0].mi.dy = y;
+                    inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON2;
+                    if (status[4] == 2)
+                    {
+                        inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE | DLL.MOUSEEVENTF.MOUSEEVENTF_XDOWN;
+                        status[4] = 3;
+                        SendInput(1, inputs, taginputsize);
+                    }
+                    else if (status[4] == 1)
+                    {
+                        inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE | DLL.MOUSEEVENTF.MOUSEEVENTF_XUP;
+                        status[4] = 0;
+                        SendInput(1, inputs, taginputsize);
+                    }
+                    //标识位复位
+                    inputs[0].mi.dwFlags = 0x0;
+                    inputs[0].mi.mouseData = 0;
+                }
                 //指定要按下哪个按键
                 if (status[0] == 2)
                 {
@@ -1271,42 +1306,15 @@ namespace Auto_Touch
                     inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_RIGHTUP;
                     status[2] = 0;
                 }
-                if (status[3] == 2)
-                {
-                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_XDOWN;
-                    if (status[4] == 1)
-                    {
-                        inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON1;
-                    }
-                    else
-                    {
-                        inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON2;
-                    }
-                    status[3] = 3;
-                }
-                else if (status[3] == 1)
-                {
-                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_XUP;
-                    if (status[4] == 1)
-                    {
-                        inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON1;
-                    }
-                    else
-                    {
-                        inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON2;
-                    }
-                    status[3] = 0;
-                }
-                else if (status[3] == 0)
-                {
-                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_WHEEL;
-                    inputs[0].mi.mouseData = item.Wheel;
-                }
+                //移动
+                inputs[0].mi.dx = x;
+                inputs[0].mi.dy = y;
+                inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE;
 
                 //调试
-                if(Debugger.IsAttached == true)
+                if (Debugger.IsAttached == true)
                 {
-                    Console.WriteLine("X: " + inputs[0].mi.dx + "\tY: " + inputs[0].mi.dy + "\tTime: " + item.Delay + 
+                    Console.WriteLine("X: " + inputs[0].mi.dx + "\tY: " + inputs[0].mi.dy + "\tTime: " + item.Delay +
                         "ms\tStatus: " + status[0].ToString() + status[1].ToString() + status[2].ToString() + status[3].ToString() +
                         status[4].ToString() + "\tMouseData: " + inputs[0].mi.mouseData);
                 }

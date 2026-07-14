@@ -254,7 +254,7 @@
             // NumWheel
             // 
             this.NumWheel.Increment = new decimal(new int[] {
-            100,
+            120,
             0,
             0,
             0});
@@ -618,7 +618,7 @@
             this.取消选择ToolStripMenuItem,
             this.移除ToolStripMenuItem});
             this.ConMenu_ListView.Name = "ConMenu_ListView";
-            this.ConMenu_ListView.Size = new System.Drawing.Size(211, 128);
+            this.ConMenu_ListView.Size = new System.Drawing.Size(139, 100);
             this.ConMenu_ListView.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.ConMenu_ListView_Closed);
             this.ConMenu_ListView.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
             // 
@@ -626,7 +626,7 @@
             // 
             this.清除ToolStripMenuItem.Enabled = false;
             this.清除ToolStripMenuItem.Name = "清除ToolStripMenuItem";
-            this.清除ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
+            this.清除ToolStripMenuItem.Size = new System.Drawing.Size(138, 24);
             this.清除ToolStripMenuItem.Text = "清空";
             this.清除ToolStripMenuItem.Click += new System.EventHandler(this.清空ToolStripMenuItem_Click);
             // 
@@ -634,7 +634,7 @@
             // 
             this.全选ToolStripMenuItem.Enabled = false;
             this.全选ToolStripMenuItem.Name = "全选ToolStripMenuItem";
-            this.全选ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
+            this.全选ToolStripMenuItem.Size = new System.Drawing.Size(138, 24);
             this.全选ToolStripMenuItem.Text = "全选";
             this.全选ToolStripMenuItem.Click += new System.EventHandler(this.全选ToolStripMenuItem_Click);
             // 
@@ -642,7 +642,7 @@
             // 
             this.取消选择ToolStripMenuItem.Enabled = false;
             this.取消选择ToolStripMenuItem.Name = "取消选择ToolStripMenuItem";
-            this.取消选择ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
+            this.取消选择ToolStripMenuItem.Size = new System.Drawing.Size(138, 24);
             this.取消选择ToolStripMenuItem.Text = "取消选择";
             this.取消选择ToolStripMenuItem.Click += new System.EventHandler(this.取消选择ToolStripMenuItem_Click);
             // 
@@ -650,7 +650,7 @@
             // 
             this.移除ToolStripMenuItem.Enabled = false;
             this.移除ToolStripMenuItem.Name = "移除ToolStripMenuItem";
-            this.移除ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
+            this.移除ToolStripMenuItem.Size = new System.Drawing.Size(138, 24);
             this.移除ToolStripMenuItem.Text = "移除";
             this.移除ToolStripMenuItem.Click += new System.EventHandler(this.移除ToolStripMenuItem_Click);
             // 
