@@ -29,7 +29,7 @@ namespace Auto_Touch
             }
             else
             {
-                Application.Run(GlobalStatus.main = new Main());
+                Application.Run(GlobalStatus.main = new Main(args));
             }
         }
     }

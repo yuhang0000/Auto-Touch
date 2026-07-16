@@ -334,6 +334,7 @@
             this.BtnHelp.TabIndex = 3;
             this.BtnHelp.Text = "帮助";
             this.BtnHelp.UseVisualStyleBackColor = true;
+            this.BtnHelp.Click += new System.EventHandler(this.BtnHelp_Click);
             // 
             // BtnStart
             // 

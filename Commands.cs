@@ -36,6 +36,27 @@ namespace Commands
         /// 预设文件夹路径
         /// </summary>
         public static string AssumptionPath = System.Environment.CurrentDirectory + "\\Assumption\\";
+        /// <summary>
+        /// 帮助文档
+        /// </summary>
+        public static string[] helptext = { 
+        "用法: ",
+        "",
+        "Auto Touch [OPTION]",
+        "",
+        "\t--help, -h      \t\t获取帮助",
+        "\t--version, -ver \t\t检查版本信息",
+        "\t--profile, -p <PATH|NAME>\t以指定的预设执行",
+        "\t-x <INT>\t\t\t点击 X 轴坐标位置",
+        "\t-y <INT>\t\t\t点击 Y 轴坐标位置",
+        "\t--wheel, -w <INT>\t\t鼠标滚轮滚动距离",
+        "\t--time, -t <INT|HH:MM:SS>\t延时运行, 单位: ms | HH:MM:SS",
+        "",
+        "示例: ",
+        "\tAuto Touch.exe -x 1920 -y 1080 --wheel 120 --time 60000",
+        "\tAuto Touch.exe -x 1920 -y 1080 --time 10:00:00",
+        "\tAuto Touch.exe --profile #1"
+        };
     }
 
     /// <summary>
@@ -646,6 +667,27 @@ namespace Commands
             /// </summary>
             public static uint INPUT_HARDWARE = 2;
         }
+
+        /// <summary>
+        /// 将调用进程附加到指定进程的控制台作为客户端应用程序。
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/console/attachconsole">AttachConsole 函数</a>
+        /// </para>
+        /// </summary>
+        /// <param name="dwProcessId">要使用的控制台的进程标识符. 值为 -1 时, 使用当前进程的父级的控制台</param>
+        /// <returns>bool: 如果该函数成功，则返回值为非零值，反之则为零值。</returns>
+        [DllImport("Kernel32")]
+        public static extern bool AttachConsole(int dwProcessId);
+
+        /// <summary>
+        /// 从其控制台分离调用进程。
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/console/freeconsole">FreeConsole 函数</a>
+        /// </para>
+        /// </summary>\
+        /// <returns>bool: 如果该函数成功，则返回值为非零值，反之则为零值。</returns>
+        [DllImport("Kernel32")]
+        public static extern bool FreeConsole();
 
     }
 
