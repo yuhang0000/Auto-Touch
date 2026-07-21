@@ -1,4 +1,5 @@
 ﻿using Commands;
+using Microsoft.Win32.SafeHandles;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -207,23 +208,36 @@ namespace Auto_Touch
                     //X 轴
                     else if (string.Equals(args[0], "-x", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
+                        isMouseActionTask = true;
+                        if (i + 1 < args.Length)
+                        {
 
+                        }
+                        //越界了
+                        else
+                        {
+                            errcomm();
+                            break;
+                        }
                     }
                     //Y 轴
                     else if (string.Equals(args[0], "-y", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
+                        isMouseActionTask = true;
 
                     }
                     //滚轮
                     else if (string.Equals(args[0], "-w", StringComparison.CurrentCultureIgnoreCase) == true ||
                         string.Equals(args[0], "--wheel", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
+                        isMouseActionTask = true;
 
                     }
                     //时间
                     else if (string.Equals(args[0], "-t", StringComparison.CurrentCultureIgnoreCase) == true ||
                         string.Equals(args[0], "--time", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
+                        isMouseActionTask = true;
 
                     }
                     //未知命令
@@ -1325,6 +1339,7 @@ namespace Auto_Touch
                 this.PanelEditor.Enabled = false;
                 this.PanelListControl.Enabled = false;
                 this.listView1.Enabled = false;
+                this.StatusBarText.Text = "执行中";
             }));
 
             //枚举鼠标动作
@@ -1351,6 +1366,7 @@ namespace Auto_Touch
                     this.PanelEditor.Enabled = true;
                     this.PanelListControl.Enabled = true;
                     this.listView1.Enabled = true;
+                    this.StatusBarText.Text = "就绪";
                 }
             }));
         }
@@ -1361,10 +1377,21 @@ namespace Auto_Touch
         /// <param name="items">鼠标动作项列表</param>
         public void RunStart(List<MouseActionItem> items)
         {
+            //创建媒体计时器
+            /*DLL.timecaps_tag timecaps = new DLL.timecaps_tag();
+            Console.WriteLine(DLL.timeGetDevCaps(ref timecaps, (uint)Marshal.SizeOf(typeof(tagINPUT))));
+            Console.WriteLine("Timecasp: MIX: " + timecaps.wPeriodMin + "\tMAX:" + timecaps.wPeriodMax);
+            Console.WriteLine(DLL.timeBeginPeriod(timecaps.wPeriodMin));*/
+            IntPtr timer = DLL.CreateWaitableTimerExW(IntPtr.Zero, null, DLL.WaitableTimerFlags.CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, DLL.DesiredAccesss.TIMER_ALL_ACCESS);
+            DLL.FILETIME lpDueTime = new DLL.FILETIME();
+            lpDueTime.AsLong = -10*1000*10L;
+            DLL.SetWaitableTimer(timer, ref lpDueTime, 1, IntPtr.Zero, IntPtr.Zero, false);
+
             Point lastpos = new Point();
             DLL.GetCursorPos(out lastpos);
-            long lasttime = Command.GetTimeStampMs();
-            long now = lasttime;
+            long lasttime = Command.GetTimeStampMs(); //最后获取的时间
+            long now = lasttime; //当前时间
+            long spend = 0; // now - lasttime
             tagINPUT[] inputs = new tagINPUT[1];
             int taginputsize = Marshal.SizeOf(typeof(tagINPUT));
             int dx = Screen.PrimaryScreen.Bounds.Width;
@@ -1375,11 +1402,15 @@ namespace Auto_Touch
 
             foreach (MouseActionItem item in items)
             {
+                //延时
                 //await Task.Delay(item.Delay);
-                while (now - lasttime < item.Delay)
+                spend = now - lasttime;
+                while (spend < item.Delay && item.Delay > 1)
                 {
-                    DLL.DwmFlush();
+                    //DLL.DwmFlush();
+                    DLL.WaitForSingleObject(timer, 15);
                     now = Command.GetTimeStampMs();
+                    spend = now - lasttime;
                 }
                 lasttime = now;
 
@@ -1507,7 +1538,7 @@ namespace Auto_Touch
                 {
                     Console.WriteLine("X: " + inputs[0].mi.dx + "\tY: " + inputs[0].mi.dy + "\tTime: " + item.Delay +
                         "ms\tStatus: " + status[0].ToString() + status[1].ToString() + status[2].ToString() + status[3].ToString() +
-                        status[4].ToString() + "\tMouseData: " + inputs[0].mi.mouseData);
+                        status[4].ToString() + "\tMouseData: " + inputs[0].mi.mouseData + "\tSpend: " + spend.ToString() + "ms");
                 }
 
                 SendInput(1, inputs, taginputsize);
@@ -1547,6 +1578,8 @@ namespace Auto_Touch
                 inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON2;
                 SendInput(1, inputs, taginputsize);
             }
+
+            DLL.CloseHandle(timer);
             Console.WriteLine("Done! ");
         }
 
@@ -1577,7 +1610,13 @@ namespace Auto_Touch
                 item.Delay = int.Parse(listViewItem.SubItems[2].Text.Substring(0, listViewItem.SubItems[2].Text.Length - 2));
                 items.Add(item);
             }
-            
+
+            //创建计时器
+            IntPtr timer = DLL.CreateWaitableTimerExW(IntPtr.Zero, null, DLL.WaitableTimerFlags.CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, DLL.DesiredAccesss.TIMER_ALL_ACCESS);
+            DLL.FILETIME lpDueTime = new DLL.FILETIME();
+            lpDueTime.AsLong = -10*1000*10L;
+            DLL.SetWaitableTimer(timer, ref lpDueTime, 1, IntPtr.Zero, IntPtr.Zero, false);
+
             //绘制轨迹
             void Draw()
             {
@@ -1588,7 +1627,8 @@ namespace Auto_Touch
                     //await Task.Delay(items[i].Delay);
                     while (now - lasttime < items[i].Delay)
                     {
-                        DLL.DwmFlush();
+                        //DLL.DwmFlush();
+                        DLL.WaitForSingleObject(timer, 15);
                         now = Command.GetTimeStampMs();
                     }
                     lasttime = now;
@@ -1613,7 +1653,10 @@ namespace Auto_Touch
                 }));
             }
 
-            Task.Run( () => { Draw(); });
+            Task.Run( () => { 
+                Draw();
+                DLL.CloseHandle(timer);
+            });
         }
 
         /// <summary>

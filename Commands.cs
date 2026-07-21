@@ -1,4 +1,5 @@
 ﻿using Auto_Touch;
+using Microsoft.Win32.SafeHandles;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -689,6 +690,336 @@ namespace Commands
         [DllImport("Kernel32")]
         public static extern bool FreeConsole();
 
+        /// <summary>
+        /// TIMECAPS 结构包含有关计时器分辨率的信息
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/timeapi/ns-timeapi-timecaps">TIMECAPS 结构</a>
+        /// </para>
+        /// </summary>
+        public struct timecaps_tag
+        {
+            /// <summary>
+            /// 支持的最小分辨率, 单位 ms
+            /// </summary>
+            public uint wPeriodMin;
+            /// <summary>
+            /// 支持的最大分辨率, 单位 ms
+            /// </summary>
+            public uint wPeriodMax;
+        }
+
+        /// <summary>
+        /// 查询计时器设备以确定其分辨率
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/timeapi/nf-timeapi-timegetdevcaps">timeGetDevCaps 函数 (timeapi.h)</a>
+        /// </para>
+        /// </summary>
+        /// <param name="ptc">指向 TIMECAPS 结构的指针</param>
+        /// <param name="cbtc">TIMECAPS 结构的大小</param>
+        /// <returns>int: 如果成功, 则返回 0</returns>
+        [DllImport("Winmm")]
+        public static extern int timeGetDevCaps(ref timecaps_tag ptc, uint cbtc);
+
+        /// <summary>
+        /// 设置周期计时器的最低分辨率
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/timeapi/nf-timeapi-timebeginperiod">timeBeginPeriod 函数 (timeapi.h)</a>
+        /// </para>
+        /// </summary>
+        /// <param name="uPeriod">最低定时器分辨率, 单位 ms</param>
+        /// <returns>int: 如果成功, 则返回 0</returns>
+        [DllImport("Winmm")]
+        public static extern int timeBeginPeriod(uint uPeriod);
+
+        /// <summary>
+        /// 清除以前设置的最小计时器分辨率
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/timeapi/nf-timeapi-timeendperiod">timeEndPeriod 函数 (timeapi.h)</a>
+        /// </para>
+        /// </summary>
+        /// <param name="uPeriod">上次调用 timeBeginPeriod 函数时指定的最小计时器分辨率</param>
+        /// <returns>int: 如果成功, 则返回 0</returns>
+        [DllImport("Winmm")]
+        public static extern int timeEndPeriod(uint uPeriod);
+
+        /// <summary>
+        /// 启动指定的定时器事件
+        /// <para>
+        /// <a href="https://learn.microsoft.com/en-us/previous-versions//dd757634(v=vs.85)">timeSetEvent 函数</a>
+        /// </para>
+        /// </summary>
+        /// <param name="uDelay">事件循环周期延迟, 单位 ms</param>
+        /// <param name="uResolution">计时器事件的分辨率, 单位 ms</param>
+        /// <param name="lpTimeProc">指针指向回调函数, 每一周期调用一次</param>
+        /// <param name="dwUser">用户提供的回调数据</param>
+        /// <param name="fuEvent">计时器事件类型</param>
+        /// <returns>如果成功，返回计时器事件的标识符，否则则返回错误。如果该函数失败且计时器事件未被创建，则返回 NULL。（该标识符也会传递给回调函数。）</returns>
+        [DllImport("Winmm")]
+        public static extern int timeSetEvent(uint uDelay, uint uResolution, TimeProc lpTimeProc, uint dwUser, uint fuEvent);
+
+        /// <summary>
+        /// 计时器事件类型
+        /// <para>
+        /// 我服了, 这里定义得从 Mmsystem.h 里找. 
+        /// </para>
+        /// </summary>
+        public static class TimerEvents
+        {
+            /// <summary>
+            /// 事件只触发一次
+            /// </summary>
+            public static uint TIME_ONESHOT = 0x0000;
+            /// <summary>
+            /// 事件循环触发
+            /// </summary>
+            public static uint TIME_PERIODIC = 0x0001;
+            /// <summary>
+            /// 当计时器到期时，Windows 调用 lpTimeProc 参数指向的函数。这是默认的。
+            /// </summary>
+            public static uint TIME_CALLBACK_FUNCTION = 0x0000;
+            /// <summary>
+            /// 当计时器到期时，Windows 调用 SetEvent 函数，将 lpTimeProc 参数指向的事件设置。dwUser 参数被忽略。
+            /// </summary>
+            public static uint TIME_CALLBACK_EVENT_SET = 0x0010;
+            /// <summary>
+            /// 当定时器到期时，Windows 调用 PulseEvent 函数，脉冲 lpTimeProc 参数指向的事件。dwUser 参数被忽略。
+            /// </summary>
+            public static uint TIME_CALLBACK_EVENT_PULSE = 0x0020;
+            /// <summary>
+            /// 传递该标志可以防止在调用 timeKillEvent 函数后发生事件。
+            /// </summary>
+            public static uint TIME_KILL_SYNCHRONOUS = 0x0100;
+        }
+
+        /// <summary>
+        /// 取消指定的定时器事件
+        /// <para>
+        /// <a href="https://learn.microsoft.com/en-us/previous-versions//dd757630(v=vs.85)">timeKillEvent 函数</a>
+        /// </para>
+        /// </summary>
+        /// <param name="uTimerID">用于取消定时器的事件标识符</param>
+        /// <returns>int: 如果成功, 则返回 0</returns>
+        [DllImport("Winmm")]
+        public static extern int timeKillEvent(uint uTimerID);
+
+        /// <summary>
+        /// 适用于 timeSetEvent 的回调函数
+        /// </summary>
+        /// <param name="uID">定时器事件的标识符</param>
+        /// <param name="uMsg">保留项, 没什么用</param>
+        /// <param name="dwUser">传递给 timeSetEvent 函数 dwUser 参数的用户实例数据</param>
+        /// <param name="dw1">保留项, 没什么用</param>
+        /// <param name="dw2">保留项, 没什么用</param>
+        /// <returns></returns>
+        public delegate IntPtr TimeProc(uint uID, uint uMsg, uint dwUser, uint dw1, uint dw2);
+
+        /// <summary>
+        /// 创建或打开可等待的计时器对象，并返回对象的句柄。
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/synchapi/nf-synchapi-createwaitabletimerexw">CreateWaitableTimerExW 函数 (synchapi.h)</a>
+        /// </para>
+        /// </summary>
+        /// <param name="lpTimerAttributes">指向 SECURITY_ATTRIBUTES 结构的指针</param>
+        /// <param name="lpTimerName">计时器对象的名称</param>
+        /// <param name="dwFlags">标识位</param>
+        /// <param name="dwDesiredAccess">计时器对象的访问掩码</param>
+        /// <returns>IntPtr: 如果函数成功，则返回值是计时器对象的句柄, 反之为 IntPtr.Zero </returns>
+        [DllImport("Kernel32", CallingConvention = CallingConvention.StdCall)]
+        public static extern IntPtr CreateWaitableTimerExW(IntPtr lpTimerAttributes, string lpTimerName, uint dwFlags, uint dwDesiredAccess);
+
+        /// <summary>
+        /// 适用于 CreateWaitableTimerExW 的标志位
+        /// </summary>
+        public static class WaitableTimerFlags
+        {
+            /// <summary>
+            /// 默认
+            /// </summary>
+            public static uint DEFAULT = 0x00000000;
+            /// <summary>
+            /// 必须手动重置计时器
+            /// </summary>
+            public static uint CREATE_WAITABLE_TIMER_MANUAL_RESET = 0x00000001;
+            /// <summary>
+            /// 创建高分辨率计时器
+            /// </summary>
+            public static uint CREATE_WAITABLE_TIMER_HIGH_RESOLUTION = 0x00000002;
+        }
+
+        /// <summary>
+        /// 枚举了适用于 dwDesiredAccess 的同步对象安全性和访问权限
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/sync/synchronization-object-security-and-access-rights">同步对象安全性和访问权限</a>
+        /// </para>
+        /// </summary>
+        public static class DesiredAccesss
+        {
+            //所有对象使用的标准访问权限
+            /// <summary>
+            /// 需要删除对象。
+            /// </summary>
+            public static ulong DELETE = 0x00010000L;
+            /// <summary>
+            /// 在对象的安全描述符中读取信息（不包括 SACL 中的信息）所必需的。 若要读取或写入 SACL，必须请求 ACCESS_SYSTEM_SECURITY 访问权限。
+            /// </summary>
+            public static ulong READ_CONTROL = 0x00010000L;
+            /// <summary>
+            /// 使用对象进行同步的权限。
+            /// </summary>
+            public static ulong SYNCHRONIZE = 0x00010000L;
+            /// <summary>
+            /// 在对象的安全描述符中修改 DACL 所必需的。
+            /// </summary>
+            public static ulong WRITE_DAC = 0x00010000L;
+            /// <summary>
+            /// 在对象的安全描述符中更改所有者所必需的。
+            /// </summary>
+            public static ulong WRITE_OWNER = 0x00010000L;
+
+            //事件对象
+            /// <summary>
+            /// 事件对象的所有可能访问权限
+            /// </summary>
+            public static uint EVENT_ALL_ACCESS = 0x1F0003;
+            /// <summary>
+            /// 修改 SetEvent、ResetEvent 和 PulseEvent 函数所需的状态访问
+            /// </summary>
+            public static uint EVENT_MODIFY_STATE = 0x0002;
+
+            //互斥对象
+            /// <summary>
+            /// 互斥体对象的所有可能访问权限
+            /// </summary>
+            public static uint MUTEX_ALL_ACCESS = 0x1F0001;
+            /// <summary>
+            /// 保留以供将来使用
+            /// </summary>
+            public static uint MUTEX_MODIFY_STATE = 0x0001;
+
+            //信号灯对象
+            /// <summary>
+            /// 信号灯对象的所有可能访问权限
+            /// </summary>
+            public static uint SEMAPHORE_ALL_ACCESS = 0x1F0003;
+            /// <summary>
+            /// 修改 ReleaseSemaphore 函数所需的状态访问
+            /// </summary>
+            public static uint SEMAPHORE_MODIFY_STATE = 0x0002;
+
+            //计时器
+            /// <summary>
+            /// 计时器对象的所有可能访问权限
+            /// </summary>
+            public static uint TIMER_ALL_ACCESS = 0x1F0003;
+            /// <summary>
+            /// 修改 SetWaitableTimer 和 CancelWaitableTimer 函数所需的状态访问
+            /// </summary>
+            public static uint TIMER_MODIFY_STATE = 0x0002;
+            /// <summary>
+            /// 保留以供将来使用
+            /// </summary>
+            public static uint TIMER_QUERY_STATE = 0x0001;
+        }
+
+        /// <summary>
+        /// <para>
+        /// 包含一个 64 位值，该值表示自 1601 年 1 月 1 日 (UTC) 以来的 100 纳秒间隔数 <br/>
+        /// 再套一个 ref 就可以当作 ulong 用了. 
+        /// </para>
+        /// <para>
+        /// <br/>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/minwinbase/ns-minwinbase-filetime">fileTIME 结构 (minwinbase.h)</a>
+        /// </para>
+        /// </summary>
+        [StructLayout(LayoutKind.Explicit)]
+        public struct FILETIME
+        {
+            /// <summary>
+            /// 文件时间的低序部分
+            /// </summary>
+            [FieldOffset(0)]public uint dwLowDateTime;
+            /// <summary>
+            /// 文件时间的高序部分
+            /// </summary>
+            [FieldOffset(4)]public uint dwHighDateTime;
+            /// <summary>
+            /// 像 long 一样填数字就好
+            /// </summary>
+            [FieldOffset(0)]public long AsLong;
+        }
+
+        /// <summary>
+        /// 激活指定的计时器
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/synchapi/nf-synchapi-setwaitabletimer">SetWaitableTimer 函数 (synchapi.h)</a>
+        /// </para>
+        /// </summary>
+        /// <param name="hTimer">计时器对象的句柄</param>
+        /// <param name="lpDueTime">计时器首次 Tick 的时间, 单位 100ns</param>
+        /// <param name="lPeriod">计时器的循环周期, 单位 ms</param>
+        /// <param name="pfnCompletionRoutine">指向可选完成例程的指针</param>
+        /// <param name="lpArgToCompletionRoutine">指向传递到完成例程的结构的指针</param>
+        /// <param name="fResume">如果此参数 TRUE，则当计时器状态设置为信号时，还原处于挂起的节能模式的系统</param>
+        /// <returns>bool: 如果函数成功, 则返回值为 true</returns>
+        [DllImport("Kernel32", CallingConvention = CallingConvention.StdCall)]
+        public static extern bool SetWaitableTimer(IntPtr hTimer, ref FILETIME lpDueTime, int lPeriod, IntPtr pfnCompletionRoutine, IntPtr lpArgToCompletionRoutine, bool fResume);
+
+        /// <summary>
+        /// 暂停指定的可等待计时器
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/synchapi/nf-synchapi-cancelwaitabletimer">CancelWaitableTimer 函数 (synchapi.h)</a>
+        /// </para>
+        /// </summary>
+        /// <param name="hTimer">计时器对象的句柄</param>
+        /// <returns>bool: 如果该函数成功, 则返回值为 true</returns>
+        [DllImport("Kernel32")]
+        public static extern bool CancelWaitableTimer(IntPtr hTimer);
+
+        /// <summary>
+        /// 关闭打开的对象句柄
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/handleapi/nf-handleapi-closehandle">closeHandle 函数 (handleapi.h)</a>
+        /// </para>
+        /// </summary>
+        /// <param name="hObject">打开对象的有效句柄</param>
+        /// <returns>bool: 如果该函数成功, 则返回值为 true</returns>
+        [DllImport("Kernel32")]
+        public static extern bool CloseHandle(IntPtr hObject);
+
+        /// <summary>
+        /// 等待指定的对象处于信号状态或超时间隔过
+        /// <para>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject">WaitForSingleObject 函数 (synchapi.h)</a>
+        /// </para>
+        /// </summary>
+        /// <param name="hHandle">对象的句柄</param>
+        /// <param name="dwMilliseconds">超时间隔, 单位 ms</param>
+        /// <returns>uint: 函数返回的事件, 正常的话是 WAIT_OBJECT_0</returns>
+        [DllImport("Kernel32")]
+        public static extern ulong WaitForSingleObject(IntPtr hHandle, uint dwMilliseconds);
+
+        /// <summary>
+        /// 适用于 WaitForSingleObject 的函数返回的事件列表
+        /// </summary>
+        public static class WAIT_Event
+        {
+            /// <summary>
+            /// 指定的对象是一个互斥体对象，该对象不是由拥有互斥体对象的线程在拥有线程终止之前释放的。
+            /// </summary>
+            public static ulong WAIT_ABANDONED = 0x00000080L;
+            /// <summary>
+            /// 指定对象的状态已正常发出信号。
+            /// </summary>
+            public static ulong WAIT_OBJECT_0 = 0x00000000L;
+            /// <summary>
+            /// 指定的对象已超时。
+            /// </summary>
+            public static ulong WAIT_TIMEOUT = 0x00000102L;
+            /// <summary>
+            /// 指定的对象执行失败了。
+            /// </summary>
+            public static ulong WAIT_FAILED = 0xFFFFFFFF;
+        }
     }
 
     /// <summary>
