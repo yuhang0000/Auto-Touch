@@ -102,17 +102,23 @@ namespace Auto_Touch
             }
         }
 
+        /// <summary>
+        /// 构造函数, 处理启动参数, GUI 初始化也在这
+        /// </summary>
+        /// <param name="args">启动参数</param>
         public Main(string[] args = null)
         {
             //接受到启动参数
             if (args != null && args.Length > 0)
             {
+                Point nowxy;
+                DLL.GetCursorPos(out nowxy);
                 bool isMouseActionTask = false;
-                int x = 0;
-                int y = 0;
+                int x = nowxy.X;
+                int y = nowxy.Y;
                 int delay = 0;
                 int wheel = 0;
-                string action = "None";
+                List<string> action = new List<string>();
                 List<MouseActionItem> items = new List<MouseActionItem>();
 
                 //ConsoleLog4CMD("测试", "标头");
@@ -127,13 +133,43 @@ namespace Auto_Touch
                     items.Clear();
                 }
 
+                //尝试理解数字
+                bool tryparse(string key, string value, out int num)
+                {
+                    if (int.TryParse(value, out num) == false)
+                    {
+                        unknowtype(key, value);
+                        return false; ;
+                    }
+                    return true;
+                }
+                //该重载为非 type 类型
+                void unknowtype(string key, string value, string type = "INT")
+                {
+                    string text = key + " " + value + "\r\n";
+                    for (int ii = 0; ii < key.Length + 1; ii++)
+                    {
+                        text = text + " ";
+                    }
+                    text = text + "^";
+                    for (int ii = 0; ii < value.Length - 1; ii++) //像 GCC 一样
+                    {
+                        text = text + "~";
+                    }
+                    text = text + "\r\n该重载为非 " + type + " 类型";
+
+                    ConsoleLog4CMD("", trymsgbox: false);
+                    ConsoleLog4CMD(text, "语法错误");
+                    isMouseActionTask = false;
+                }
+
                 //便利启动参数
                 for (int i = 0; i < args.Length; i++)
                 {
                     //帮助
-                    if (string.Equals(args[0], "-h", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[0], "--help", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[0], "/?", StringComparison.CurrentCultureIgnoreCase) == true)
+                    if (string.Equals(args[i], "-h", StringComparison.CurrentCultureIgnoreCase) == true ||
+                        string.Equals(args[i], "--help", StringComparison.CurrentCultureIgnoreCase) == true ||
+                        string.Equals(args[i], "/?", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
                         ConsoleLog4CMD("", trymsgbox: false);
                         ConsoleLog4CMD(string.Join("\r\n", GlobalStatus.helptext), "帮助");
@@ -142,9 +178,9 @@ namespace Auto_Touch
                         break;
                     }
                     //版本
-                    else if (string.Equals(args[0], "-v", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[0], "-ver", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[0], "--version", StringComparison.CurrentCultureIgnoreCase) == true)
+                    else if (string.Equals(args[i], "-v", StringComparison.CurrentCultureIgnoreCase) == true ||
+                        string.Equals(args[i], "-ver", StringComparison.CurrentCultureIgnoreCase) == true ||
+                        string.Equals(args[i], "--version", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
                         ConsoleLog4CMD("Build Time: " + GlobalStatus.BuildTime, trymsgbox:false);
                         isMouseActionTask = false;
@@ -152,8 +188,8 @@ namespace Auto_Touch
                         break; //前面 ConsoleLog4CMD 初始化时, 已经打印版本信息了. 
                     }
                     //从预设启动
-                    else if (string.Equals(args[0], "-p", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[0], "--profile", StringComparison.CurrentCultureIgnoreCase) == true)
+                    else if (string.Equals(args[i], "-p", StringComparison.CurrentCultureIgnoreCase) == true ||
+                        string.Equals(args[i], "--profile", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
                         if(i + 1 < args.Length)
                         {
@@ -206,12 +242,17 @@ namespace Auto_Touch
                         }
                     }
                     //X 轴
-                    else if (string.Equals(args[0], "-x", StringComparison.CurrentCultureIgnoreCase) == true)
+                    else if (string.Equals(args[i], "-x", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
                         isMouseActionTask = true;
                         if (i + 1 < args.Length)
                         {
-
+                            if (tryparse(args[i], args[i + 1], out x) == false)
+                            {
+                                break;
+                            }
+                            i++;
+                            continue;
                         }
                         //越界了
                         else
@@ -221,24 +262,159 @@ namespace Auto_Touch
                         }
                     }
                     //Y 轴
-                    else if (string.Equals(args[0], "-y", StringComparison.CurrentCultureIgnoreCase) == true)
+                    else if (string.Equals(args[i], "-y", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
                         isMouseActionTask = true;
-
+                        if (i + 1 < args.Length)
+                        {
+                            if (tryparse(args[i], args[i + 1], out y) == false)
+                            {
+                                break;
+                            }
+                            i++;
+                            continue;
+                        }
+                        //越界了
+                        else
+                        {
+                            errcomm();
+                            break;
+                        }
                     }
                     //滚轮
-                    else if (string.Equals(args[0], "-w", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[0], "--wheel", StringComparison.CurrentCultureIgnoreCase) == true)
+                    else if (string.Equals(args[i], "-w", StringComparison.CurrentCultureIgnoreCase) == true ||
+                        string.Equals(args[i], "--wheel", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
                         isMouseActionTask = true;
-
+                        if (i + 1 < args.Length)
+                        {
+                            if (tryparse(args[i], args[i + 1], out wheel) == false)
+                            {
+                                break;
+                            }
+                            i++;
+                            continue;
+                        }
+                        //越界了
+                        else
+                        {
+                            errcomm();
+                            break;
+                        }
                     }
                     //时间
-                    else if (string.Equals(args[0], "-t", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[0], "--time", StringComparison.CurrentCultureIgnoreCase) == true)
+                    else if (string.Equals(args[i], "-t", StringComparison.CurrentCultureIgnoreCase) == true ||
+                        string.Equals(args[i], "--time", StringComparison.CurrentCultureIgnoreCase) == true ||
+                        string.Equals(args[i], "--delay", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
                         isMouseActionTask = true;
-
+                        if (i + 1 < args.Length)
+                        {
+                            string t = args[i + 1];
+                            //HH:MM:SS
+                            if (t.IndexOf(":") != -1)
+                            {
+                                string[] tt = t.Split(':');
+                                //超过了三个冒号或者没有
+                                if (tt.Length > 3 || tt.Length == 0)
+                                {
+                                    unknowtype(args[i], t, "HH:MM:SS");
+                                    break;
+                                }
+                                //挨个转
+                                bool err = false;
+                                for (int ii = 0; ii < tt.Length; ii++)
+                                {
+                                    int num = 0;
+                                    if (tt[ii].Length == 0 || int.TryParse(tt[ii], out num) == false)
+                                    {
+                                        unknowtype(args[i], t, "HH:MM:SS");
+                                        err = true;
+                                        break;
+                                    }
+                                    //检查时间有没有超过60 的
+                                    if (tt.Length > 1 && ii > 0 && num > 59)
+                                    {
+                                        unknowtype(args[i], t, "HH:MM:SS");
+                                        err = true;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        delay = delay + (int)Math.Pow(60, -1 + tt.Length - ii) * num ;
+                                    }
+                                }
+                                //完成了吗?
+                                if (err == true)
+                                {
+                                    break;
+                                }
+                                delay = delay * 1000;
+                                //ConsoleLog4CMD(delay.ToString());
+                            }
+                            //假如是纯数字
+                            else if(tryparse(args[i], args[i + 1], out delay) == false)
+                            {
+                                break;
+                            }
+                            i++;
+                            continue;
+                        }
+                        //越界了
+                        else
+                        {
+                            errcomm();
+                            break;
+                        }
+                    }
+                    //动作
+                    else if (string.Equals(args[i], "-a", StringComparison.CurrentCultureIgnoreCase) == true ||
+                        string.Equals(args[i], "--action", StringComparison.CurrentCultureIgnoreCase) == true ||
+                        string.Equals(args[i], "--button", StringComparison.CurrentCultureIgnoreCase) == true)
+                    {
+                        isMouseActionTask = true;
+                        if (i + 1 < args.Length)
+                        {
+                            bool err = false;
+                            //便利动作组
+                            string[] acts = args[i + 1].ToLower().Split(',');
+                            for (int ii = 0; ii < acts.Length; ii++)
+                            {
+                                err = false;
+                                bool err2 = false;
+                                string actss = acts[ii];
+                                foreach (string mb in GlobalStatus.MouseButtons)
+                                {
+                                    if (mb == actss)
+                                    {
+                                        err2 = true;
+                                        break;
+                                    }
+                                }
+                                if (err2 == false && actss != "none")
+                                {
+                                    unknowtype(args[i], args[i + 1], "ACTION");
+                                    err = true;
+                                    break;
+                                }
+                                action.Add(actss);
+                            }
+                            if (err == true)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                i++;
+                                continue;
+                            }
+                        }
+                        //越界了
+                        else
+                        {
+                            errcomm();
+                            break;
+                        }
                     }
                     //未知命令
                     else
@@ -251,10 +427,12 @@ namespace Auto_Touch
                 //如果是鼠标动作
                 if(isMouseActionTask == true)
                 {
-                    MouseActionItem item = new MouseActionItem(x, y);
+                    MouseActionItem item = new MouseActionItem(nowxy.X, nowxy.Y);
+                    items.Add(item);
+                    item = new MouseActionItem(x, y);
                     item.Delay = delay;
                     item.Wheel = wheel;
-                    item.Action = action;
+                    item.Action = string.Join("|", action);
                     items.Add(item);
                 }
 
@@ -1398,7 +1576,7 @@ namespace Auto_Touch
             int dy = Screen.PrimaryScreen.Bounds.Height;
             //暂存按键状态
             int[] status = {0, 0, 0, 0, 0 }; //改用数组来表示状态, 0 = 无, 1 = 松开, 2 = 按下, 3 = 已按下
-            string[] actionbuttons = {"MouseLeft", "MouseMiddle", "MouseRight", "MouseXButton1", "MouseXButton2" };
+            
 
             foreach (MouseActionItem item in items)
             {
@@ -1420,15 +1598,15 @@ namespace Auto_Touch
 
                 //获取要按下哪个按键
                 bool[] dumpbuttonstatus = { false, false, false, false, false }; //暂存按键是否读取过状态
-                string[] actions = item.Action.Split('|');
+                string[] actions = item.Action.ToLower().Split('|');
                 foreach (string action in actions)
                 {
                     //便利
-                    for(int i = 0; i < actionbuttons.Length; i++)
+                    for(int i = 0; i < GlobalStatus.MouseButtons.Length; i++)
                     {
                         //按下
-                        if (action == actionbuttons[i])
-                        if (string.Equals(action, actionbuttons[i], StringComparison.CurrentCultureIgnoreCase))
+                        if (action == GlobalStatus.MouseButtons[i])
+                        if (string.Equals(action, GlobalStatus.MouseButtons[i], StringComparison.CurrentCultureIgnoreCase))
                         {
                             dumpbuttonstatus[i] = true;
                         }
@@ -1826,6 +2004,11 @@ namespace Auto_Touch
 
             try
             {
+                //如果文件夹不存在就创建
+                if (Directory.Exists(GlobalStatus.AssumptionPath) == false)
+                {
+                    Directory.CreateDirectory(GlobalStatus.AssumptionPath);
+                }
                 File.WriteAllText(path, sb1.ToString());
                 StatusBarTipsShow("成功保存预设: " + name, true);
                 RefleshAssumption();

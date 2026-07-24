@@ -48,16 +48,26 @@ namespace Commands
         "\t--help, -h      \t\t获取帮助",
         "\t--version, -ver \t\t检查版本信息",
         "\t--profile, -p <PATH|NAME>\t以指定的预设执行",
-        "\t-x <INT>\t\t\t点击 X 轴坐标位置",
-        "\t-y <INT>\t\t\t点击 Y 轴坐标位置",
-        "\t--wheel, -w <INT>\t\t鼠标滚轮滚动距离",
-        "\t--time, -t <INT|HH:MM:SS>\t延时运行, 单位: ms | HH:MM:SS",
+        "\t-x <INT>\t\t\t光标 X 轴坐标位置",
+        "\t-y <INT>\t\t\t光标 Y 轴坐标位置",
+        "\t--wheel, -w <INT>\t\t鼠标滚轮滚动距离, 缺省时为 0",
+        "\t--action, -a <ACTION>   \t鼠标按键动作, 缺省时为 None",
+        "\t--time, -t <INT|HH:MM:SS>\t延时运行, 单位: ms | HH:MM:SS, 缺省时为立即执行",
+        "",
+        "<ACTION>",
+        "\tNone, MouseLeft, MouseMiddle, MouseRight, MouseXButton1, MouseXButton2",
         "",
         "示例: ",
         "\tAuto Touch.exe -x 1920 -y 1080 --wheel 120 --time 60000",
+        "\tAuto Touch.exe -x 1920 -y 1080 --action MouseLeft,MouseRight",
+        "\tAuto Touch.exe -x 1920 -y 1080 --time 100 --action MouseLeft",
         "\tAuto Touch.exe -x 1920 -y 1080 --time 10:00:00",
         "\tAuto Touch.exe --profile #1"
         };
+        /// <summary>
+        /// 可提供的鼠标按键列表
+        /// </summary>
+        public static string[] MouseButtons = { "mouseleft", "mousemiddle", "mouseright", "mousexbutton1", "mousexbutton2" };
     }
 
     /// <summary>
