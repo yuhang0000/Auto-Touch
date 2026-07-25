@@ -194,6 +194,17 @@ namespace Auto_Touch
                         if(i + 1 < args.Length)
                         {
                             string path = GlobalStatus.AssumptionPath + args[i + 1] + ".txt";
+                            //是预设名称
+                            if (args[i + 1].IndexOf("/") == -1 && args[i + 1].IndexOf("\\") == -1 && File.Exists(path) == true)
+                            {
+                                //path = GlobalStatus.AssumptionPath + args[i + 1] + ".txt";
+                            }
+                            //是路径
+                            else
+                            {
+                                path = Path.GetFullPath(args[i + 1]);
+                            }
+
                             if (File.Exists(path) == true)
                             {
                                 isMouseActionTask = false;
@@ -226,9 +237,11 @@ namespace Auto_Touch
                                 //i++;
                                 break;
                             }
+                            //预设不存在
                             else
                             {
-                                ConsoleLog4CMD("找不到改预设: " + args[i + 1]);
+                                //ConsoleLog4CMD("找不到该预设: " + args[i + 1]);
+                                ConsoleLog4CMD("找不到该预设: " + path);
                                 isMouseActionTask = false;
                                 items.Clear();
                                 break;

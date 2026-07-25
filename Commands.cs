@@ -133,6 +133,72 @@ namespace Commands
 
             return timestamp;
         }
+
+        /// <summary>
+        /// 将相对路径转换为绝对路径
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string ToAbsolutePath(string path)
+        {
+            //跳过空的
+            if (path == null)
+            {
+                return null;
+            }
+            path = path.Trim();
+            if (path.Length == 0)
+            {
+                return "";
+            }
+
+            path = path.Replace("/","\\");
+            //如果有指向驱动器的话, 就直接返回
+            if (path.Length > 2 && ((path[0] > 64 && path[0] < 91) || (path[0] > 96 && path[0] < 123) ) && path[1] == ':' && path[2] == '\\')
+            {
+                return path;
+            }
+            //如果有指向网页驱动器的话, 就直接返回
+            if (path.Length > 1 && path[0] == '\\' && path[1] == '\\')
+            {
+                return path;
+            }
+            //根目录
+            List<string> cd = Environment.CurrentDirectory.Split('\\').ToList<string>();
+            string[] path_array = path.Split('\\');
+            if (path[0] == '\\')
+            {
+                return cd[0] + path;
+            }
+            //循环遍历 ..\ .\
+            foreach (string c in path_array)
+            {
+                //上一级
+                if (c == "..")
+                {
+                    //不能再向上了
+                    if (cd.Count < 2)
+                    {
+                        throw new Exception("超出路径范围. ");
+                    }
+                    else
+                    {
+                        cd.RemoveAt(cd.Count - 1);
+                    }
+                }
+                //当前目录
+                else if(c == ".")
+                {
+                    continue;
+                }
+                else
+                {
+                    cd.Add(c);
+                }
+            }
+
+            return string.Join("\\", cd);
+        }
     }
 
     /// <summary>
