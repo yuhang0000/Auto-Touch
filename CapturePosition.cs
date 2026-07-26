@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static Commands.DLL;
 
 namespace Auto_Touch
 {
@@ -105,11 +106,15 @@ namespace Auto_Touch
             /// <summary>
             /// 延时
             /// </summary>
-            public int delay = 0;
+            public long delay = 0;
             /// <summary>
             /// 上一次记录的时间戳
             /// </summary>
-            public int LastTick = -1;
+            public long LastTick = -1;
+            /// <summary>
+            /// 暂存时间戳
+            /// </summary>
+            public long TimeStamp = -1;
             /// <summary>
             /// 滚轮位置
             /// </summary>
@@ -216,7 +221,7 @@ namespace Auto_Touch
             this.sss.tagMSLLHOOKSTRUCT = Marshal.PtrToStructure<DLL.tagMSLLHOOKSTRUCT>(lParam);
 
             this.sss.Actioned = true; 
-            int TimeStamp = (int)Command.GetTimeStampMs(); //获取当前时间, 毫秒
+            this.sss.TimeStamp = Command.GetTimeStampMs(); //获取当前时间, 毫秒
             this.sss.X = this.sss.tagMSLLHOOKSTRUCT.pt.X;
             this.sss.Y = this.sss.tagMSLLHOOKSTRUCT.pt.Y;
             this.sss.Wheel = 0;
@@ -282,22 +287,30 @@ namespace Auto_Touch
             }
             if(this.sss.LastTick == -1)
             {
-                this.sss.LastTick = TimeStamp;
+                this.sss.LastTick = this.sss.TimeStamp;
             }
-            this.sss.delay = TimeStamp - this.sss.LastTick;
-            this.sss.LastTick = TimeStamp;
-            //Console.WriteLine("X: " + X + "\tY: " + Y + "\tWheel: " + Wheel + "\tAction: " + WM_Mouse + "\tTime: " + TimeStamp + "(" + this.sss.delay + ")");
-
+            this.sss.delay = this.sss.TimeStamp - this.sss.LastTick;
+            this.sss.LastTick = this.sss.TimeStamp;
+            
+            
             //设置窗体位置
             if (this.sss.RunOnce == true)
             {
                 SetFormSize(this.sss.X, this.sss.Y);
             }
 
-            //捕捉到了按键状态并且处于单点模式就返回
-            if (this.sss.RunOnce == true && this.sss.Actioned == true)
+            //单点模式
+            if (this.sss.RunOnce == true)
             {
-                返回();
+                if (GlobalStatus.IsDebug == true)
+                {
+                    Console.WriteLine("X: " + this.sss.X + "\tY: " + this.sss.Y + "\tWheel: " + this.sss.Wheel + "\tAction: None\tTimeStamp: " + this.sss.TimeStamp + "\tDelay: " + this.sss.delay + "ms");
+                }
+                //捕捉到了按键状态就返回
+                if (this.sss.Actioned == true)
+                {
+                    返回();
+                }
             }
             //轨迹模式
             else if(this.sss.RunOnce == false)
@@ -325,23 +338,30 @@ namespace Auto_Touch
                 }
                 if(sss.mousebuttonstatus.Action.Length > 0)
                 {
-                    sss.mousebuttonstatus.Action.Remove(sss.mousebuttonstatus.Action.Length - 1, 1);
+                    this.sss.mousebuttonstatus.Action.Remove(this.sss.mousebuttonstatus.Action.Length - 1, 1);
+                    this.sss.MouseAction = this.sss.mousebuttonstatus.Action.ToString();
                 }
                 else
                 {
-                    sss.mousebuttonstatus.Action.Append("None");
+                    //sss.mousebuttonstatus.Action.Append("None");
+                    this.sss.MouseAction = "None";
                 }
-
+                
                 ListViewItem item = new ListViewItem();
                 item.Text = this.sss.Items.Count.ToString();
                 item.SubItems.Add(this.sss.X + "," + this.sss.Y); //坐标
                 item.SubItems.Add(this.sss.delay.ToString() + "ms"); //延时
                 item.SubItems.Add(this.sss.Wheel.ToString()); //滚轮
-                item.SubItems.Add(this.sss.mousebuttonstatus.Action.ToString()); //按键动作
+                item.SubItems.Add(this.sss.MouseAction); //按键动作
                 this.sss.Items.Add(item);
 
-                sss.mousebuttonstatus.Action.Clear();
+                if (GlobalStatus.IsDebug == true)
+                {
+                    Console.WriteLine("X: " + this.sss.X + "\tY: " + this.sss.Y + "\tWheel: " + this.sss.Wheel + "\tAction: " + this.sss.MouseAction + "\tTimeStamp: " + this.sss.TimeStamp + "\tDelay: " + this.sss.delay + "ms");
+                }
+                this.sss.mousebuttonstatus.Action.Clear();
             }
+
         }
 
         /// <summary>
@@ -413,7 +433,9 @@ namespace Auto_Touch
             //轨迹捕捉
             else
             {
+                GlobalStatus.main.listView1.BeginUpdate();
                 GlobalStatus.main.listView1.Items.AddRange(this.sss.Items.ToArray());
+                GlobalStatus.main.listView1.EndUpdate();
                 /*foreach (ListViewItem item in this.sss.Items)
                 {
                     GlobalStatus.main.listView1.Items.Add(item);
@@ -432,9 +454,11 @@ namespace Auto_Touch
             GlobalStatus.main.BtnCaptureTrajectory.Enabled = true;
             GlobalStatus.main.Disable_listView1_ItemSelectionChanged = false;
             GlobalStatus.main.StatusBarText.Text = "就绪";
+            GlobalStatus.ITaskbarList3.SetOverlayIcon(GlobalStatus.main.Handle, IntPtr.Zero, GlobalStatus.main.StatusBarText.Text);
             this.Close();
             this.Dispose();
             GlobalStatus.capturePosition = null;
+            Console.WriteLine("Done! ");
         }
 
         //失去焦点

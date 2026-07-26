@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Policy;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace Auto_Touch
             //先处理全局变数
             GlobalStatus.Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
             GlobalStatus.BuildTime = System.IO.File.GetLastWriteTime(typeof(GlobalStatus).Assembly.Location);
+            GlobalStatus.IsDebug = Debugger.IsAttached;
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

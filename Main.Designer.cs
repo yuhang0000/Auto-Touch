@@ -36,6 +36,7 @@
             this.StatusBarTips = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.PanelEditor = new System.Windows.Forms.Panel();
+            this.BtnStop = new System.Windows.Forms.Button();
             this.CheckBoxListMouseAction = new System.Windows.Forms.Panel();
             this.CheckBoxMouseXButton2 = new System.Windows.Forms.CheckBox();
             this.CheckBoxMouseXButton1 = new System.Windows.Forms.CheckBox();
@@ -147,6 +148,7 @@
             // PanelEditor
             // 
             this.PanelEditor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.PanelEditor.Controls.Add(this.BtnStop);
             this.PanelEditor.Controls.Add(this.CheckBoxListMouseAction);
             this.PanelEditor.Controls.Add(this.NumWheel);
             this.PanelEditor.Controls.Add(this.NumDelay);
@@ -166,6 +168,19 @@
             this.PanelEditor.Name = "PanelEditor";
             this.PanelEditor.Size = new System.Drawing.Size(225, 221);
             this.PanelEditor.TabIndex = 0;
+            // 
+            // BtnStop
+            // 
+            this.BtnStop.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.BtnStop.Enabled = false;
+            this.BtnStop.Location = new System.Drawing.Point(78, 144);
+            this.BtnStop.Name = "BtnStop";
+            this.BtnStop.Size = new System.Drawing.Size(68, 36);
+            this.BtnStop.TabIndex = 4;
+            this.BtnStop.Text = "停止";
+            this.BtnStop.UseVisualStyleBackColor = true;
+            this.BtnStop.Visible = false;
+            this.BtnStop.Click += new System.EventHandler(this.BtnStop_Click);
             // 
             // CheckBoxListMouseAction
             // 
@@ -667,7 +682,9 @@
             this.DoubleBuffered = true;
             this.Name = "Main";
             this.Text = "Auto Touch";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Main_FormClosing);
             this.Load += new System.EventHandler(this.Main_Load);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Main_KeyUp);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.panel1.ResumeLayout(false);
@@ -739,5 +756,6 @@
         private System.Windows.Forms.ToolStripMenuItem 全选ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 取消选择ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 移除ToolStripMenuItem;
+        public System.Windows.Forms.Button BtnStop;
     }
 }

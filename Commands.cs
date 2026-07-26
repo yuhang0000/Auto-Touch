@@ -53,6 +53,7 @@ namespace Commands
         "\t--wheel, -w <INT>\t\t鼠标滚轮滚动距离, 缺省时为 0",
         "\t--action, -a <ACTION>   \t鼠标按键动作, 缺省时为 None",
         "\t--time, -t <INT|HH:MM:SS>\t延时运行, 单位: ms | HH:MM:SS, 缺省时为立即执行",
+        "\t--debug \t\t\t调试模式, 在当前终端中打印额外信息",
         "",
         "<ACTION>",
         "\tNone, MouseLeft, MouseMiddle, MouseRight, MouseXButton1, MouseXButton2",
@@ -68,6 +69,22 @@ namespace Commands
         /// 可提供的鼠标按键列表
         /// </summary>
         public static string[] MouseButtons = { "mouseleft", "mousemiddle", "mouseright", "mousexbutton1", "mousexbutton2" };
+        /// <summary>
+        /// ITaskbarList3 对象
+        /// </summary>
+        public static DLL.ITaskbarList3 ITaskbarList3;
+        /// <summary>
+        /// 调试模式
+        /// </summary>
+        public static bool IsDebug = false;
+        
+        /// <summary>
+        /// 初始化
+        /// </summary>
+        public static void Init()
+        {
+            ITaskbarList3 = (DLL.ITaskbarList3)Activator.CreateInstance(Type.GetTypeFromCLSID(DLL.CLSID_TaskbarLis));
+        }
     }
 
     /// <summary>
@@ -198,6 +215,18 @@ namespace Commands
             }
 
             return string.Join("\\", cd);
+        }
+
+        /// <summary>
+        /// 打印日志, 仅当 GlobalStatus.IsDebug == true 时
+        /// </summary>
+        /// <param name="text"></param>
+        public static void ConsoleLog(string text)
+        {
+            if (GlobalStatus.IsDebug == true)
+            {
+                Console.WriteLine(text);
+            }
         }
     }
 
@@ -1096,6 +1125,64 @@ namespace Commands
             /// </summary>
             public static ulong WAIT_FAILED = 0xFFFFFFFF;
         }
+
+        /// <summary>
+        /// <para>
+        /// ITaskbarList3 的 COM 接口
+        /// <br/>
+        /// 一个个对着 ShObjIdl_core.h 抄表好麻烦
+        /// <br/><br/>
+        /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/shobjidl_core/nn-shobjidl_core-itaskbarlist3">ITaskbarList3 接口 (shobjidl_core.h)</a>
+        /// </para>
+        /// </summary>
+        [ComImport]
+        [Guid("ea1afb91-9e28-4b86-90e9-9e9f8a5eefaf")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        public interface ITaskbarList3
+        {
+            //ITaskbarList1
+            uint HrInit();
+            uint AddTab(IntPtr hwnd);
+            uint DeleteTab(IntPtr hwnd);
+            uint ActivateTab(IntPtr hwnd);
+            uint SetActiveAlt(IntPtr hwnd);
+
+            //ITaskbarList2
+            uint MarkFullscreenWindow(IntPtr hwnd, bool fFullscreen);
+
+            //ITaskbarList3
+            uint SetProgressValue(IntPtr hwnd, ulong ullCompleted, ulong ullTotal);
+            uint SetProgressState(IntPtr hwnd, uint tbpFlags);
+            uint RegisterTab(IntPtr hwndTab, IntPtr hwndMDI);
+            uint UnregisterTab(IntPtr hwndTab);
+            uint SetTabOrder(IntPtr hwndTab, IntPtr hwndInsertBefore);
+            uint SetTabActive(IntPtr hwndTab, IntPtr hwndMDI, uint dwReserved);
+            uint ThumbBarAddButtons(IntPtr hwnd, uint cButtons, IntPtr pButton);
+            uint ThumbBarUpdateButtons(IntPtr hwnd, uint cButtons, IntPtr pButton);
+            uint ThumbBarSetImageList(IntPtr hwnd, IntPtr himl);
+            /// <summary>
+            /// 在任务栏图标上显示叠加层, 就是在任务栏图标的基础上, 右上角显示小图标
+            /// <para>
+            /// <a href="https://learn.microsoft.com/zh-cn/windows/win32/api/shobjidl_core/nf-shobjidl_core-itaskbarlist3-setoverlayicon">ITaskbarList3::SetOverlayIcon 方法 (shobjidl_core.h)</a>
+            /// </para>
+            /// </summary>
+            /// <param name="hwnd">关联任务栏图标的窗体句柄</param>
+            /// <param name="hIcon">叠加层图标的句柄. 传递 IntPtr.Zero 即可清除</param>
+            /// <param name="pszDescription">指向字符串的指针, 该字符串提供覆盖所传达信息的替换文字版本</param>
+            /// <returns>uint: 如果该方法成功, 则返回 0x0</returns>
+            uint SetOverlayIcon(IntPtr hwnd, IntPtr hIcon, string pszDescription);
+            uint SetThumbnailTooltip(IntPtr hwnd, string pszTip);
+            uint SetThumbnailClip(IntPtr hwnd, IntPtr prcClip);
+        }
+
+        /// <summary>
+        /// <para>
+        /// ITaskbarList 的GUID. 
+        /// <br/>
+        /// 调用 ITaskbarList3 前, 先把 ITaskbarList 弄出来
+        /// </para>
+        /// </summary>
+        public static Guid CLSID_TaskbarLis = new Guid("56FDF344-FD6D-11d0-958A-006097C9A090");
     }
 
     /// <summary>

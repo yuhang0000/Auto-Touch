@@ -68,6 +68,19 @@ namespace Auto_Touch
         /// 是否附加到控制台, -1 = 没有检查, 0 = 没有, 1 = 有的
         /// </summary>
         int IsAttachConsole = -1;
+        /// <summary>
+        /// 是否正在执行
+        /// </summary>
+        bool IsRuning = false;
+        /// <summary>
+        /// 想要退出
+        /// </summary>
+        bool IWantExit = false;
+        /// <summary>
+        /// 在构造之后, 是否显示窗体
+        /// </summary>
+        bool ShowFormOnInit = true;
+        
 
         /// <summary>
         /// 打印文本到控制台里
@@ -113,7 +126,7 @@ namespace Auto_Touch
             {
                 Point nowxy;
                 DLL.GetCursorPos(out nowxy);
-                bool isMouseActionTask = false;
+                int isMouseActionTask = 0; //-1: 禁用 0: false 1: true
                 int x = nowxy.X;
                 int y = nowxy.Y;
                 int delay = 0;
@@ -129,7 +142,7 @@ namespace Auto_Touch
                     ConsoleLog4CMD("未知指令.");
                     ConsoleLog4CMD("", trymsgbox: false);
                     ConsoleLog4CMD(string.Join("\r\n", GlobalStatus.helptext), "帮助");
-                    isMouseActionTask = false;
+                    isMouseActionTask = -1;
                     items.Clear();
                 }
 
@@ -160,7 +173,7 @@ namespace Auto_Touch
 
                     ConsoleLog4CMD("", trymsgbox: false);
                     ConsoleLog4CMD(text, "语法错误");
-                    isMouseActionTask = false;
+                    isMouseActionTask = -1;
                 }
 
                 //便利启动参数
@@ -171,9 +184,10 @@ namespace Auto_Touch
                         string.Equals(args[i], "--help", StringComparison.CurrentCultureIgnoreCase) == true ||
                         string.Equals(args[i], "/?", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
+                        isMouseActionTask = -1;
+                        this.ShowFormOnInit = false;
                         ConsoleLog4CMD("", trymsgbox: false);
                         ConsoleLog4CMD(string.Join("\r\n", GlobalStatus.helptext), "帮助");
-                        isMouseActionTask = false;
                         items.Clear();
                         break;
                     }
@@ -182,8 +196,9 @@ namespace Auto_Touch
                         string.Equals(args[i], "-ver", StringComparison.CurrentCultureIgnoreCase) == true ||
                         string.Equals(args[i], "--version", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
+                        isMouseActionTask = -1;
+                        this.ShowFormOnInit = false;
                         ConsoleLog4CMD("Build Time: " + GlobalStatus.BuildTime, trymsgbox:false);
-                        isMouseActionTask = false;
                         items.Clear();
                         break; //前面 ConsoleLog4CMD 初始化时, 已经打印版本信息了. 
                     }
@@ -191,6 +206,8 @@ namespace Auto_Touch
                     else if (string.Equals(args[i], "-p", StringComparison.CurrentCultureIgnoreCase) == true ||
                         string.Equals(args[i], "--profile", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
+                        isMouseActionTask = -1;
+                        this.ShowFormOnInit = false;
                         if(i + 1 < args.Length)
                         {
                             string path = GlobalStatus.AssumptionPath + args[i + 1] + ".txt";
@@ -207,7 +224,6 @@ namespace Auto_Touch
 
                             if (File.Exists(path) == true)
                             {
-                                isMouseActionTask = false;
                                 items.Clear();
                                 try
                                 {
@@ -232,17 +248,17 @@ namespace Auto_Touch
                                 catch (Exception ex)
                                 {
                                     ConsoleLog4CMD("载入预设时出错了, 原因是: \r\n" + ex.ToString(), "Oops! ");
+                                    break;
                                 }
 
-                                //i++;
-                                break;
+                                i++;
+                                //break;
                             }
                             //预设不存在
                             else
                             {
                                 //ConsoleLog4CMD("找不到该预设: " + args[i + 1]);
                                 ConsoleLog4CMD("找不到该预设: " + path);
-                                isMouseActionTask = false;
                                 items.Clear();
                                 break;
                             }
@@ -257,7 +273,10 @@ namespace Auto_Touch
                     //X 轴
                     else if (string.Equals(args[i], "-x", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
-                        isMouseActionTask = true;
+                        if(isMouseActionTask != -1){
+                            isMouseActionTask = 1;
+                        }
+                        this.ShowFormOnInit = false;
                         if (i + 1 < args.Length)
                         {
                             if (tryparse(args[i], args[i + 1], out x) == false)
@@ -277,7 +296,10 @@ namespace Auto_Touch
                     //Y 轴
                     else if (string.Equals(args[i], "-y", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
-                        isMouseActionTask = true;
+                        if(isMouseActionTask != -1){
+                            isMouseActionTask = 1;
+                        }
+                        this.ShowFormOnInit = false;
                         if (i + 1 < args.Length)
                         {
                             if (tryparse(args[i], args[i + 1], out y) == false)
@@ -298,7 +320,10 @@ namespace Auto_Touch
                     else if (string.Equals(args[i], "-w", StringComparison.CurrentCultureIgnoreCase) == true ||
                         string.Equals(args[i], "--wheel", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
-                        isMouseActionTask = true;
+                        if(isMouseActionTask != -1){
+                            isMouseActionTask = 1;
+                        }
+                        this.ShowFormOnInit = false;
                         if (i + 1 < args.Length)
                         {
                             if (tryparse(args[i], args[i + 1], out wheel) == false)
@@ -320,7 +345,10 @@ namespace Auto_Touch
                         string.Equals(args[i], "--time", StringComparison.CurrentCultureIgnoreCase) == true ||
                         string.Equals(args[i], "--delay", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
-                        isMouseActionTask = true;
+                        if(isMouseActionTask != -1){
+                            isMouseActionTask = 1;
+                        }
+                        this.ShowFormOnInit = false;
                         if (i + 1 < args.Length)
                         {
                             string t = args[i + 1];
@@ -385,7 +413,11 @@ namespace Auto_Touch
                         string.Equals(args[i], "--action", StringComparison.CurrentCultureIgnoreCase) == true ||
                         string.Equals(args[i], "--button", StringComparison.CurrentCultureIgnoreCase) == true)
                     {
-                        isMouseActionTask = true;
+                        if (isMouseActionTask != -1)
+                        {
+                            isMouseActionTask = 1;
+                        }
+                        this.ShowFormOnInit = false;
                         if (i + 1 < args.Length)
                         {
                             bool err = false;
@@ -429,6 +461,15 @@ namespace Auto_Touch
                             break;
                         }
                     }
+                    //调试
+                    else if (string.Equals(args[i], "--debug", StringComparison.CurrentCultureIgnoreCase) == true)
+                    {
+                        GlobalStatus.IsDebug = true;
+                        if (this.IsAttachConsole == -1)
+                        {
+                            ConsoleLog4CMD("", trymsgbox: false);
+                        }
+                    }
                     //未知命令
                     else
                     {
@@ -438,7 +479,7 @@ namespace Auto_Touch
                 }
 
                 //如果是鼠标动作
-                if(isMouseActionTask == true)
+                if(isMouseActionTask == 1)
                 {
                     MouseActionItem item = new MouseActionItem(nowxy.X, nowxy.Y);
                     items.Add(item);
@@ -456,66 +497,83 @@ namespace Auto_Touch
                 }
 
                 //关闭
-                this.Hide();
-                this.ShowInTaskbar = false;
-                DLL.FreeConsole();
-                this.Load += new EventHandler( (object sender, EventArgs e) => {
-                    this.Close();
-                });
-            }
-            //正常打开
-            else
-            {
-                InitializeComponent();
-                this.Text = Application.ProductName;
-                this.StatusBarVersion.Text = "v" + GlobalStatus.Version;
-                //注册消息过滤器
-                Application.AddMessageFilter(new MsgFilter());
-                //尝试让下拉框设定只读
-                //DLL.SendMessage(this.ComboBoxAction.Handle, 0x00CF, IntPtr.Zero, IntPtr.Zero);
-                //設定状态栏文本计时器
-                this.StatusBarTipsTimer.Interval = 5000;
-                this.StatusBarTipsTimer.Tick += new EventHandler((obj, e) => {
-                    if (this.StatusBarTipsWait == false)
+                if (this.ShowFormOnInit == false)
+                {
+                    this.Hide();
+                    this.ShowInTaskbar = false;
+                    DLL.FreeConsole();
+                    this.Load += new EventHandler((object sender, EventArgs e) =>
                     {
-                        this.StatusBarTips.Text = "";
-                    }
-                    this.StatusBarTipsWait = false;
-                    this.StatusBarTipsTimer.Stop();
-                });
-                //尝试为每个控件设置提示文本
-                this.BtnAssumptionDel.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.BtnAssumptionRename.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.BtnAssumptionSave.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.BtnAssumptionNew.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.BtnCapturePosition.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.BtnCaptureTrajectory.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.BtnExit.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.BtnStart.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.BtnExport.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.BtnImport.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.BtnHelp.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.BtnListDel.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.BtnListDown.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.BtnListUp.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.BtnListNew.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.ComboBoxAssumption.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.ComboBoxAction.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.NumDelay.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.NumWheel.MouseEnter += new EventHandler(Control_MouseEnter);
-                this.TextBoxPosition.MouseEnter += new EventHandler(Control_MouseEnter);
-
-                //加载预设列表
-                RefleshAssumption();
-                NewAssumption();
+                        this.Close();
+                    });
+                }
             }
+
+            //正常打开窗体
+            if(this.ShowFormOnInit == true)
+            {
+                InitForm();
+            }
+        }
+
+        /// <summary>
+        /// 构造窗体, 并显示出来
+        /// </summary>
+        public void InitForm()
+        {
+            GlobalStatus.Init();
+            InitializeComponent();
+            this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+            this.Text = Application.ProductName;
+            this.StatusBarVersion.Text = "v" + GlobalStatus.Version;
             this.MinimumSize = this.Size;
+
+            //注册消息过滤器
+            Application.AddMessageFilter(new MsgFilter());
+            //尝试让下拉框设定只读
+            //DLL.SendMessage(this.ComboBoxAction.Handle, 0x00CF, IntPtr.Zero, IntPtr.Zero);
+            //設定状态栏文本计时器
+            this.StatusBarTipsTimer.Interval = 5000;
+            this.StatusBarTipsTimer.Tick += new EventHandler((obj, e) => {
+                if (this.StatusBarTipsWait == false)
+                {
+                    this.StatusBarTips.Text = "";
+                }
+                this.StatusBarTipsWait = false;
+                this.StatusBarTipsTimer.Stop();
+            });
+            //尝试为每个控件设置提示文本
+            this.BtnAssumptionDel.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.BtnAssumptionRename.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.BtnAssumptionSave.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.BtnAssumptionNew.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.BtnCapturePosition.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.BtnCaptureTrajectory.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.BtnExit.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.BtnStart.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.BtnStop.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.BtnExport.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.BtnImport.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.BtnHelp.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.BtnListDel.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.BtnListDown.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.BtnListUp.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.BtnListNew.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.ComboBoxAssumption.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.ComboBoxAction.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.NumDelay.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.NumWheel.MouseEnter += new EventHandler(Control_MouseEnter);
+            this.TextBoxPosition.MouseEnter += new EventHandler(Control_MouseEnter);
+
+            //加载预设列表
+            RefleshAssumption();
+            NewAssumption();
         }
 
         //启动时运行
         private void Main_Load(object sender, EventArgs e)
         {
-
+            
         }
 
         /// <summary>
@@ -760,7 +818,10 @@ namespace Auto_Touch
         //退出
         private void BtnExit_Click(object sender, EventArgs e)
         {
-            this.Close();
+            if (this.BtnExit.Enabled == true)
+            {
+                this.Close();
+            }
         }
 
         //列表选择项变动时
@@ -913,6 +974,10 @@ namespace Auto_Touch
                 DelItem();
                 e.Handled = true;
             }
+            else
+            {
+                Main_KeyUp(null, e);
+            }
         }
 
         //单点捕捉
@@ -923,6 +988,8 @@ namespace Auto_Touch
             this.BtnCaptureTrajectory.Enabled = false;
             this.Disable_listView1_ItemSelectionChanged = true;
             this.WindowState = FormWindowState.Minimized;
+            GlobalStatus.ITaskbarList3.SetOverlayIcon(this.Handle, Properties.Resources.Record.Handle, this.StatusBarText.Text);
+            Console.WriteLine("\r\n开始捕捉... ");
             GlobalStatus.capturePosition = new CapturePosition(true);
             GlobalStatus.capturePosition.Show();
         }
@@ -935,6 +1002,8 @@ namespace Auto_Touch
             this.BtnCaptureTrajectory.Enabled = false;
             this.Disable_listView1_ItemSelectionChanged = true;
             this.WindowState = FormWindowState.Minimized;
+            GlobalStatus.ITaskbarList3.SetOverlayIcon(this.Handle, Properties.Resources.Record.Handle, this.StatusBarText.Text);
+            Console.WriteLine("\r\n开始捕捉... ");
             GlobalStatus.capturePosition = new CapturePosition(false);
             GlobalStatus.capturePosition.Show();
         }
@@ -989,6 +1058,7 @@ namespace Auto_Touch
                     {
                         SystemSounds.Hand.Play();
                         StatusBarTipsShow("保存失败哩, 原因是: " + ex.Message, true);
+                        Command.ConsoleLog("保存预设时失败哩, 原因是: \r\n" + ex.ToString());
                     }
                 }
             }
@@ -1025,9 +1095,18 @@ namespace Auto_Touch
                     }
                     else
                     {
-                        improt = File.ReadAllText(dig.FileName);
-                        this.ComboBoxAssumption.Text = dig.FileName.Substring(dig.FileName.LastIndexOf("\\") + 1, dig.FileName.LastIndexOf(".") - dig.FileName.LastIndexOf("\\") - 1 );
-                        type = dig.FileName;
+                        try
+                        {
+                            improt = File.ReadAllText(dig.FileName);
+                            this.ComboBoxAssumption.Text = dig.FileName.Substring(dig.FileName.LastIndexOf("\\") + 1, dig.FileName.LastIndexOf(".") - dig.FileName.LastIndexOf("\\") - 1);
+                            type = dig.FileName;
+                        }
+                        catch (Exception ex)
+                        {
+                            SystemSounds.Hand.Play();
+                            StatusBarTipsShow("加载失败哩, 原因是: " + ex.Message, true);
+                            Command.ConsoleLog("加载文件时失败哩, 原因是: \r\n" + ex.ToString());
+                        }
                     }
                 }
             }
@@ -1055,6 +1134,7 @@ namespace Auto_Touch
                 {
                     SystemSounds.Hand.Play();
                     StatusBarTipsShow("加载失败哩, 原因是: " + ex.Message, true);
+                    Command.ConsoleLog("加载失败哩, 原因是: \r\n" + ex.ToString());
                 }
             }
         }
@@ -1097,6 +1177,7 @@ namespace Auto_Touch
             string[] array = input.Split(new char[] { '\r', '\t' }); //切成每一行
             string[] substrings; //单行切成每一项
             ListViewItem newitem;
+            List<ListViewItem> newitems = new List<ListViewItem>();
             foreach (string items in array)
             {
                 newitem = new ListViewItem();
@@ -1111,9 +1192,13 @@ namespace Auto_Touch
                 {
                     newitem.SubItems.Add(substrings[i]);
                 }
-                this.listView1.Items.Add(newitem);
                 num++;
+                newitems.Add(newitem);
             }
+
+            this.listView1.BeginUpdate();
+            this.listView1.Items.AddRange(newitems.ToArray());
+            this.listView1.EndUpdate();
 
             if (this.listView1.Items.Count == 0)
             {
@@ -1523,14 +1608,36 @@ namespace Auto_Touch
         //开始
         async private void BtnStart_Click(object sender, EventArgs e)
         {
-            //this.Enabled = false;
+            if (this.IsRuning == true)
+            {
+                return;
+            }
+            else
+            {
+                this.IsRuning = true;
+            }
+
             this.Invoke(new MethodInvoker( () => {
                 this.WindowState = FormWindowState.Minimized;
                 this.PanelAssumption.Enabled = false;
-                this.PanelEditor.Enabled = false;
+                //this.PanelEditor.Enabled = false;
+                foreach(Control control in this.PanelEditor.Controls)
+                {
+                    if (control.Name == "BtnStop")
+                    {
+                        control.Visible = true;
+                        control.Enabled = true;
+                        control.Focus();
+                    }
+                    else
+                    {
+                        control.Enabled = false;
+                    }
+                }
                 this.PanelListControl.Enabled = false;
                 this.listView1.Enabled = false;
                 this.StatusBarText.Text = "执行中";
+                GlobalStatus.ITaskbarList3.SetOverlayIcon(this.Handle, Properties.Resources.Play.Handle, this.StatusBarText.Text);
             }));
 
             //枚举鼠标动作
@@ -1554,10 +1661,29 @@ namespace Auto_Touch
                 if (this.listView1 != null)
                 {
                     this.PanelAssumption.Enabled = true;
-                    this.PanelEditor.Enabled = true;
+                    //this.PanelEditor.Enabled = true;
+                    foreach (Control control in this.PanelEditor.Controls)
+                    {
+                        if (control.Name == "BtnStop")
+                        {
+                            control.Visible = false;
+                            control.Enabled = false;
+                        }
+                        else
+                        {
+                            control.Enabled = true;
+                        }
+                    }
                     this.PanelListControl.Enabled = true;
                     this.listView1.Enabled = true;
                     this.StatusBarText.Text = "就绪";
+                    GlobalStatus.ITaskbarList3.SetOverlayIcon(this.Handle, IntPtr.Zero, this.StatusBarText.Text);
+                    this.BtnStart.Focus();
+                }
+                //运行完了之后检查是否要求关闭窗体
+                if (this.IWantExit == true)
+                {
+                    this.Close();
                 }
             }));
         }
@@ -1568,6 +1694,9 @@ namespace Auto_Touch
         /// <param name="items">鼠标动作项列表</param>
         public void RunStart(List<MouseActionItem> items)
         {
+            this.IsRuning = true;
+            Console.WriteLine("\r\n开始执行... ");
+
             //创建媒体计时器
             /*DLL.timecaps_tag timecaps = new DLL.timecaps_tag();
             Console.WriteLine(DLL.timeGetDevCaps(ref timecaps, (uint)Marshal.SizeOf(typeof(tagINPUT))));
@@ -1580,13 +1709,14 @@ namespace Auto_Touch
 
             Point lastpos = new Point();
             DLL.GetCursorPos(out lastpos);
-            long lasttime = Command.GetTimeStampMs(); //最后获取的时间
-            long now = lasttime; //当前时间
-            long spend = 0; // now - lasttime
             tagINPUT[] inputs = new tagINPUT[1];
             int taginputsize = Marshal.SizeOf(typeof(tagINPUT));
             int dx = Screen.PrimaryScreen.Bounds.Width;
             int dy = Screen.PrimaryScreen.Bounds.Height;
+            long lasttime = Command.GetTimeStampMs(); //最后获取的时间
+            long now = lasttime; //当前时间
+            long spend = 0; // now - lasttime
+            long targettime = lasttime; //目标时间
             //暂存按键状态
             int[] status = {0, 0, 0, 0, 0 }; //改用数组来表示状态, 0 = 无, 1 = 松开, 2 = 按下, 3 = 已按下
             
@@ -1595,15 +1725,21 @@ namespace Auto_Touch
             {
                 //延时
                 //await Task.Delay(item.Delay);
-                spend = now - lasttime;
-                while (spend < item.Delay && item.Delay > 1)
+                targettime = targettime + item.Delay;
+                while (item.Delay > 0 && targettime > now && this.IsRuning == true)
                 {
                     //DLL.DwmFlush();
                     DLL.WaitForSingleObject(timer, 15);
                     now = Command.GetTimeStampMs();
-                    spend = now - lasttime;
                 }
+                spend = now - lasttime;
                 lasttime = now;
+
+                //检查是否停止状态
+                if (this.IsRuning == false)
+                {
+                    break;
+                }
 
                 //DLL.SetCursorPos(item.XY); 
                 int x = ((ushort.MaxValue * item.X) / dx) + 1;
@@ -1725,11 +1861,12 @@ namespace Auto_Touch
                 inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE;
 
                 //调试
-                if (Debugger.IsAttached == true)
+                if (GlobalStatus.IsDebug == true)
                 {
-                    Console.WriteLine("X: " + inputs[0].mi.dx + "\tY: " + inputs[0].mi.dy + "\tTime: " + item.Delay +
+                    Console.WriteLine("X: " + inputs[0].mi.dx + "\tY: " + inputs[0].mi.dy + "\tDelay: " + item.Delay +
                         "ms\tStatus: " + status[0].ToString() + status[1].ToString() + status[2].ToString() + status[3].ToString() +
-                        status[4].ToString() + "\tMouseData: " + inputs[0].mi.mouseData + "\tSpend: " + spend.ToString() + "ms");
+                        status[4].ToString() + "\tMouseData: " + inputs[0].mi.mouseData + "\tSpend: " + spend.ToString() + "ms" +
+                        "\tTargetTime: " + targettime + "\tNow: " + now + "\tErr: " + (now - targettime).ToString() + "ms");
                 }
 
                 SendInput(1, inputs, taginputsize);
@@ -1772,6 +1909,20 @@ namespace Auto_Touch
 
             DLL.CloseHandle(timer);
             Console.WriteLine("Done! ");
+            this.IsRuning = false;
+        }
+
+        //停止
+        private void BtnStop_Click(object sender, EventArgs e)
+        {
+            if (this.IsRuning == true)
+            {
+                this.IsRuning = false;
+                //this.BtnStop.Visible = false;
+                this.BtnStop.Enabled = false;
+                this.StatusBarText.Text = "停止中";
+                GlobalStatus.ITaskbarList3.SetOverlayIcon(this.Handle, Properties.Resources.Stop.Handle, this.StatusBarText.Text);
+            }
         }
 
         //预览
@@ -1807,22 +1958,22 @@ namespace Auto_Touch
             DLL.FILETIME lpDueTime = new DLL.FILETIME();
             lpDueTime.AsLong = -10*1000*10L;
             DLL.SetWaitableTimer(timer, ref lpDueTime, 1, IntPtr.Zero, IntPtr.Zero, false);
+            long targettime = Command.GetTimeStampMs();
+            long now = targettime;
 
             //绘制轨迹
             void Draw()
             {
                 for (int i = 0; i < items.Count; i++)
                 {
-                    long lasttime = Command.GetTimeStampMs();
-                    long now = lasttime;
+                    targettime = targettime + items[i].Delay;
                     //await Task.Delay(items[i].Delay);
-                    while (now - lasttime < items[i].Delay)
+                    while (items[i].Delay > 0 && now < targettime)
                     {
                         //DLL.DwmFlush();
                         DLL.WaitForSingleObject(timer, 15);
                         now = Command.GetTimeStampMs();
                     }
-                    lasttime = now;
 
                     if (preview.pen != null)
                     {
@@ -1890,13 +2041,16 @@ namespace Auto_Touch
                     text = "结束该程式. ";
                     break;
                 case "BtnStart":
-                    text = "开始执行鼠标操作, 右键可以预览鼠标轨迹. ";
+                    text = "开始执行鼠标操作, 右键可以预览鼠标轨迹, 按住 ESC 可以停止执行. ";
+                    break;
+                case "BtnStop":
+                    text = "停止执行. ";
                     break;
                 case "BtnExport":
-                    text = "导出预设, 按住 \"SHIFT\" 复制到剪切板. ";
+                    text = "导出预设, 按住 SHIFT 复制到剪切板. ";
                     break;
                 case "BtnImport":
-                    text = "导入预设, 按住 \"SHIFT\" 从剪切板导入. ";
+                    text = "导入预设, 按住 SHIFT 从剪切板导入. ";
                     break;
                 case "BtnHelp":
                     text = "获取帮助. ";
@@ -1947,6 +2101,8 @@ namespace Auto_Touch
             string filename = GlobalStatus.AssumptionPath + this.ComboBoxAssumption.Text + ".txt";
             if (File.Exists(filename) == false)
             {
+                StatusBarTipsShow("该预设不存在: " + this.ComboBoxAssumption.Text, true);
+                NewAssumption();
                 return;
             }
 
@@ -1958,6 +2114,7 @@ namespace Auto_Touch
             catch (Exception ex)
             {
                 StatusBarTipsShow("载入预设时出错了, 原因是: " + ex.Message, true);
+                Command.ConsoleLog("载入预设时出错了, 原因是: \r\n" + ex.ToString());
                 NewItem();
             }
 
@@ -2032,6 +2189,7 @@ namespace Auto_Touch
             {
                 SystemSounds.Hand.Play();
                 StatusBarTipsShow("保存失败哩, 原因是: " + ex.Message, true);
+                Command.ConsoleLog("保存预设时失败哩, 原因是: \r\n" + ex.ToString());
             }
 
             sb1 = null;
@@ -2067,6 +2225,7 @@ namespace Auto_Touch
                 {
                     SystemSounds.Hand.Play();
                     StatusBarTipsShow("移除失败哩, 原因是: " + ex.Message, true);
+                    Command.ConsoleLog("移除预设时失败哩, 原因是: \r\n" + ex.ToString());
                 }
             }
         }
@@ -2118,6 +2277,59 @@ namespace Auto_Touch
         private void BtnHelp_Click(object sender, EventArgs e)
         {
             MessageBox.Show(string.Join("\r\n", GlobalStatus.helptext), "帮助");
+        }
+
+        /// <summary>
+        /// 主窗体键盘监听事件
+        /// </summary>
+        private void Main_KeyUp(object sender, KeyEventArgs e)
+        {
+            //ESC
+            if (e.KeyCode == Keys.Escape)
+            {
+                if (this.IsRuning == true)
+                {
+                    BtnStop_Click(null, null);
+                }
+                else if (this.CheckBoxListMouseAction.Enabled == true)
+                {
+                    FoldCheckBoxListMouseAction();
+                }
+                else
+                {
+                    BtnExit_Click(null, null);
+                }
+            }
+            //F5
+            else if (e.KeyCode == Keys.F5)
+            {
+                RefleshAssumption();
+                StatusBarTipsShow("刷新预设列表成功. ", true);
+            }
+
+        }
+
+        //关闭窗体前
+        private void Main_FormClosing(object sender, FormClosingEventArgs e)
+        { 
+            this.IWantExit = true;
+            //关闭前检查是否正在执行
+            if (this.BtnExit != null && this.BtnExit.Enabled == false)
+            {
+                if (this.BtnStop != null && this.BtnStop.Enabled == true)
+                {
+                    BtnStop_Click(null, null);
+                }
+                e.Cancel = true;
+            }
+            //正常关闭
+            else
+            {
+                if (this.IsAttachConsole == 1)
+                {
+                    DLL.FreeConsole();
+                }
+            }
         }
     }
 }

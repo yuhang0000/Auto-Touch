@@ -38,6 +38,9 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -96,6 +99,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="CapturePosition.resx">
       <DependentUpon>CapturePosition.cs</DependentUpon>
@@ -114,5 +118,42 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Icon1.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Icon2.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Icon3.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Icon4.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Icon5.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Icon6.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Pause.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Play.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Record.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Stop.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Icon.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
 </Project>
