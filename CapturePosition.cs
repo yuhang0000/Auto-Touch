@@ -424,6 +424,10 @@ namespace Auto_Touch
             //卸载钩子
             DLL.UnhookWindowsHookEx(this.sss.LLMouseHook);
             DLL.UnhookWindowsHookEx(this.sss.LLKBHook);
+            DLL.ShowWindow(GlobalStatus.main.Handle, 9);
+            DLL.SetForegroundWindow(GlobalStatus.main.Handle);
+            GlobalStatus.ITaskbarList3.SetOverlayIcon(GlobalStatus.main.Handle, IntPtr.Zero, GlobalStatus.main.StatusBarText.Text);
+
             //单点捕捉
             if (this.sss.RunOnce == true)
             {
@@ -435,26 +439,16 @@ namespace Auto_Touch
             {
                 GlobalStatus.main.listView1.BeginUpdate();
                 GlobalStatus.main.listView1.Items.AddRange(this.sss.Items.ToArray());
-                GlobalStatus.main.listView1.EndUpdate();
-                /*foreach (ListViewItem item in this.sss.Items)
-                {
-                    GlobalStatus.main.listView1.Items.Add(item);
-                }*/
                 GlobalStatus.main.UpdateItemIndex();
+                GlobalStatus.main.listView1.EndUpdate();
             }
 
-            //GlobalStatus.main.WindowState = FormWindowState.Normal;
-            //GlobalStatus.main.Activate();
-            //GlobalStatus.main.Focus();
-            DLL.ShowWindow(GlobalStatus.main.Handle, 9);
-            DLL.SetForegroundWindow(GlobalStatus.main.Handle);
             GlobalStatus.main.TextBoxPosition.Focus();
             GlobalStatus.main.TextBoxPosition_Leave(null, null);
             GlobalStatus.main.BtnCapturePosition.Enabled = true;
             GlobalStatus.main.BtnCaptureTrajectory.Enabled = true;
             GlobalStatus.main.Disable_listView1_ItemSelectionChanged = false;
             GlobalStatus.main.StatusBarText.Text = "就绪";
-            GlobalStatus.ITaskbarList3.SetOverlayIcon(GlobalStatus.main.Handle, IntPtr.Zero, GlobalStatus.main.StatusBarText.Text);
             this.Close();
             this.Dispose();
             GlobalStatus.capturePosition = null;

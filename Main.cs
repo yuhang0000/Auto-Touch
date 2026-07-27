@@ -65,455 +65,22 @@ namespace Auto_Touch
         bool _IsNew = false;
         bool _IsEdit = false;
         /// <summary>
-        /// 是否附加到控制台, -1 = 没有检查, 0 = 没有, 1 = 有的
-        /// </summary>
-        int IsAttachConsole = -1;
-        /// <summary>
-        /// 是否正在执行
-        /// </summary>
-        bool IsRuning = false;
-        /// <summary>
         /// 想要退出
         /// </summary>
         bool IWantExit = false;
         /// <summary>
-        /// 在构造之后, 是否显示窗体
+        /// 执行鼠标动作, 其实本是个函数, 这里直接实例化了
         /// </summary>
-        bool ShowFormOnInit = true;
-        
+        MouseSentInput MSI;
 
         /// <summary>
-        /// 打印文本到控制台里
-        /// </summary>
-        /// <param name="text">文本</param>
-        /// <param name="title">标题</param>
-        /// <param name="trymsgbox">失败时, 尝试使用 MessageBox</param>
-        public void ConsoleLog4CMD(string text, string title = "Auto Touch", bool trymsgbox = true)
-        {
-            //检查有没有附加到控制台
-            if(this.IsAttachConsole == -1)
-            {
-                if(DLL.AttachConsole(-1) == true)
-                {
-                    this.IsAttachConsole = 1;
-                    Console.WriteLine("");
-                    Console.WriteLine(Application.ProductName + "  v" + GlobalStatus.Version + " - " + ((AssemblyDescriptionAttribute)AssemblyDescriptionAttribute.GetCustomAttribute(Assembly.GetExecutingAssembly(), typeof(AssemblyDescriptionAttribute))).Description);
-                }
-                else
-                {
-                    this.IsAttachConsole = 0;
-                }
-            }
-
-            if (this.IsAttachConsole == 1)
-            {
-                Console.WriteLine(text);
-            }
-            else if(this.IsAttachConsole == 0 && trymsgbox == true)
-            {
-                MessageBox.Show(text, title);
-            }
-        }
-
-        /// <summary>
-        /// 构造函数, 处理启动参数, GUI 初始化也在这
+        /// 构造函数, GUI 初始化在这
         /// </summary>
         /// <param name="args">启动参数</param>
-        public Main(string[] args = null)
+        public Main()
         {
-            //接受到启动参数
-            if (args != null && args.Length > 0)
-            {
-                Point nowxy;
-                DLL.GetCursorPos(out nowxy);
-                int isMouseActionTask = 0; //-1: 禁用 0: false 1: true
-                int x = nowxy.X;
-                int y = nowxy.Y;
-                int delay = 0;
-                int wheel = 0;
-                List<string> action = new List<string>();
-                List<MouseActionItem> items = new List<MouseActionItem>();
-
-                //ConsoleLog4CMD("测试", "标头");
-
-                //错误的命令
-                void errcomm()
-                {
-                    ConsoleLog4CMD("未知指令.");
-                    ConsoleLog4CMD("", trymsgbox: false);
-                    ConsoleLog4CMD(string.Join("\r\n", GlobalStatus.helptext), "帮助");
-                    isMouseActionTask = -1;
-                    items.Clear();
-                }
-
-                //尝试理解数字
-                bool tryparse(string key, string value, out int num)
-                {
-                    if (int.TryParse(value, out num) == false)
-                    {
-                        unknowtype(key, value);
-                        return false; ;
-                    }
-                    return true;
-                }
-                //该重载为非 type 类型
-                void unknowtype(string key, string value, string type = "INT")
-                {
-                    string text = key + " " + value + "\r\n";
-                    for (int ii = 0; ii < key.Length + 1; ii++)
-                    {
-                        text = text + " ";
-                    }
-                    text = text + "^";
-                    for (int ii = 0; ii < value.Length - 1; ii++) //像 GCC 一样
-                    {
-                        text = text + "~";
-                    }
-                    text = text + "\r\n该重载为非 " + type + " 类型";
-
-                    ConsoleLog4CMD("", trymsgbox: false);
-                    ConsoleLog4CMD(text, "语法错误");
-                    isMouseActionTask = -1;
-                }
-
-                //便利启动参数
-                for (int i = 0; i < args.Length; i++)
-                {
-                    //帮助
-                    if (string.Equals(args[i], "-h", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[i], "--help", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[i], "/?", StringComparison.CurrentCultureIgnoreCase) == true)
-                    {
-                        isMouseActionTask = -1;
-                        this.ShowFormOnInit = false;
-                        ConsoleLog4CMD("", trymsgbox: false);
-                        ConsoleLog4CMD(string.Join("\r\n", GlobalStatus.helptext), "帮助");
-                        items.Clear();
-                        break;
-                    }
-                    //版本
-                    else if (string.Equals(args[i], "-v", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[i], "-ver", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[i], "--version", StringComparison.CurrentCultureIgnoreCase) == true)
-                    {
-                        isMouseActionTask = -1;
-                        this.ShowFormOnInit = false;
-                        ConsoleLog4CMD("Build Time: " + GlobalStatus.BuildTime, trymsgbox:false);
-                        items.Clear();
-                        break; //前面 ConsoleLog4CMD 初始化时, 已经打印版本信息了. 
-                    }
-                    //从预设启动
-                    else if (string.Equals(args[i], "-p", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[i], "--profile", StringComparison.CurrentCultureIgnoreCase) == true)
-                    {
-                        isMouseActionTask = -1;
-                        this.ShowFormOnInit = false;
-                        if(i + 1 < args.Length)
-                        {
-                            string path = GlobalStatus.AssumptionPath + args[i + 1] + ".txt";
-                            //是预设名称
-                            if (args[i + 1].IndexOf("/") == -1 && args[i + 1].IndexOf("\\") == -1 && File.Exists(path) == true)
-                            {
-                                //path = GlobalStatus.AssumptionPath + args[i + 1] + ".txt";
-                            }
-                            //是路径
-                            else
-                            {
-                                path = Path.GetFullPath(args[i + 1]);
-                            }
-
-                            if (File.Exists(path) == true)
-                            {
-                                items.Clear();
-                                try
-                                {
-                                    string[] file = File.ReadAllLines(path);
-                                    foreach (string line in file)
-                                    {
-                                        if (line.Trim().Length == 0)
-                                        {
-                                            continue;
-                                        }
-
-                                        //行拆字
-                                        string[] word = line.Trim().Split(';');
-                                        string[] pos = word[1].Split(',');
-                                        MouseActionItem item = new MouseActionItem(int.Parse(pos[0].Trim()), int.Parse(pos[1].Trim()));
-                                        item.Delay = int.Parse(word[2].Substring(0, word[2].Length - 2));
-                                        item.Wheel = int.Parse(word[3]);
-                                        item.Action = word[4];
-                                        items.Add(item);
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    ConsoleLog4CMD("载入预设时出错了, 原因是: \r\n" + ex.ToString(), "Oops! ");
-                                    break;
-                                }
-
-                                i++;
-                                //break;
-                            }
-                            //预设不存在
-                            else
-                            {
-                                //ConsoleLog4CMD("找不到该预设: " + args[i + 1]);
-                                ConsoleLog4CMD("找不到该预设: " + path);
-                                items.Clear();
-                                break;
-                            }
-                        }
-                        //越界了
-                        else
-                        {
-                            errcomm();
-                            break;
-                        }
-                    }
-                    //X 轴
-                    else if (string.Equals(args[i], "-x", StringComparison.CurrentCultureIgnoreCase) == true)
-                    {
-                        if(isMouseActionTask != -1){
-                            isMouseActionTask = 1;
-                        }
-                        this.ShowFormOnInit = false;
-                        if (i + 1 < args.Length)
-                        {
-                            if (tryparse(args[i], args[i + 1], out x) == false)
-                            {
-                                break;
-                            }
-                            i++;
-                            continue;
-                        }
-                        //越界了
-                        else
-                        {
-                            errcomm();
-                            break;
-                        }
-                    }
-                    //Y 轴
-                    else if (string.Equals(args[i], "-y", StringComparison.CurrentCultureIgnoreCase) == true)
-                    {
-                        if(isMouseActionTask != -1){
-                            isMouseActionTask = 1;
-                        }
-                        this.ShowFormOnInit = false;
-                        if (i + 1 < args.Length)
-                        {
-                            if (tryparse(args[i], args[i + 1], out y) == false)
-                            {
-                                break;
-                            }
-                            i++;
-                            continue;
-                        }
-                        //越界了
-                        else
-                        {
-                            errcomm();
-                            break;
-                        }
-                    }
-                    //滚轮
-                    else if (string.Equals(args[i], "-w", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[i], "--wheel", StringComparison.CurrentCultureIgnoreCase) == true)
-                    {
-                        if(isMouseActionTask != -1){
-                            isMouseActionTask = 1;
-                        }
-                        this.ShowFormOnInit = false;
-                        if (i + 1 < args.Length)
-                        {
-                            if (tryparse(args[i], args[i + 1], out wheel) == false)
-                            {
-                                break;
-                            }
-                            i++;
-                            continue;
-                        }
-                        //越界了
-                        else
-                        {
-                            errcomm();
-                            break;
-                        }
-                    }
-                    //时间
-                    else if (string.Equals(args[i], "-t", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[i], "--time", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[i], "--delay", StringComparison.CurrentCultureIgnoreCase) == true)
-                    {
-                        if(isMouseActionTask != -1){
-                            isMouseActionTask = 1;
-                        }
-                        this.ShowFormOnInit = false;
-                        if (i + 1 < args.Length)
-                        {
-                            string t = args[i + 1];
-                            //HH:MM:SS
-                            if (t.IndexOf(":") != -1)
-                            {
-                                string[] tt = t.Split(':');
-                                //超过了三个冒号或者没有
-                                if (tt.Length > 3 || tt.Length == 0)
-                                {
-                                    unknowtype(args[i], t, "HH:MM:SS");
-                                    break;
-                                }
-                                //挨个转
-                                bool err = false;
-                                for (int ii = 0; ii < tt.Length; ii++)
-                                {
-                                    int num = 0;
-                                    if (tt[ii].Length == 0 || int.TryParse(tt[ii], out num) == false)
-                                    {
-                                        unknowtype(args[i], t, "HH:MM:SS");
-                                        err = true;
-                                        break;
-                                    }
-                                    //检查时间有没有超过60 的
-                                    if (tt.Length > 1 && ii > 0 && num > 59)
-                                    {
-                                        unknowtype(args[i], t, "HH:MM:SS");
-                                        err = true;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        delay = delay + (int)Math.Pow(60, -1 + tt.Length - ii) * num ;
-                                    }
-                                }
-                                //完成了吗?
-                                if (err == true)
-                                {
-                                    break;
-                                }
-                                delay = delay * 1000;
-                                //ConsoleLog4CMD(delay.ToString());
-                            }
-                            //假如是纯数字
-                            else if(tryparse(args[i], args[i + 1], out delay) == false)
-                            {
-                                break;
-                            }
-                            i++;
-                            continue;
-                        }
-                        //越界了
-                        else
-                        {
-                            errcomm();
-                            break;
-                        }
-                    }
-                    //动作
-                    else if (string.Equals(args[i], "-a", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[i], "--action", StringComparison.CurrentCultureIgnoreCase) == true ||
-                        string.Equals(args[i], "--button", StringComparison.CurrentCultureIgnoreCase) == true)
-                    {
-                        if (isMouseActionTask != -1)
-                        {
-                            isMouseActionTask = 1;
-                        }
-                        this.ShowFormOnInit = false;
-                        if (i + 1 < args.Length)
-                        {
-                            bool err = false;
-                            //便利动作组
-                            string[] acts = args[i + 1].ToLower().Split(',');
-                            for (int ii = 0; ii < acts.Length; ii++)
-                            {
-                                err = false;
-                                bool err2 = false;
-                                string actss = acts[ii];
-                                foreach (string mb in GlobalStatus.MouseButtons)
-                                {
-                                    if (mb == actss)
-                                    {
-                                        err2 = true;
-                                        break;
-                                    }
-                                }
-                                if (err2 == false && actss != "none")
-                                {
-                                    unknowtype(args[i], args[i + 1], "ACTION");
-                                    err = true;
-                                    break;
-                                }
-                                action.Add(actss);
-                            }
-                            if (err == true)
-                            {
-                                break;
-                            }
-                            else
-                            {
-                                i++;
-                                continue;
-                            }
-                        }
-                        //越界了
-                        else
-                        {
-                            errcomm();
-                            break;
-                        }
-                    }
-                    //调试
-                    else if (string.Equals(args[i], "--debug", StringComparison.CurrentCultureIgnoreCase) == true)
-                    {
-                        GlobalStatus.IsDebug = true;
-                        if (this.IsAttachConsole == -1)
-                        {
-                            ConsoleLog4CMD("", trymsgbox: false);
-                        }
-                    }
-                    //未知命令
-                    else
-                    {
-                        errcomm();
-                        break;
-                    }
-                }
-
-                //如果是鼠标动作
-                if(isMouseActionTask == 1)
-                {
-                    MouseActionItem item = new MouseActionItem(nowxy.X, nowxy.Y);
-                    items.Add(item);
-                    item = new MouseActionItem(x, y);
-                    item.Delay = delay;
-                    item.Wheel = wheel;
-                    item.Action = string.Join("|", action);
-                    items.Add(item);
-                }
-
-                //执行
-                if (items.Count > 0)
-                {
-                    RunStart(items);
-                }
-
-                //关闭
-                if (this.ShowFormOnInit == false)
-                {
-                    this.Hide();
-                    this.ShowInTaskbar = false;
-                    DLL.FreeConsole();
-                    this.Load += new EventHandler((object sender, EventArgs e) =>
-                    {
-                        this.Close();
-                    });
-                }
-            }
-
             //正常打开窗体
-            if(this.ShowFormOnInit == true)
-            {
-                InitForm();
-            }
+            InitForm();
         }
 
         /// <summary>
@@ -521,12 +88,13 @@ namespace Auto_Touch
         /// </summary>
         public void InitForm()
         {
-            GlobalStatus.Init();
             InitializeComponent();
+            this.MSI = new MouseSentInput();
             this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             this.Text = Application.ProductName;
             this.StatusBarVersion.Text = "v" + GlobalStatus.Version;
             this.MinimumSize = this.Size;
+            GlobalStatus.ITaskbarList3 = (DLL.ITaskbarList3)Activator.CreateInstance(Type.GetTypeFromCLSID(DLL.CLSID_TaskbarLis));
 
             //注册消息过滤器
             Application.AddMessageFilter(new MsgFilter());
@@ -568,6 +136,9 @@ namespace Auto_Touch
             //加载预设列表
             RefleshAssumption();
             NewAssumption();
+
+            //
+
         }
 
         //启动时运行
@@ -632,8 +203,8 @@ namespace Auto_Touch
             {
 
             }
-            this.listView1.EndUpdate();
             UpdateItemIndex();
+            this.listView1.EndUpdate();
             this.listView1.SelectedItems.Clear();
             this.listView1.Items[this.listView1.Items.Count - 1].Selected = true;
         }
@@ -655,8 +226,8 @@ namespace Auto_Touch
                 lastfocus = this.listView1.SelectedItems[i].Index;
                 this.listView1.Items.RemoveAt(lastfocus);
             }
-            this.listView1.EndUpdate();
             UpdateItemIndex();
+            this.listView1.EndUpdate();
             //当全部清空时, 新建一个
             if (this.listView1.Items.Count == 0)
             {
@@ -706,9 +277,9 @@ namespace Auto_Touch
                 insindex++;
             }
 
+            UpdateItemIndex();
             this.listView1.EndUpdate();
             this.Disable_listView1_ItemSelectionChanged = false;
-            UpdateItemIndex();
         }
 
         /// <summary>
@@ -744,26 +315,29 @@ namespace Auto_Touch
                 insindex++;
             }
 
+            UpdateItemIndex();
             this.listView1.EndUpdate();
             this.Disable_listView1_ItemSelectionChanged = false;
-            UpdateItemIndex();
         }
 
         /// <summary>
-        /// 更新列表序号
+        /// 更新列表序号, 调用前请先 BeginUpdate()
         /// </summary>
         public void UpdateItemIndex()
         {
             this.IsEdit = true;
 
-            this.listView1.BeginUpdate();
             int index = 0;
+            string text;
             foreach (ListViewItem i in this.listView1.Items)
             {
-                i.Text = index.ToString();
+                text = index.ToString();
+                if (i.Text != text) //避免重绘
+                {
+                    i.Text = text;
+                }
                 index++;
             }
-            this.listView1.EndUpdate();
         }
 
         /// <summary>
@@ -1608,13 +1182,13 @@ namespace Auto_Touch
         //开始
         async private void BtnStart_Click(object sender, EventArgs e)
         {
-            if (this.IsRuning == true)
+            if (MSI.IsRunning == true)
             {
                 return;
             }
             else
             {
-                this.IsRuning = true;
+                MSI.IsRunning = true;
             }
 
             this.Invoke(new MethodInvoker( () => {
@@ -1654,7 +1228,7 @@ namespace Auto_Touch
 
             await Task.Run( () =>
             {
-                RunStart(items);
+                MSI.Run(items);
             });
 
             this.Invoke(new MethodInvoker(() => {
@@ -1688,236 +1262,12 @@ namespace Auto_Touch
             }));
         }
 
-        /// <summary>
-        /// 开始执行
-        /// </summary>
-        /// <param name="items">鼠标动作项列表</param>
-        public void RunStart(List<MouseActionItem> items)
-        {
-            this.IsRuning = true;
-            Console.WriteLine("\r\n开始执行... ");
-
-            //创建媒体计时器
-            /*DLL.timecaps_tag timecaps = new DLL.timecaps_tag();
-            Console.WriteLine(DLL.timeGetDevCaps(ref timecaps, (uint)Marshal.SizeOf(typeof(tagINPUT))));
-            Console.WriteLine("Timecasp: MIX: " + timecaps.wPeriodMin + "\tMAX:" + timecaps.wPeriodMax);
-            Console.WriteLine(DLL.timeBeginPeriod(timecaps.wPeriodMin));*/
-            IntPtr timer = DLL.CreateWaitableTimerExW(IntPtr.Zero, null, DLL.WaitableTimerFlags.CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, DLL.DesiredAccesss.TIMER_ALL_ACCESS);
-            DLL.FILETIME lpDueTime = new DLL.FILETIME();
-            lpDueTime.AsLong = -10*1000*10L;
-            DLL.SetWaitableTimer(timer, ref lpDueTime, 1, IntPtr.Zero, IntPtr.Zero, false);
-
-            Point lastpos = new Point();
-            DLL.GetCursorPos(out lastpos);
-            tagINPUT[] inputs = new tagINPUT[1];
-            int taginputsize = Marshal.SizeOf(typeof(tagINPUT));
-            int dx = Screen.PrimaryScreen.Bounds.Width;
-            int dy = Screen.PrimaryScreen.Bounds.Height;
-            long lasttime = Command.GetTimeStampMs(); //最后获取的时间
-            long now = lasttime; //当前时间
-            long spend = 0; // now - lasttime
-            long targettime = lasttime; //目标时间
-            //暂存按键状态
-            int[] status = {0, 0, 0, 0, 0 }; //改用数组来表示状态, 0 = 无, 1 = 松开, 2 = 按下, 3 = 已按下
-            
-
-            foreach (MouseActionItem item in items)
-            {
-                //延时
-                //await Task.Delay(item.Delay);
-                targettime = targettime + item.Delay;
-                while (item.Delay > 0 && targettime > now && this.IsRuning == true)
-                {
-                    //DLL.DwmFlush();
-                    DLL.WaitForSingleObject(timer, 15);
-                    now = Command.GetTimeStampMs();
-                }
-                spend = now - lasttime;
-                lasttime = now;
-
-                //检查是否停止状态
-                if (this.IsRuning == false)
-                {
-                    break;
-                }
-
-                //DLL.SetCursorPos(item.XY); 
-                int x = ((ushort.MaxValue * item.X) / dx) + 1;
-                int y = ((ushort.MaxValue * item.Y) / dy) + 1;
-
-                //获取要按下哪个按键
-                bool[] dumpbuttonstatus = { false, false, false, false, false }; //暂存按键是否读取过状态
-                string[] actions = item.Action.ToLower().Split('|');
-                foreach (string action in actions)
-                {
-                    //便利
-                    for(int i = 0; i < GlobalStatus.MouseButtons.Length; i++)
-                    {
-                        //按下
-                        if (action == GlobalStatus.MouseButtons[i])
-                        if (string.Equals(action, GlobalStatus.MouseButtons[i], StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            dumpbuttonstatus[i] = true;
-                        }
-                    }
-                }
-                for(int i = 0; i < dumpbuttonstatus.Length; i++)
-                {
-                    //按下
-                    if (dumpbuttonstatus[i] == true)
-                    {
-                        if (status[i] != 3)
-                        {
-                            status[i] = 2;
-                        }
-                    }
-                    //释放
-                    else if (status[i] > 1)
-                    {
-                        status[i] = 1;
-                    }
-                }
-
-                inputs[0].mi.dwFlags = 0x0;
-                //滚轮
-                if (status[3] + status[4] == 0 || status[3] + status[4] == 6 || (status[3] * status[4] == 0 && status[3] + status[4] == 3) )
-                {
-                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_WHEEL;
-                    inputs[0].mi.mouseData = item.Wheel;
-                }
-                //鼠标侧键
-                else
-                {
-                    //侧键1
-                    inputs[0].mi.dx = x;
-                    inputs[0].mi.dy = y;
-                    inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON1;
-                    if (status[3] == 2)
-                    {
-                        inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE | DLL.MOUSEEVENTF.MOUSEEVENTF_XDOWN;
-                        status[3] = 3;
-                        SendInput(1, inputs, taginputsize);
-                    }
-                    else if (status[3] == 1)
-                    {
-                        inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE | DLL.MOUSEEVENTF.MOUSEEVENTF_XUP;
-                        status[3] = 0;
-                        SendInput(1, inputs, taginputsize);
-                    }
-                    //侧键2
-                    inputs[0].mi.dx = x;
-                    inputs[0].mi.dy = y;
-                    inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON2;
-                    if (status[4] == 2)
-                    {
-                        inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE | DLL.MOUSEEVENTF.MOUSEEVENTF_XDOWN;
-                        status[4] = 3;
-                        SendInput(1, inputs, taginputsize);
-                    }
-                    else if (status[4] == 1)
-                    {
-                        inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE | DLL.MOUSEEVENTF.MOUSEEVENTF_XUP;
-                        status[4] = 0;
-                        SendInput(1, inputs, taginputsize);
-                    }
-                    //标识位复位
-                    inputs[0].mi.dwFlags = 0x0;
-                    inputs[0].mi.mouseData = 0;
-                }
-                //指定要按下哪个按键
-                if (status[0] == 2)
-                {
-                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_LEFTDOWN;
-                    status[0] = 3;
-                }
-                if (status[0] == 1)
-                {
-                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_LEFTUP;
-                    status[0] = 0;
-                }
-                if (status[1] == 2)
-                {
-                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_MIDDLEDOWN;
-                    status[1] = 3;
-                }
-                if (status[1] == 1)
-                {
-                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_MIDDLEUP;
-                    status[1] = 0;
-                }
-                if (status[2] == 2)
-                {
-                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_RIGHTDOWN;
-                    status[2] = 3;
-                }
-                if (status[2] == 1)
-                {
-                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_RIGHTUP;
-                    status[2] = 0;
-                }
-                //移动
-                inputs[0].mi.dx = x;
-                inputs[0].mi.dy = y;
-                inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE;
-
-                //调试
-                if (GlobalStatus.IsDebug == true)
-                {
-                    Console.WriteLine("X: " + inputs[0].mi.dx + "\tY: " + inputs[0].mi.dy + "\tDelay: " + item.Delay +
-                        "ms\tStatus: " + status[0].ToString() + status[1].ToString() + status[2].ToString() + status[3].ToString() +
-                        status[4].ToString() + "\tMouseData: " + inputs[0].mi.mouseData + "\tSpend: " + spend.ToString() + "ms" +
-                        "\tTargetTime: " + targettime + "\tNow: " + now + "\tErr: " + (now - targettime).ToString() + "ms");
-                }
-
-                SendInput(1, inputs, taginputsize);
-            }
-
-            //完成后复位
-            inputs[0].mi.dx = ((ushort.MaxValue * lastpos.X) / dx) + 1;
-            inputs[0].mi.dy = ((ushort.MaxValue * lastpos.Y) / dy) + 1;
-            inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE;
-            inputs[0].mi.mouseData = 0;
-            SendInput(1, inputs, taginputsize);
-            SendInput(1, inputs, taginputsize);
-            if (status[0] > 1)
-            {
-                inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_LEFTUP;
-                SendInput(1, inputs, taginputsize);
-            }
-            if (status[1] > 1)
-            {
-                inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MIDDLEUP;
-                SendInput(1, inputs, taginputsize);
-            }
-            if (status[2] > 1)
-            {
-                inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_RIGHTUP;
-                SendInput(1, inputs, taginputsize);
-            }
-            if (status[3] > 1)
-            {
-                inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_XUP;
-                inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON1;
-                SendInput(1, inputs, taginputsize);
-            }
-            if (status[4] > 1)
-            {
-                inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_XUP;
-                inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON2;
-                SendInput(1, inputs, taginputsize);
-            }
-
-            DLL.CloseHandle(timer);
-            Console.WriteLine("Done! ");
-            this.IsRuning = false;
-        }
-
         //停止
         private void BtnStop_Click(object sender, EventArgs e)
         {
-            if (this.IsRuning == true)
+            if (MSI.IsRunning == true)
             {
-                this.IsRuning = false;
+                MSI.Stop();
                 //this.BtnStop.Visible = false;
                 this.BtnStop.Enabled = false;
                 this.StatusBarText.Text = "停止中";
@@ -2287,7 +1637,7 @@ namespace Auto_Touch
             //ESC
             if (e.KeyCode == Keys.Escape)
             {
-                if (this.IsRuning == true)
+                if (MSI.IsRunning == true)
                 {
                     BtnStop_Click(null, null);
                 }
@@ -2325,10 +1675,10 @@ namespace Auto_Touch
             //正常关闭
             else
             {
-                if (this.IsAttachConsole == 1)
+                /*if (GlobalStatus.IsAttachConsole == 1)
                 {
                     DLL.FreeConsole();
-                }
+                }*/
             }
         }
     }

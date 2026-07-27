@@ -4,11 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
+using static Commands.DLL;
 
 namespace Commands
 {
@@ -77,14 +79,10 @@ namespace Commands
         /// 调试模式
         /// </summary>
         public static bool IsDebug = false;
-        
         /// <summary>
-        /// 初始化
+        /// 是否附加到控制台, -1 = 没有检查, 0 = 没有, 1 = 有的
         /// </summary>
-        public static void Init()
-        {
-            ITaskbarList3 = (DLL.ITaskbarList3)Activator.CreateInstance(Type.GetTypeFromCLSID(DLL.CLSID_TaskbarLis));
-        }
+        public static int IsAttachConsole = -1;
     }
 
     /// <summary>
@@ -226,6 +224,46 @@ namespace Commands
             if (GlobalStatus.IsDebug == true)
             {
                 Console.WriteLine(text);
+            }
+        }
+
+        /// <summary>
+        /// 打印文本到控制台里
+        /// </summary>
+        /// <param name="text">文本</param>
+        /// <param name="title">标题</param>
+        /// <param name="trymsgbox">失败时, 尝试使用 MessageBox</param>
+        public static void ConsoleLog4CMD(string text, string title = "Auto Touch", bool trymsgbox = true)
+        {
+            AttachConsole();
+            if (GlobalStatus.IsAttachConsole == 1)
+            {
+                Console.WriteLine(text);
+            }
+            else if (GlobalStatus.IsAttachConsole == 0 && trymsgbox == true)
+            {
+                MessageBox.Show(text, title);
+            }
+        }
+
+        /// <summary>
+        /// 尝试附加到控制台
+        /// </summary>
+        public static void AttachConsole()
+        {
+            //检查有没有附加到控制台
+            if (GlobalStatus.IsAttachConsole == -1)
+            {
+                if (DLL.AttachConsole(-1) == true)
+                {
+                    GlobalStatus.IsAttachConsole = 1;
+                    Console.WriteLine("");
+                    Console.WriteLine(Application.ProductName + "  v" + GlobalStatus.Version + " - " + ((AssemblyDescriptionAttribute)AssemblyDescriptionAttribute.GetCustomAttribute(Assembly.GetExecutingAssembly(), typeof(AssemblyDescriptionAttribute))).Description);
+                }
+                else
+                {
+                    GlobalStatus.IsAttachConsole = 0;
+                }
             }
         }
     }
@@ -1202,6 +1240,248 @@ namespace Commands
             this.XY = new Point(X, Y);
             this.X = X;
             this.Y = Y;
+        }
+    }
+
+    /// <summary>
+    /// 执行鼠标动作
+    /// </summary>
+    public class MouseSentInput
+    {
+        /// <summary>
+        /// 是否正在运行
+        /// </summary>
+        public bool IsRunning = false;
+
+        /// <summary>
+        /// 开始执行
+        /// </summary>
+        /// <param name="items">鼠标动作项列表</param>
+        public void Run(List<MouseActionItem> items)
+        {
+            this.IsRunning = true;
+            Console.WriteLine("\r\n开始执行... ");
+
+            //创建媒体计时器
+            IntPtr timer = DLL.CreateWaitableTimerExW(IntPtr.Zero, null, DLL.WaitableTimerFlags.CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, DLL.DesiredAccesss.TIMER_ALL_ACCESS);
+            DLL.FILETIME lpDueTime = new DLL.FILETIME();
+            lpDueTime.AsLong = -10*1000*10L;
+            DLL.SetWaitableTimer(timer, ref lpDueTime, 1, IntPtr.Zero, IntPtr.Zero, false);
+
+            Point lastpos = new Point();
+            DLL.GetCursorPos(out lastpos);
+            tagINPUT[] inputs = new tagINPUT[1];
+            int taginputsize = Marshal.SizeOf(typeof(tagINPUT));
+            int dx = Screen.PrimaryScreen.Bounds.Width;
+            int dy = Screen.PrimaryScreen.Bounds.Height;
+            long lasttime = Command.GetTimeStampMs(); //最后获取的时间
+            long now = lasttime; //当前时间
+            long spend = 0; // now - lasttime
+            long targettime = lasttime; //目标时间
+            //暂存按键状态
+            int[] status = { 0, 0, 0, 0, 0 }; //改用数组来表示状态, 0 = 无, 1 = 松开, 2 = 按下, 3 = 已按下
+
+
+            foreach (MouseActionItem item in items)
+            {
+                //延时
+                //await Task.Delay(item.Delay);
+                targettime = targettime + item.Delay;
+                while (item.Delay > 0 && targettime > now && this.IsRunning == true)
+                {
+                    //DLL.DwmFlush();
+                    DLL.WaitForSingleObject(timer, 15);
+                    now = Command.GetTimeStampMs();
+                }
+                spend = now - lasttime;
+                lasttime = now;
+
+                //检查是否停止状态
+                if (this.IsRunning == false)
+                {
+                    break;
+                }
+
+                //DLL.SetCursorPos(item.XY); 
+                int x = ((ushort.MaxValue * item.X) / dx) + 1;
+                int y = ((ushort.MaxValue * item.Y) / dy) + 1;
+
+                //获取要按下哪个按键
+                bool[] dumpbuttonstatus = { false, false, false, false, false }; //暂存按键是否读取过状态
+                string[] actions = item.Action.ToLower().Split('|');
+                foreach (string action in actions)
+                {
+                    //便利
+                    for (int i = 0; i < GlobalStatus.MouseButtons.Length; i++)
+                    {
+                        //按下
+                        if (action == GlobalStatus.MouseButtons[i])
+                            if (string.Equals(action, GlobalStatus.MouseButtons[i], StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                dumpbuttonstatus[i] = true;
+                            }
+                    }
+                }
+                for (int i = 0; i < dumpbuttonstatus.Length; i++)
+                {
+                    //按下
+                    if (dumpbuttonstatus[i] == true)
+                    {
+                        if (status[i] != 3)
+                        {
+                            status[i] = 2;
+                        }
+                    }
+                    //释放
+                    else if (status[i] > 1)
+                    {
+                        status[i] = 1;
+                    }
+                }
+
+                inputs[0].mi.dwFlags = 0x0;
+                //滚轮
+                if (status[3] + status[4] == 0 || status[3] + status[4] == 6 || (status[3] * status[4] == 0 && status[3] + status[4] == 3))
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_WHEEL;
+                    inputs[0].mi.mouseData = item.Wheel;
+                }
+                //鼠标侧键
+                else
+                {
+                    //侧键1
+                    inputs[0].mi.dx = x;
+                    inputs[0].mi.dy = y;
+                    inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON1;
+                    if (status[3] == 2)
+                    {
+                        inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE | DLL.MOUSEEVENTF.MOUSEEVENTF_XDOWN;
+                        status[3] = 3;
+                        SendInput(1, inputs, taginputsize);
+                    }
+                    else if (status[3] == 1)
+                    {
+                        inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE | DLL.MOUSEEVENTF.MOUSEEVENTF_XUP;
+                        status[3] = 0;
+                        SendInput(1, inputs, taginputsize);
+                    }
+                    //侧键2
+                    inputs[0].mi.dx = x;
+                    inputs[0].mi.dy = y;
+                    inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON2;
+                    if (status[4] == 2)
+                    {
+                        inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE | DLL.MOUSEEVENTF.MOUSEEVENTF_XDOWN;
+                        status[4] = 3;
+                        SendInput(1, inputs, taginputsize);
+                    }
+                    else if (status[4] == 1)
+                    {
+                        inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE | DLL.MOUSEEVENTF.MOUSEEVENTF_XUP;
+                        status[4] = 0;
+                        SendInput(1, inputs, taginputsize);
+                    }
+                    //标识位复位
+                    inputs[0].mi.dwFlags = 0x0;
+                    inputs[0].mi.mouseData = 0;
+                }
+                //指定要按下哪个按键
+                if (status[0] == 2)
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_LEFTDOWN;
+                    status[0] = 3;
+                }
+                if (status[0] == 1)
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_LEFTUP;
+                    status[0] = 0;
+                }
+                if (status[1] == 2)
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_MIDDLEDOWN;
+                    status[1] = 3;
+                }
+                if (status[1] == 1)
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_MIDDLEUP;
+                    status[1] = 0;
+                }
+                if (status[2] == 2)
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_RIGHTDOWN;
+                    status[2] = 3;
+                }
+                if (status[2] == 1)
+                {
+                    inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_RIGHTUP;
+                    status[2] = 0;
+                }
+                //移动
+                inputs[0].mi.dx = x;
+                inputs[0].mi.dy = y;
+                inputs[0].mi.dwFlags = inputs[0].mi.dwFlags | DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE;
+
+                //调试
+                if (GlobalStatus.IsDebug == true)
+                {
+                    Console.WriteLine("X: " + inputs[0].mi.dx + "\tY: " + inputs[0].mi.dy + "\tDelay: " + item.Delay +
+                        "ms\tStatus: " + status[0].ToString() + status[1].ToString() + status[2].ToString() + status[3].ToString() +
+                        status[4].ToString() + "\tMouseData: " + inputs[0].mi.mouseData + "\tSpend: " + spend.ToString() + "ms" +
+                        "\tTargetTime: " + targettime + "\tNow: " + now + "\tErr: " + (now - targettime).ToString() + "ms");
+                }
+
+                SendInput(1, inputs, taginputsize);
+            }
+
+            //完成后复位
+            inputs[0].mi.dx = ((ushort.MaxValue * lastpos.X) / dx) + 1;
+            inputs[0].mi.dy = ((ushort.MaxValue * lastpos.Y) / dy) + 1;
+            inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MOVE | DLL.MOUSEEVENTF.MOUSEEVENTF_ABSOLUTE;
+            inputs[0].mi.mouseData = 0;
+            SendInput(1, inputs, taginputsize);
+            SendInput(1, inputs, taginputsize);
+            if (status[0] > 1)
+            {
+                inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_LEFTUP;
+                SendInput(1, inputs, taginputsize);
+            }
+            if (status[1] > 1)
+            {
+                inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_MIDDLEUP;
+                SendInput(1, inputs, taginputsize);
+            }
+            if (status[2] > 1)
+            {
+                inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_RIGHTUP;
+                SendInput(1, inputs, taginputsize);
+            }
+            if (status[3] > 1)
+            {
+                inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_XUP;
+                inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON1;
+                SendInput(1, inputs, taginputsize);
+            }
+            if (status[4] > 1)
+            {
+                inputs[0].mi.dwFlags = DLL.MOUSEEVENTF.MOUSEEVENTF_XUP;
+                inputs[0].mi.mouseData = DLL.MOUSEEVENTF.mouseData.XBUTTON2;
+                SendInput(1, inputs, taginputsize);
+            }
+
+            DLL.CloseHandle(timer);
+            Console.WriteLine("Done! ");
+            this.IsRunning = false;
+        }
+
+        /// <summary>
+        /// 停止
+        /// </summary>
+        public void Stop()
+        {
+            if (this.IsRunning == true)
+            {
+                this.IsRunning = false;
+            }
         }
     }
 }
