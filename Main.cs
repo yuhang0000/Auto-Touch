@@ -192,7 +192,7 @@ namespace Auto_Touch
         {
             this.listView1.BeginUpdate();
             ListViewItem list = new ListViewItem();
-            list.Text = "0";
+            list.Text = this.listView1.Items.Count.ToString();
             list.SubItems.Add("0,0");
             list.SubItems.Add("1000ms");
             list.SubItems.Add("0");

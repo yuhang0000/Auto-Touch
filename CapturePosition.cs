@@ -24,6 +24,7 @@ namespace Auto_Touch
         {
             InitializeComponent();
             this.sss.RunOnce = RunOnce;
+            this.sss.ItemIndex = GlobalStatus.main.listView1.Items.Count;
             //准备回调函数
             this.sss.HookProc = this.LLMouseProc;
             this.sss.kbHookProc = this.LLKBProc;
@@ -139,6 +140,10 @@ namespace Auto_Touch
             /// 暂存轨迹信息, 给轨迹捕捉模式用的
             /// </summary>
             public List<ListViewItem> Items = new List<ListViewItem>();
+            /// <summary>
+            /// 那个动作项序号
+            /// </summary>
+            public int ItemIndex;
 
             /// <summary>
             /// 暂存鼠标按键状态
@@ -348,12 +353,13 @@ namespace Auto_Touch
                 }
                 
                 ListViewItem item = new ListViewItem();
-                item.Text = this.sss.Items.Count.ToString();
+                item.Text = this.sss.ItemIndex.ToString();
                 item.SubItems.Add(this.sss.X + "," + this.sss.Y); //坐标
                 item.SubItems.Add(this.sss.delay.ToString() + "ms"); //延时
                 item.SubItems.Add(this.sss.Wheel.ToString()); //滚轮
                 item.SubItems.Add(this.sss.MouseAction); //按键动作
                 this.sss.Items.Add(item);
+                this.sss.ItemIndex++;
 
                 if (GlobalStatus.IsDebug == true)
                 {
