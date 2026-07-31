@@ -39,9 +39,9 @@
             this.label1.BackColor = System.Drawing.Color.Transparent;
             this.label1.Location = new System.Drawing.Point(43, 34);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(112, 15);
+            this.label1.Size = new System.Drawing.Size(187, 15);
             this.label1.TabIndex = 0;
-            this.label1.Text = "按任意键退出。";
+            this.label1.Text = "現在可以摁下任意鍵離開。";
             this.label1.Visible = false;
             // 
             // pictureBox1

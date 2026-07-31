@@ -557,7 +557,7 @@ namespace Auto_Touch
         //单点捕捉
         private void BtnCapturePosition_Click(object sender, EventArgs e)
         {
-            this.StatusBarText.Text = "捕捉中";
+            this.StatusBarText.Text = "捕獲中";
             this.BtnCapturePosition.Enabled = false;
             this.BtnCaptureTrajectory.Enabled = false;
             this.Disable_listView1_ItemSelectionChanged = true;
@@ -571,7 +571,7 @@ namespace Auto_Touch
         //轨迹捕捉
         private void BtnCaptureTrajectory_Click(object sender, EventArgs e)
         {
-            this.StatusBarText.Text = "捕捉中";
+            this.StatusBarText.Text = "捕獲中";
             this.BtnCapturePosition.Enabled = false;
             this.BtnCaptureTrajectory.Enabled = false;
             this.Disable_listView1_ItemSelectionChanged = true;
@@ -601,7 +601,7 @@ namespace Auto_Touch
             if (Control.ModifierKeys == Keys.Shift) //按下了 Shift
             {
                 Clipboard.SetText(sb1.ToString());
-                StatusBarTipsShow("成功保存预设文件在剪切板上. ", true);
+                StatusBarTipsShow("成功儲存預設儅在剪貼薄上. ", true);
             }
             else
             {
@@ -619,20 +619,20 @@ namespace Auto_Touch
                 dig.OverwritePrompt = true;
                 dig.SupportMultiDottedExtensions = false;
                 dig.DefaultExt = "*.txt";
-                dig.Title = "保存";
+                dig.Title = "儲存";
                 dig.InitialDirectory = Application.ExecutablePath;
                 if (dig.ShowDialog() == DialogResult.OK)
                 {
                     try
                     {
                         File.WriteAllText(dig.FileName, sb1.ToString());
-                        StatusBarTipsShow("成功保存预设文件: " + dig.FileName, true);
+                        StatusBarTipsShow("成功儲存預設儅: " + dig.FileName, true);
                     }
                     catch (Exception ex)
                     {
                         SystemSounds.Hand.Play();
-                        StatusBarTipsShow("保存失败哩, 原因是: " + ex.Message, true);
-                        Command.ConsoleLog("保存预设时失败哩, 原因是: \r\n" + ex.ToString());
+                        StatusBarTipsShow("儲存失败哩, 原因是: " + ex.Message, true);
+                        Command.ConsoleLog("儲存預設儅失敗哩, 原因是: \r\n" + ex.ToString());
                     }
                 }
             }
@@ -697,18 +697,18 @@ namespace Auto_Touch
                     LoadAssumption(improt);
                     if (type != null)
                     {
-                        StatusBarTipsShow("成功加载预设文件: " + type, true);
+                        StatusBarTipsShow("成功載入預設儅: " + type, true);
                     }
                     else
                     {
-                        StatusBarTipsShow("成功从剪切板加载预设文件. ", true);
+                        StatusBarTipsShow("成功从剪貼薄載入預設儅. ", true);
                     }
                 }
                 catch (Exception ex)
                 {
                     SystemSounds.Hand.Play();
-                    StatusBarTipsShow("加载失败哩, 原因是: " + ex.Message, true);
-                    Command.ConsoleLog("加载失败哩, 原因是: \r\n" + ex.ToString());
+                    StatusBarTipsShow("載入失败哩, 原因是: " + ex.Message, true);
+                    Command.ConsoleLog("載入失败哩, 原因是: \r\n" + ex.ToString());
                 }
             }
         }
@@ -1210,7 +1210,7 @@ namespace Auto_Touch
                 }
                 this.PanelListControl.Enabled = false;
                 this.listView1.Enabled = false;
-                this.StatusBarText.Text = "执行中";
+                this.StatusBarText.Text = "執行中";
                 GlobalStatus.ITaskbarList3.SetOverlayIcon(this.Handle, Properties.Resources.Play.Handle, this.StatusBarText.Text);
             }));
 
@@ -1250,7 +1250,7 @@ namespace Auto_Touch
                     }
                     this.PanelListControl.Enabled = true;
                     this.listView1.Enabled = true;
-                    this.StatusBarText.Text = "就绪";
+                    this.StatusBarText.Text = "準備";
                     GlobalStatus.ITaskbarList3.SetOverlayIcon(this.Handle, IntPtr.Zero, this.StatusBarText.Text);
                     this.BtnStart.Focus();
                 }
@@ -1370,67 +1370,67 @@ namespace Auto_Touch
             switch (control.Name)
             {
                 case "BtnAssumptionDel":
-                    text = "移除该预设. ";
+                    text = "刪除該預設儅. ";
                     break;
                 case "BtnAssumptionRename":
-                    text = "重命名该预设. ";
+                    text = "重新命名該預設儅. ";
                     break;
                 case "BtnAssumptionSave":
-                    text = "保存该预设. ";
+                    text = "儲存該預設儅. ";
                     break;
                 case "BtnAssumptionNew":
-                    text = "创建新预设. ";
+                    text = "創建新的預設儅. ";
                     break;
                 case "BtnCapturePosition":
-                    text = "捕捉鼠标最后一次的坐标, 按 \"ESC\" 结束. ";
+                    text = "捕獲滑鼠最後記錄的座標, 摁住 \"ESC\" 結束. ";
                     break;
                 case "BtnCaptureTrajectory":
-                    text = "捕捉鼠标轨迹. ";
+                    text = "捕獲滑鼠軌道. ";
                     break;
                 case "BtnExit":
-                    text = "结束该程式. ";
+                    text = "離開該應用程式. ";
                     break;
                 case "BtnStart":
-                    text = "开始执行鼠标操作, 右键可以预览鼠标轨迹, 按住 ESC 可以停止执行. ";
+                    text = "開始重播滑鼠動作, 右鍵單擊可以預覽滑鼠軌道, 摁住 ESC 可以停止執行. ";
                     break;
                 case "BtnStop":
-                    text = "停止执行. ";
+                    text = "停止執行. ";
                     break;
                 case "BtnExport":
-                    text = "导出预设, 按住 SHIFT 复制到剪切板. ";
+                    text = "導出預設儅, 摁住 SHIFT 拷貝到剪貼薄. ";
                     break;
                 case "BtnImport":
-                    text = "导入预设, 按住 SHIFT 从剪切板导入. ";
+                    text = "導入預設儅, 摁住 SHIFT 從剪貼薄載入. ";
                     break;
                 case "BtnHelp":
-                    text = "获取帮助. ";
+                    text = "獲取幫助咨詢. ";
                     break;
                 case "BtnListDel":
-                    text = "移除选中的列表项. ";
+                    text = "移除選中的清單列. ";
                     break;
                 case "BtnListDown":
-                    text = "将选中的列表项下移. ";
+                    text = "將選中的清單列向下移動. ";
                     break;
                 case "BtnListUp":
-                    text = "将选中的列表项上移. ";
+                    text = "將選中的清單列向上移動. ";
                     break;
                 case "BtnListNew":
-                    text = "添加新的列表项. ";
+                    text = "添加新的清單列. ";
                     break;
                 case "ComboBoxAssumption":
-                    text = "选择预设. ";
+                    text = "選擇預設儅. ";
                     break;
                 case "ComboBoxAction":
-                    text = "选择鼠标按键动作. ";
+                    text = "選擇滑鼠按鈕動作. ";
                     break;
                 case "NumDelay":
-                    text = "持续时间间隔. ";
+                    text = "持續時間間隔. ";
                     break;
                 case "NumWheel":
-                    text = "鼠标滚轮偏移量. ";
+                    text = "滑鼠滾輪偏移量. ";
                     break;
                 case "TextBoxPosition":
-                    text = "鼠标坐标. ";
+                    text = "游標位置. ";
                     break;
             }
             StatusBarTipsShow(text);
@@ -1459,12 +1459,12 @@ namespace Auto_Touch
             try
             {
                 LoadAssumption(File.ReadAllText(filename));
-                StatusBarTipsShow("成功载入预设: " + this.ComboBoxAssumption.Text, true);
+                StatusBarTipsShow("成功載入預設儅: " + this.ComboBoxAssumption.Text, true);
             }
             catch (Exception ex)
             {
-                StatusBarTipsShow("载入预设时出错了, 原因是: " + ex.Message, true);
-                Command.ConsoleLog("载入预设时出错了, 原因是: \r\n" + ex.ToString());
+                StatusBarTipsShow("載入預設儅出错了, 原因是: " + ex.Message, true);
+                Command.ConsoleLog("載入預設儅出错了, 原因是: \r\n" + ex.ToString());
                 NewItem();
             }
 
@@ -1489,7 +1489,7 @@ namespace Auto_Touch
             if (this.ComboBoxAssumption.Text.Trim().Length == 0)
             {
                 SystemSounds.Beep.Play();
-                StatusBarTipsShow("预设名称不能为空. ", true);
+                StatusBarTipsShow("預設儅名稱不能爲空. ", true);
                 Blinking(this.ComboBoxAssumption);
                 return;
             }
@@ -1501,7 +1501,7 @@ namespace Auto_Touch
                 if (name.IndexOf(c) != -1)
                 {
                     SystemSounds.Beep.Play();
-                    StatusBarTipsShow("预设名称不能包含下列任何字符: " + chars, true);
+                    StatusBarTipsShow("預設儅名稱不能包括任何以下字元: " + chars, true);
                     Blinking(this.ComboBoxAssumption);
                     return;
                 }
@@ -1530,7 +1530,7 @@ namespace Auto_Touch
                     Directory.CreateDirectory(GlobalStatus.AssumptionPath);
                 }
                 File.WriteAllText(path, sb1.ToString());
-                StatusBarTipsShow("成功保存预设: " + name, true);
+                StatusBarTipsShow("成功儲存預設儅: " + name, true);
                 RefleshAssumption();
                 this.IsNew = false;
                 this.IsEdit = false;
@@ -1538,8 +1538,8 @@ namespace Auto_Touch
             catch (Exception ex)
             {
                 SystemSounds.Hand.Play();
-                StatusBarTipsShow("保存失败哩, 原因是: " + ex.Message, true);
-                Command.ConsoleLog("保存预设时失败哩, 原因是: \r\n" + ex.ToString());
+                StatusBarTipsShow("儲存出錯了, 原因是: " + ex.Message, true);
+                Command.ConsoleLog("儲存預設儅時出錯了, 原因是: \r\n" + ex.ToString());
             }
 
             sb1 = null;
@@ -1557,7 +1557,7 @@ namespace Auto_Touch
                 return;
             }
 
-            if (MessageBox.Show("要移除 " + name  + " 吗? ", "移除", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            if (MessageBox.Show("要刪除 " + name  + " 吗? ", "刪除", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
             {
                 string path = GlobalStatus.AssumptionPath + name + ".txt";
                 try
@@ -1626,7 +1626,7 @@ namespace Auto_Touch
         //帮助
         private void BtnHelp_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(string.Join("\r\n", GlobalStatus.helptext), "帮助");
+            MessageBox.Show(string.Join("\r\n", GlobalStatus.helptext), "幫助");
         }
 
         /// <summary>

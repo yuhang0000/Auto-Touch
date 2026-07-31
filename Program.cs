@@ -43,9 +43,9 @@ namespace Auto_Touch
                 //错误的命令
                 void errcomm()
                 {
-                    Command.ConsoleLog4CMD("未知指令.");
+                    Command.ConsoleLog4CMD("未知命令.");
                     Command.ConsoleLog4CMD("", trymsgbox: false);
-                    Command.ConsoleLog4CMD(string.Join("\r\n", GlobalStatus.helptext), "帮助");
+                    Command.ConsoleLog4CMD(string.Join("\r\n", GlobalStatus.helptext), "幫助");
                     isMouseActionTask = -1;
                     items.Clear();
                 }
@@ -73,10 +73,10 @@ namespace Auto_Touch
                     {
                         text = text + "~";
                     }
-                    text = text + "\r\n该重载为非 " + type + " 类型";
+                    text = text + "\r\n该命令選項为非法 " + type + " 類型";
 
                     Command.ConsoleLog4CMD("", trymsgbox: false);
-                    Command.ConsoleLog4CMD(text, "语法错误");
+                    Command.ConsoleLog4CMD(text, "語法錯誤");
                     isMouseActionTask = -1;
                 }
 
@@ -151,7 +151,7 @@ namespace Auto_Touch
                                 }
                                 catch (Exception ex)
                                 {
-                                    Command.ConsoleLog4CMD("载入预设时出错了, 原因是: \r\n" + ex.ToString(), "Oops! ");
+                                    Command.ConsoleLog4CMD("載入預設儅出錯了, 原因是: \r\n" + ex.ToString(), "Oops! ");
                                     break;
                                 }
 
@@ -162,7 +162,7 @@ namespace Auto_Touch
                             else
                             {
                                 //ConsoleLog4CMD("找不到该预设: " + args[i + 1]);
-                                Command.ConsoleLog4CMD("找不到该预设: " + path);
+                                Command.ConsoleLog4CMD("找不到該預設儅: " + path);
                                 items.Clear();
                                 break;
                             }

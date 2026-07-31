@@ -126,7 +126,7 @@
             this.StatusBarText.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Right;
             this.StatusBarText.Name = "StatusBarText";
             this.StatusBarText.Size = new System.Drawing.Size(43, 24);
-            this.StatusBarText.Text = "就绪";
+            this.StatusBarText.Text = "準備";
             // 
             // StatusBarTips
             // 
@@ -314,7 +314,7 @@
             this.BtnExit.Name = "BtnExit";
             this.BtnExit.Size = new System.Drawing.Size(68, 36);
             this.BtnExit.TabIndex = 5;
-            this.BtnExit.Text = "退出";
+            this.BtnExit.Text = "離開";
             this.BtnExit.UseVisualStyleBackColor = true;
             this.BtnExit.Click += new System.EventHandler(this.BtnExit_Click);
             // 
@@ -325,7 +325,7 @@
             this.BtnCaptureTrajectory.Name = "BtnCaptureTrajectory";
             this.BtnCaptureTrajectory.Size = new System.Drawing.Size(102, 36);
             this.BtnCaptureTrajectory.TabIndex = 7;
-            this.BtnCaptureTrajectory.Text = "轨迹捕捉";
+            this.BtnCaptureTrajectory.Text = "軌道捕獲";
             this.BtnCaptureTrajectory.UseVisualStyleBackColor = true;
             this.BtnCaptureTrajectory.Click += new System.EventHandler(this.BtnCaptureTrajectory_Click);
             // 
@@ -336,7 +336,7 @@
             this.BtnCapturePosition.Name = "BtnCapturePosition";
             this.BtnCapturePosition.Size = new System.Drawing.Size(102, 36);
             this.BtnCapturePosition.TabIndex = 6;
-            this.BtnCapturePosition.Text = "单点捕捉";
+            this.BtnCapturePosition.Text = "座標捕獲";
             this.BtnCapturePosition.UseVisualStyleBackColor = true;
             this.BtnCapturePosition.Click += new System.EventHandler(this.BtnCapturePosition_Click);
             // 
@@ -347,7 +347,7 @@
             this.BtnHelp.Name = "BtnHelp";
             this.BtnHelp.Size = new System.Drawing.Size(68, 36);
             this.BtnHelp.TabIndex = 3;
-            this.BtnHelp.Text = "帮助";
+            this.BtnHelp.Text = "幫助";
             this.BtnHelp.UseVisualStyleBackColor = true;
             this.BtnHelp.Click += new System.EventHandler(this.BtnHelp_Click);
             // 
@@ -358,7 +358,7 @@
             this.BtnStart.Name = "BtnStart";
             this.BtnStart.Size = new System.Drawing.Size(68, 36);
             this.BtnStart.TabIndex = 4;
-            this.BtnStart.Text = "开始";
+            this.BtnStart.Text = "執行";
             this.BtnStart.UseVisualStyleBackColor = true;
             this.BtnStart.Click += new System.EventHandler(this.BtnStart_Click);
             this.BtnStart.MouseUp += new System.Windows.Forms.MouseEventHandler(this.BtnStart_MouseUp);
@@ -370,7 +370,7 @@
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(37, 15);
             this.label5.TabIndex = 9;
-            this.label5.Text = "滚轮";
+            this.label5.Text = "滾輪";
             // 
             // TextBoxPosition
             // 
@@ -388,7 +388,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(37, 15);
             this.label3.TabIndex = 9;
-            this.label3.Text = "延时";
+            this.label3.Text = "延遲";
             // 
             // label2
             // 
@@ -397,7 +397,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(37, 15);
             this.label2.TabIndex = 8;
-            this.label2.Text = "坐标";
+            this.label2.Text = "座標";
             // 
             // ComboBoxAction
             // 
@@ -421,7 +421,7 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(37, 15);
             this.label4.TabIndex = 10;
-            this.label4.Text = "动作";
+            this.label4.Text = "動作";
             // 
             // PanelAssumption
             // 
@@ -444,7 +444,7 @@
             this.BtnAssumptionDel.Name = "BtnAssumptionDel";
             this.BtnAssumptionDel.Size = new System.Drawing.Size(68, 36);
             this.BtnAssumptionDel.TabIndex = 3;
-            this.BtnAssumptionDel.Text = "移除";
+            this.BtnAssumptionDel.Text = "刪除";
             this.BtnAssumptionDel.UseVisualStyleBackColor = true;
             this.BtnAssumptionDel.Click += new System.EventHandler(this.BtnAssumptionDel_Click);
             // 
@@ -476,7 +476,7 @@
             this.BtnAssumptionSave.Name = "BtnAssumptionSave";
             this.BtnAssumptionSave.Size = new System.Drawing.Size(68, 36);
             this.BtnAssumptionSave.TabIndex = 1;
-            this.BtnAssumptionSave.Text = "保存";
+            this.BtnAssumptionSave.Text = "儲存";
             this.BtnAssumptionSave.UseVisualStyleBackColor = true;
             this.BtnAssumptionSave.Click += new System.EventHandler(this.BtnAssumptionSave_Click);
             // 
@@ -496,7 +496,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(37, 15);
             this.label1.TabIndex = 4;
-            this.label1.Text = "预设";
+            this.label1.Text = "預設";
             // 
             // PanelListControl
             // 
@@ -519,7 +519,7 @@
             this.BtnExport.Name = "BtnExport";
             this.BtnExport.Size = new System.Drawing.Size(102, 36);
             this.BtnExport.TabIndex = 4;
-            this.BtnExport.Text = "导出";
+            this.BtnExport.Text = "導出";
             this.BtnExport.UseVisualStyleBackColor = true;
             this.BtnExport.Click += new System.EventHandler(this.BtnExport_Click);
             // 
@@ -529,7 +529,7 @@
             this.BtnImport.Name = "BtnImport";
             this.BtnImport.Size = new System.Drawing.Size(102, 36);
             this.BtnImport.TabIndex = 4;
-            this.BtnImport.Text = "导入";
+            this.BtnImport.Text = "導入";
             this.BtnImport.UseVisualStyleBackColor = true;
             this.BtnImport.Click += new System.EventHandler(this.BtnImport_Click);
             // 
@@ -607,22 +607,22 @@
             // 
             // columnHeader2
             // 
-            this.columnHeader2.Text = "坐标";
+            this.columnHeader2.Text = "座標";
             this.columnHeader2.Width = 126;
             // 
             // columnHeader3
             // 
-            this.columnHeader3.Text = "延时";
+            this.columnHeader3.Text = "延遲";
             this.columnHeader3.Width = 126;
             // 
             // columnHeader4
             // 
-            this.columnHeader4.Text = "滚轮";
+            this.columnHeader4.Text = "滾輪";
             this.columnHeader4.Width = 126;
             // 
             // columnHeader5
             // 
-            this.columnHeader5.Text = "操作";
+            this.columnHeader5.Text = "操縱";
             this.columnHeader5.Width = 126;
             // 
             // ConMenu_ListView
@@ -642,8 +642,8 @@
             // 
             this.清除ToolStripMenuItem.Enabled = false;
             this.清除ToolStripMenuItem.Name = "清除ToolStripMenuItem";
-            this.清除ToolStripMenuItem.Size = new System.Drawing.Size(138, 24);
-            this.清除ToolStripMenuItem.Text = "清空";
+            this.清除ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
+            this.清除ToolStripMenuItem.Text = "清除所有";
             this.清除ToolStripMenuItem.Click += new System.EventHandler(this.清空ToolStripMenuItem_Click);
             // 
             // 全选ToolStripMenuItem
@@ -651,7 +651,7 @@
             this.全选ToolStripMenuItem.Enabled = false;
             this.全选ToolStripMenuItem.Name = "全选ToolStripMenuItem";
             this.全选ToolStripMenuItem.Size = new System.Drawing.Size(138, 24);
-            this.全选ToolStripMenuItem.Text = "全选";
+            this.全选ToolStripMenuItem.Text = "選擇全部";
             this.全选ToolStripMenuItem.Click += new System.EventHandler(this.全选ToolStripMenuItem_Click);
             // 
             // 取消选择ToolStripMenuItem
@@ -659,7 +659,7 @@
             this.取消选择ToolStripMenuItem.Enabled = false;
             this.取消选择ToolStripMenuItem.Name = "取消选择ToolStripMenuItem";
             this.取消选择ToolStripMenuItem.Size = new System.Drawing.Size(138, 24);
-            this.取消选择ToolStripMenuItem.Text = "取消选择";
+            this.取消选择ToolStripMenuItem.Text = "取消選擇";
             this.取消选择ToolStripMenuItem.Click += new System.EventHandler(this.取消选择ToolStripMenuItem_Click);
             // 
             // 移除ToolStripMenuItem
@@ -667,7 +667,7 @@
             this.移除ToolStripMenuItem.Enabled = false;
             this.移除ToolStripMenuItem.Name = "移除ToolStripMenuItem";
             this.移除ToolStripMenuItem.Size = new System.Drawing.Size(138, 24);
-            this.移除ToolStripMenuItem.Text = "移除";
+            this.移除ToolStripMenuItem.Text = "刪除所選";
             this.移除ToolStripMenuItem.Click += new System.EventHandler(this.移除ToolStripMenuItem_Click);
             // 
             // Main

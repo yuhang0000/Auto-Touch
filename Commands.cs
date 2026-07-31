@@ -47,20 +47,20 @@ namespace Commands
         "",
         "Auto Touch [OPTION]",
         "",
-        "\t--help, -h      \t\t获取帮助",
-        "\t--version, -ver \t\t检查版本信息",
-        "\t--profile, -p <PATH|NAME>\t以指定的预设执行",
-        "\t-x <INT>\t\t\t光标 X 轴坐标位置",
-        "\t-y <INT>\t\t\t光标 Y 轴坐标位置",
-        "\t--wheel, -w <INT>\t\t鼠标滚轮滚动距离, 缺省时为 0",
-        "\t--action, -a <ACTION>   \t鼠标按键动作, 缺省时为 None",
-        "\t--time, -t <INT|HH:MM:SS>\t延时运行, 单位: ms | HH:MM:SS, 缺省时为立即执行",
-        "\t--debug \t\t\t调试模式, 在当前终端中打印额外信息",
+        "\t--help, -h      \t\t顯示該幫助文本",
+        "\t--version, -ver \t\t檢查當前版本資訊",
+        "\t--profile, -p <PATH|NAME>\t以指定的預設檔執行",
+        "\t-x <INT>\t\t\t游標 X 軸座標位置",
+        "\t-y <INT>\t\t\t游標 Y 軸座標位置",
+        "\t--wheel, -w <INT>\t\t滑鼠滾輪滾動距離, 預設为 0",
+        "\t--action, -a <ACTION>   \t滑鼠按鈕動作, 預設为 None",
+        "\t--time, -t <INT|HH:MM:SS>\t等待執行, 單位: ms | HH:MM:SS, 預設为立刻執行",
+        "\t--debug \t\t\t偵錯模式, 在當前終端機中列印更多資訊",
         "",
-        "<ACTION>",
+        "<ACTION> 可用值: ",
         "\tNone, MouseLeft, MouseMiddle, MouseRight, MouseXButton1, MouseXButton2",
         "",
-        "示例: ",
+        "範例: ",
         "\tAuto Touch.exe -x 1920 -y 1080 --wheel 120 --time 60000",
         "\tAuto Touch.exe -x 1920 -y 1080 --action MouseLeft,MouseRight",
         "\tAuto Touch.exe -x 1920 -y 1080 --time 100 --action MouseLeft",
@@ -102,7 +102,7 @@ namespace Commands
                 "BuildTime: " + GlobalStatus.BuildTime.ToString(),
                 "Version: " + GlobalStatus.Version,
             };
-            MessageBox.Show(string.Join("\r\n", text), "关于");
+            MessageBox.Show(string.Join("\r\n", text), "關於");
         }
 
         /// <summary>
