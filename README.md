@@ -1,6 +1,6 @@
 # Auto-Touch
 
-![License](https://img.shields.io/badge/License-GPL_v3-brightgreen.svg) ![Platform](https://img.shields.io/badge/platform-Windows-blue) ![.NET](https://img.shields.io/badge/.NET_Framework-4.8.1-purple)
+![License](https://img.shields.io/badge/License-GPL_v3-brightgreen.svg) ![Platform](https://img.shields.io/badge/Platform-Windows-blue) ![.NET](https://img.shields.io/badge/.NET_Framework-4.8-purple)
 
 自動點擊螢幕上的指定位置. 
 
