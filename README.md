@@ -12,7 +12,7 @@
 
 ### 圖形介面
 
-![Main_Form_Mark](docs\src\Main_Form_Mark.jpg)
+![Main_Form_Mark](docs/src/Main_Form_Mark.jpg)
 
 <details>
 	<summary>圖解</summary>
